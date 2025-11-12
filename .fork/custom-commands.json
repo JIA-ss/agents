@@ -1,0 +1,31 @@
+[
+  {
+    "version" : 2
+  },
+  {
+    "name" : "🤖 AI Commit Message (Copilot)",
+    "target" : "repository",
+    "ui" : {
+      "buttons" : [
+        {
+          "action" : {
+            "script" : "bash .fork/generate-commit-msg.sh",
+            "showOutput" : true,
+            "type" : "sh",
+            "waitForExit" : true
+          },
+          "title" : "生成"
+        },
+        {
+          "action" : {
+            "type" : "cancel"
+          },
+          "title" : "取消"
+        }
+      ],
+      "controls" : [],
+      "description" : "基于已 staged 的文件，使用 GitHub Copilot CLI 自动生成符合项目规范的 commit 信息，并直接创建 commit。\n\n✨ 特色功能：\n• AI 智能生成符合规范的 commit message\n• 自动执行 git commit，一键完成提交\n• 支持跨平台 (Windows/macOS/Linux)\n\n📋 生成格式：\n<type>: <summary>\\n\\nwhat: <what was changed>\\n\\nwhy: <why it was changed>\n\n⚠️  前置要求：\n• GitHub Copilot CLI (npm install -g @githubnext/github-copilot-cli)\n• GitHub Copilot 订阅\n• 已使用 git add 暂存文件\n\n💡 使用步骤：\n1. git add 暂存你的修改\n2. 执行此命令\n3. 等待 AI 生成并自动 commit，完成！",
+      "title" : "🤖 AI 生成并 Commit"
+    }
+  }
+]

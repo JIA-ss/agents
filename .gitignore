@@ -1,0 +1,42 @@
+# ========================================
+# Claude Code Agents 项目 - Git 忽略文件
+# ========================================
+
+# IDE 和编辑器配置
+.claude/
+.cursor/
+.obsidian/
+
+# 操作系统文件
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+## Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+## Linux
+*~
+.directory
+
+# 临时文件
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.log
+
+# Fork Git Client 插件临时文件
+.fork/*.log
+.fork/*.tmp
+
+# 其他常见忽略
+node_modules/
+.env
+.env.local

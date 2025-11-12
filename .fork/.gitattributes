@@ -1,0 +1,5 @@
+# Git attributes for Fork AI Commit plugin
+# Ensure shell scripts always use LF line endings (Unix-style)
+# This is critical for cross-platform compatibility
+
+*.sh text eol=lf
