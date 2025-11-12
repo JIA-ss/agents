@@ -4,6 +4,18 @@
 
 本规范定义了 Claude Code agents 的创建、编写和部署标准，确保所有 agent 输出一致、高质量、易于维护。
 
+### 📚 相关文档
+
+- **[COMMON_SPEC.md](./COMMON_SPEC.md)**：核心方法论和输出原则（必读）
+  - 提取了本规范的方法论精华
+  - 所有 agent 开发者应首先阅读此文档掌握核心原则
+  - 包含：四步法则、可视化规范、内容结构模板、质量标准
+- **AGENT_SPEC.md**（本文档）：完整的 agent 开发规范
+  - 包含文件命名、目录结构、frontmatter、部署等完整规范
+  - 在掌握核心方法论后阅读此文档了解技术细节
+
+**推荐阅读顺序**：COMMON_SPEC.md → AGENT_SPEC.md
+
 ## 规范架构
 
 ```mermaid
