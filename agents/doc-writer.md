@@ -150,9 +150,28 @@ flowchart TD
     External --> Organize[组织信息]
     Organize --> End[输出信息库]
 
+    Code --> C1[识别项目类型]
+    Code --> C2[扫描目录结构]
+
+    API --> A1[扫描路由定义]
+    API --> A2[提取请求/响应]
+
+    Config --> F1[package.json]
+    Config --> F2[环境配置]
+
+    Comment --> D1[JSDoc/TSDoc]
+    Comment --> D2[提取函数签名]
+
     style Start fill:#e1f5e1
     style End fill:#e1e5ff
+    style Code fill:#fff5e1
+    style API fill:#ffe1f5
 ```
+
+**流程说明**：
+- 代码结构分析与 API 提取可并行执行
+- 配置文件读取依赖项目类型识别
+- 注释解析为后续文档生成提供关键信息
 
 #### 详细步骤
 
@@ -219,6 +238,80 @@ flowchart LR
 | **架构文档** | 系统概述、架构设计、技术栈、模块说明、数据流、部署架构 |
 | **开发指南** | 环境搭建、项目结构、开发流程、编码规范、测试指南、发布流程 |
 
+**模板选择决策流程**：
+
+```mermaid
+flowchart TD
+    A[文档类型] --> B{是什么类型?}
+
+    B -->|README| C[README 模板]
+    B -->|API文档| D[API 文档模板]
+    B -->|架构文档| E[架构文档模板]
+    B -->|开发指南| F[开发指南模板]
+
+    C --> C1[项目简介]
+    C --> C2[功能特性]
+    C --> C3[快速开始]
+    C --> C4[贡献指南]
+
+    D --> D1[接口概述]
+    D --> D2[认证方式]
+    D --> D3[端点列表]
+    D --> D4[错误码]
+
+    E --> E1[系统概述]
+    E --> E2[架构设计]
+    E --> E3[技术栈]
+    E --> E4[部署架构]
+
+    F --> F1[环境搭建]
+    F --> F2[项目结构]
+    F --> F3[开发流程]
+    F --> F4[测试指南]
+
+    style B fill:#fff5e1
+    style C fill:#e1f5e1
+    style D fill:#e1e5ff
+    style E fill:#ffe1f5
+    style F fill:#f5e1e1
+```
+
+**文档类型全局视图**：
+
+```mermaid
+graph TB
+    subgraph README文档
+        R1[项目简介]
+        R2[功能特性]
+        R3[快速开始]
+        R4[API文档]
+        R5[开发指南]
+        R6[贡献指南]
+    end
+
+    subgraph API文档
+        A1[接口概述]
+        A2[认证方式]
+        A3[端点列表]
+        A4[请求/响应格式]
+        A5[错误码]
+        A6[示例]
+    end
+
+    subgraph 架构文档
+        AR1[系统概述]
+        AR2[架构设计]
+        AR3[技术栈]
+        AR4[模块说明]
+        AR5[数据流]
+        AR6[部署架构]
+    end
+
+    ROOT[文档助手] --> README文档
+    ROOT --> API文档
+    ROOT --> 架构文档
+```
+
 **步骤2: 规划章节结构**
 
 应用层次化原则：
@@ -234,6 +327,33 @@ flowchart LR
 - **流程图**：工作流程、业务流程（Mermaid Flowchart）
 - **时序图**：API 调用时序、交互流程（Mermaid Sequence）
 - **ER 图**：数据模型、数据库设计（Mermaid ER Diagram）
+
+**可视化决策流程**：
+
+```mermaid
+graph LR
+    A[内容分析] --> B{内容特征}
+
+    B -->|系统组成| C[架构图<br/>graph TB]
+    B -->|执行步骤| D[流程图<br/>flowchart]
+    B -->|对象交互| E[时序图<br/>sequenceDiagram]
+    B -->|数据关系| F[ER图<br/>erDiagram]
+
+    C --> G[Mermaid 代码]
+    D --> G
+    E --> G
+    F --> G
+
+    G --> H{节点数量}
+    H -->|> 15| I[使用 subgraph 分组]
+    H -->|≤ 15| J[直接生成]
+    I --> J
+    J --> K[添加文字说明]
+
+    style A fill:#e1f5e1
+    style G fill:#fff5e1
+    style K fill:#e1e5ff
+```
 
 ---
 
@@ -254,10 +374,19 @@ flowchart TD
     Gen2 --> Gen3[生成使用方法章节]
     Gen3 --> GenViz{需要可视化?}
     GenViz -->|是| CreateChart[生成 Mermaid 图表]
-    CreateChart --> GenViz
+    CreateChart --> ChartType{图表类型选择}
+    ChartType -->|架构| Arch[架构图 graph TB]
+    ChartType -->|流程| Flow[流程图 flowchart]
+    ChartType -->|时序| Seq[时序图 sequenceDiagram]
+    ChartType -->|ER| ER[ER图 erDiagram]
+    Arch & Flow & Seq & ER --> GenViz
     GenViz -->|否| GenCode{需要代码示例?}
     GenCode -->|是| CreateExample[生成代码示例]
-    CreateExample --> GenCode
+    CreateExample --> ExampleLang{语言类型}
+    ExampleLang -->|JS/TS| JSCode[JavaScript 代码]
+    ExampleLang -->|Python| PyCode[Python 代码]
+    ExampleLang -->|其他| GenCode
+    JSCode & PyCode --> GenCode
     GenCode -->|否| GenNext{还有章节?}
     GenNext -->|是| Gen1
     GenNext -->|否| Output[完整文档]
@@ -266,6 +395,12 @@ flowchart TD
     style CreateExample fill:#ffe1e1
     style Output fill:#e1e5ff
 ```
+
+**流程说明**：
+- 内容生成采用递归方式，逐章节填充内容
+- 图表类型根据内容特征自动选择（架构图、流程图、时序图、ER图）
+- 代码示例根据项目语言类型智能生成（JavaScript/TypeScript、Python等）
+- 每个章节完成后自动检查是否需要添加可视化或代码示例
 
 #### 详细步骤
 
@@ -368,11 +503,32 @@ graph TB
 ```mermaid
 flowchart TD
     Input[生成的文档] --> Check1[完整性检查]
-    Check1 --> Check2[准确性检查]
-    Check2 --> Check3[格式检查]
-    Check3 --> Check4[可读性检查]
-    Check4 --> Pass{全部通过?}
-    Pass -->|否| Fix[自动修正]
+    Check1 --> C1A{必需章节完整?}
+    C1A -->|否| Fix[自动修正]
+    C1A -->|是| C1B{API文档完整?}
+    C1B -->|否| Fix
+    C1B -->|是| Check2[准确性检查]
+
+    Check2 --> C2A{API信息一致?}
+    C2A -->|否| Fix
+    C2A -->|是| C2B{配置说明正确?}
+    C2B -->|否| Fix
+    C2B -->|是| Check3[格式检查]
+
+    Check3 --> C3A{Markdown语法正确?}
+    C3A -->|否| Fix
+    C3A -->|是| C3B{代码块有语言标识?}
+    C3B -->|否| Fix
+    C3B -->|是| C3C{Mermaid可渲染?}
+    C3C -->|否| Fix
+    C3C -->|是| Check4[可读性检查]
+
+    Check4 --> C4A{章节层次清晰?}
+    C4A -->|否| Fix
+    C4A -->|是| C4B{示例充足?}
+    C4B -->|否| Fix
+    C4B -->|是| Pass{全部通过?}
+
     Fix --> Check1
     Pass -->|是| Score[质量评分]
     Score --> Gate{评分 >= 85?}
