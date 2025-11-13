@@ -241,6 +241,31 @@ sequenceDiagram
 
 **概述**：根据代码特征智能选择最优图表类型，生成清晰美观的 Mermaid 可视化。
 
+**⚠️ 强制要求**：
+- ✅ **所有架构、依赖、流程必须使用 Mermaid 图表**，不得使用纯文本
+- ❌ **严禁使用以下纯文本格式**：
+  - 树形结构（如 `├── folder/`、`└── file.js`）
+  - ASCII 艺术图（如 `+---+`、`|   |`）
+  - 缩进式文本列表代替图表
+- ✅ **单图节点数 ≤ 12 个**（超出则使用 subgraph 分组）
+
+**正确示例（使用 Mermaid）**：
+```mermaid
+graph TB
+    A[模块A] --> B[模块B]
+    A --> C[模块C]
+```
+
+**错误示例（禁止使用）**：
+```
+project/
+├── src/
+│   ├── services/
+│   │   └── userService.js
+│   └── models/
+└── tests/
+```
+
 #### 智能图表选择策略
 
 ```mermaid
@@ -316,7 +341,14 @@ graph LR
 
 **概述**：生成标准化的 Markdown 分析报告，包含精确的代码引用和可执行的改进建议。
 
-#### 标准输出模板
+**⚠️ 输出约束（强制遵循）**：
+1. ✅ **严格遵循标准输出模板**：必须包含且仅包含 8 个必需章节，不得添加自定义章节
+2. ✅ **强制使用 Mermaid 图表**：至少 2 个图表（架构图 + 流程图/依赖图），严禁使用纯文本树形结构（如 `├── folder/`）
+3. ✅ **保持简洁**：报告长度控制在 **300-500 行**以内，避免包含大量代码片段
+4. ✅ **高层次概括优先**：重点描述架构和流程，避免过度细节化
+5. ✅ **质量门禁**：生成前必须通过质量检查（见"输出质量保证"章节）
+
+#### 标准输出模板（强制遵循）
 
 ```markdown
 # [模块/文件名] 代码分析报告
@@ -611,36 +643,73 @@ graph LR
 
 ---
 
-## 输出质量保证
+## 输出质量保证与质量门禁
 
 本 agent 生成的所有分析报告遵循以下质量标准：
 
+### ✅ 质量标准（必须达到）
+
 - ✅ **准确性**：代码引用包含精确的文件路径和行号（`file.js:123`）
-- ✅ **完整性**：覆盖结构、依赖、流程、复杂度四个维度
-- ✅ **可视化优先**：每份报告至少包含 2 个 Mermaid 图表
-- ✅ **可操作性**：复杂度评估提供具体的重构建议和优先级
-- ✅ **标准化**：所有报告遵循统一的模板格式
+- ✅ **完整性**：覆盖所有 8 个必需章节（概览、架构、流程、组件、复杂度、依赖、发现、索引）
+- ✅ **可视化优先**：至少包含 2 个 Mermaid 图表（架构图 + 流程图/依赖图）
+- ✅ **简洁性**：报告长度控制在 **300-500 行**以内
+- ✅ **标准化**：严格遵循标准输出模板，不添加自定义章节
 - ✅ **美观性**：图表节点 ≤ 12 个，布局清晰，标签简洁
 
-**质量自检清单**：
+### 🚫 质量门禁（不合规则必须修正）
+
+在生成报告前，必须进行以下自检：
+
+```
+如果 报告长度 > 500 行:
+    → 拒绝输出，提示："报告过长，需要简化。请移除详细代码片段，保持高层次概括。"
+
+如果 缺少必需章节:
+    → 拒绝输出，提示："缺少必需章节：[章节名]。请严格遵循标准输出模板。"
+
+如果 Mermaid 图表数量 < 2:
+    → 拒绝输出，提示："必须包含至少 2 个 Mermaid 图表（架构图 + 流程图/依赖图）。"
+
+如果 使用了纯文本树形结构（如 `├── folder/`）:
+    → 拒绝输出，提示："严禁使用纯文本树形结构，必须使用 Mermaid 图表。"
+
+如果 添加了自定义章节（非标准模板的 8 个章节）:
+    → 拒绝输出，提示："严禁添加模板之外的自定义章节。请严格遵循 8 个必需章节。"
+
+否则:
+    → 输出报告
+```
+
+### 📋 质量自检清单（生成报告后验证）
+
+- [ ] 包含所有 8 个必需章节（概览、架构、流程、组件、复杂度、依赖、发现、索引）
+- [ ] 至少 2 个 Mermaid 图表（架构图 + 流程图/依赖图）
 - [ ] 图表可正常渲染（Mermaid 语法正确）
 - [ ] 代码引用可定位（路径和行号准确）
 - [ ] 复杂度评估有量化指标
 - [ ] 改进建议具体可执行
 - [ ] 报告结构清晰易读
+- [ ] 报告长度 ≤ 500 行
+- [ ] 无纯文本树形结构
+- [ ] 无自定义章节
 
 ---
 
-## 示例：完整分析输出
+## 示例：简化分析输出（参考）
 
-以下是一个真实场景的分析示例（分析 Express.js 应用的用户服务模块）：
+> ⚠️ **重要说明**：此示例展示报告的基本结构，实际输出应**更加简洁**，避免包含过多代码片段和详细说明。
+>
+> **关键原则**：
+> - 使用 Mermaid 图表而非纯文本结构
+> - 高层次概括而非详细代码片段
+> - 控制在 300-500 行以内
 
 ### 输入
 ```
 @code-analyzer 请分析 src/services/userService.js 的代码逻辑
 ```
 
-### 输出（节选）
+### 输出（简化版，约 80 行）
 
 ```markdown
 # UserService 代码分析报告
@@ -653,15 +722,8 @@ graph LR
 
 ## 📋 概览
 
-**技术栈识别**：
-- 编程语言：JavaScript (ES6+)
-- 主要框架/库：Express.js, bcrypt, jsonwebtoken
-- 依赖管理：package.json (npm)
-
-**代码规模统计**：
-- 总代码行数：245（不含注释和空行）
-- 导出函数数：7
-- 外部依赖数：5
+**技术栈**：JavaScript (ES6+), Express.js, bcrypt, jsonwebtoken
+**代码规模**：245 行代码，7 个导出函数，5 个外部依赖
 
 ---
 
@@ -671,94 +733,106 @@ graph LR
 graph TB
     US[UserService] --> DB[(Database)]
     US --> Auth[AuthService]
-    US --> Cache[(Redis Cache)]
+    US --> Cache[(Redis)]
 
     subgraph 核心方法
-        US --> M1[createUser]
-        US --> M2[getUserById]
-        US --> M3[updateUser]
-        US --> M4[deleteUser]
-        US --> M5[validateCredentials]
+        M1[createUser]
+        M2[getUserById]
+        M3[updateUser]
+        M4[deleteUser]
+        M5[validateCredentials]
     end
 
-    M1 --> Hash[bcrypt.hash]
-    M5 --> Compare[bcrypt.compare]
+    US --> M1
+    US --> M2
+    US --> M3
+    US --> M4
+    US --> M5
 ```
+
+**架构说明**：UserService 负责用户 CRUD 操作，依赖数据库、缓存和认证服务。
 
 ---
 
-## 🔄 执行流程（以 createUser 为例）
+## 🔄 执行流程（createUser）
 
 ```mermaid
 sequenceDiagram
-    participant C as Controller
-    participant US as UserService
-    participant V as Validator
-    participant DB as Database
-    participant Cache as Redis
-
-    C->>US: createUser(userData)
-    US->>V: validateEmail(email)
-    V-->>US: valid
-    US->>US: hashPassword(password)
-    US->>DB: INSERT user
-    DB-->>US: userId
-    US->>Cache: DELETE users:all
-    US-->>C: {id, email, createdAt}
+    Controller->>UserService: createUser(userData)
+    UserService->>Validator: validateEmail(email)
+    UserService->>UserService: hashPassword()
+    UserService->>Database: INSERT user
+    UserService->>Cache: DELETE cache
+    UserService-->>Controller: user object
 ```
 
-**关键流程步骤**：
-1. **入口点**：`createUser(userData)` (`userService.js:45`)
-2. **主要流程**：
-   - 邮箱验证：调用 `validateEmail` (`userService.js:178`)
-   - 密码加密：使用 bcrypt.hash (`userService.js:52`)
-   - 数据库插入：执行 SQL INSERT (`userService.js:58`)
-   - 缓存失效：清除用户列表缓存 (`userService.js:62`)
-3. **出口/返回**：返回用户对象（不含密码） (`userService.js:68`)
+**关键步骤**：验证邮箱 → 加密密码 → 插入数据库 → 清除缓存 → 返回用户对象
+
+---
+
+## 🧩 核心组件说明
+
+### UserService (`userService.js`)
+
+**职责**：用户数据管理和认证
+
+**关键方法**：
+- `createUser` - 创建新用户（第 45 行）
+- `validateCredentials` - 验证用户凭据（第 190 行）
+
+**依赖**：Database, AuthService, Redis Cache
 
 ---
 
 ## 📊 复杂度评估
 
 **整体评估**：
-- 最大嵌套层级：4 层（符合标准 ≤ 4 层）
-- 单文件最大行数：245 行（建议拆分，推荐 ≤ 200 行）
-- 单函数最大行数：35 行（`validateCredentials`）
+- 最大嵌套层级：4 层（符合标准）
+- 单文件行数：245 行（建议拆分）
 
 **高复杂度区域**：
 
-| 位置 | 复杂度指标 | 问题描述 | 重构优先级 |
-|------|-----------|---------|-----------|
-| `userService.js:125-160` | 嵌套 4 层 | 多个 try-catch 嵌套 | 🟡 中 |
-| `userService.js:190-225` | 35 行函数 | validateCredentials 函数过长 | 🟡 中 |
+| 位置 | 问题 | 优先级 |
+|------|------|--------|
+| `userService.js:125-160` | 多层 try-catch 嵌套 | 🟡 中 |
+| `userService.js:190-225` | 函数过长（35 行） | 🟡 中 |
 
 **改进建议**：
-1. ✅ 提取 `validateCredentials` 中的子逻辑为独立函数（如 `checkPasswordStrength`）
-2. ✅ 考虑拆分为 UserService + UserValidator 两个类
-3. ✅ 统一错误处理逻辑，避免多层 try-catch
+1. 提取 validateCredentials 中的子逻辑
+2. 拆分为 UserService + UserValidator
+3. 统一错误处理逻辑
+
+---
+
+## 🔗 依赖关系
+
+```mermaid
+graph LR
+    US[UserService] --> DB[Database]
+    US --> Auth[AuthService]
+    US --> Cache[Redis]
+    US --> bcrypt
+    US --> jwt[jsonwebtoken]
+```
+
+**依赖分析**：5 个外部依赖，无循环依赖
 
 ---
 
 ## 📌 关键发现
 
-- ✅ **优点**：
-  - 清晰的单一职责（专注用户 CRUD）
-  - 良好的错误处理（所有异步操作包含 try-catch）
-  - 安全实践到位（密码加密、SQL 参数化）
+- ✅ **优点**：清晰的单一职责、良好的错误处理、安全实践到位
+- ⚠️ **风险点**：缺少事务处理、硬编码配置、缺少日志
+- 💡 **改进方向**：引入事务管理、提取配置、集成日志框架
 
-- ⚠️ **风险点**：
-  - 缺少事务处理（`createUser` 中数据库和缓存操作非原子性）
-  - 硬编码的魔法值（如 bcrypt saltRounds = 10）
-  - 缺少日志记录（无法追踪关键操作）
+---
 
-- 💡 **改进方向**：
-  1. 引入事务管理确保数据一致性
-  2. 将配置项提取到 config 文件
-  3. 集成日志框架（如 Winston）记录关键操作
+## 📚 相关文件索引
 
+1. `src/services/userService.js` - 用户服务（245 行）
+2. `src/services/authService.js` - 认证服务（180 行）
+3. `src/models/User.js` - 用户模型（120 行）
 ```
-
-（完整报告还包含依赖关系图、相关文件索引等章节）
 
 ---
 
