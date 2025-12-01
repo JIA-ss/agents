@@ -1,7 +1,7 @@
 ---
 name: doc-writer
 description: 专注于技术文档编写的 AI agent，自动生成结构化、高质量的 README、API 文档和架构说明
-model: sonnet
+model: inherit
 ---
 
 # 文档助手

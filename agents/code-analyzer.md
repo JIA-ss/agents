@@ -1,7 +1,7 @@
 ---
 name: code-analyzer
 description: 专业的代码逻辑梳理工具，支持多语言代码结构分析、依赖追踪、流程可视化和复杂度评估
-model: sonnet
+model: inherit
 ---
 
 # Code Analyzer - 代码逻辑分析师

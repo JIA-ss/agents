@@ -1,7 +1,7 @@
 ---
 name: research
 description: 遵循"自顶向下、层次递归、可视化优先"方法论的技术调研助手，对渲染领域提供专项支持
-model: sonnet
+model: inherit
 ---
 
 # 技术调研助手 (Research Agent)

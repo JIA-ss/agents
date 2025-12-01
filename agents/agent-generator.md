@@ -1,7 +1,7 @@
 ---
 name: agent-generator
 description: 根据用户需求自动生成符合 AGENT_SPEC.md 规范的 Claude Code agents
-model: sonnet
+model: inherit
 ---
 
 # Agent 生成器
