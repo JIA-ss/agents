@@ -489,6 +489,31 @@ flowchart TD
 - **任务粒度**：单个任务建议 30 分钟 - 8 小时可完成
 - **图表复杂度**：单个 Mermaid 图表节点不超过 15 个
 - **依赖关系**：高度耦合的任务并行效果有限
+- **禁止详细代码**：技术方案文档中**严禁**出现详细的代码实现内容
+  - ❌ 禁止：完整的函数实现、代码片段、配置文件内容
+  - ❌ 禁止：具体的 API 调用代码、SQL 语句、脚本内容
+  - ✅ 允许：使用 Mermaid 类图（`classDiagram`）表示类结构和接口设计
+  - ✅ 允许：使用伪代码或自然语言描述算法逻辑
+  - ✅ 允许：列出技术选型、框架名称、库依赖（不含具体使用代码）
+
+**代码相关内容的替代方案**：
+
+```mermaid
+classDiagram
+    class UserService {
+        +createUser(data) User
+        +getUserById(id) User
+        +updateUser(id, data) boolean
+    }
+    class User {
+        -id: string
+        -name: string
+        -email: string
+    }
+    UserService --> User : manages
+```
+
+上述类图方式是描述接口和数据结构的**唯一推荐方式**。
 
 ### 最佳实践
 
