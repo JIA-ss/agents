@@ -1,48 +1,40 @@
-# Claude Code Agents 合集
+# Claude Code Skills 合集
 
 ## 概述
 
-**Claude Code Agents 合集**是一个精选的 AI agent 描述文件库，为 Claude Code 提供专业化的工作助手。通过标准化的规范体系，确保每个 agent 都能提供高质量、一致的输出，解决日常开发工作中的重复性任务、文档编写、技术调研、代码分析等问题。
+**Claude Code Skills 合集**是一个精选的 AI skill 描述文件库，为 Claude Code 提供专业化的工作助手。通过精准的关键词触发机制和标准化的规范体系，确保每个 skill 都能在合适的场景自动激活，提供高质量、一致的输出。
 
 **核心价值**：
-- 🎯 **专业化**：每个 agent 专注特定领域，深度优化
-- 📐 **标准化**：统一的输出格式和质量规范
-- 🚀 **开箱即用**：一键部署到本地 Claude Code 环境
-- 🔄 **可扩展**：遵循规范即可快速添加新 agent
+- **精准触发**：基于关键词自动激活对应 skill
+- **标准化**：统一的输出格式和质量规范
+- **开箱即用**：一键部署到本地 Claude Code 环境
+- **可扩展**：遵循规范即可快速添加新 skill
 
 ## 项目架构
 
 ```mermaid
 graph TB
-    A[Claude Code Agents 合集] --> B[规范体系]
-    A --> C[Agent 集合]
-    A --> D[部署工具]
-    A --> E[Fork AI Commit]
+    A[Claude Code Skills 合集] --> B[Skills 集合]
+    A --> C[部署工具]
+    A --> D[Fork AI Commit]
 
-    B --> B1[AGENT_SPEC.md<br/>开发规范]
-    B --> B2[输出原则<br/>层次化/可视化]
-    B --> B3[质量标准<br/>一致性保障]
+    B --> B1[文档类<br/>doc-writer]
+    B --> B2[分析类<br/>code-analyzer, research]
+    B --> B3[规划类<br/>task-planner, parallel-task-planner]
+    B --> B4[审查类<br/>task-code-reviewer, task-plan-reviewer]
+    B --> B5[执行类<br/>task-dispatcher, review-fixer]
+    B --> B6[生成类<br/>skill-generator]
+    B --> B7[集成类<br/>codex]
 
-    C --> C1[文档助手<br/>doc-writer.md]
-    C --> C2[前端开发<br/>frontend-dev.md]
-    C --> C3[技术调研<br/>tech-researcher.md]
-    C --> C4[任务规划<br/>task-planner.md]
-    C --> C5[代码梳理<br/>code-reviewer.md]
-    C --> C6[Bug分析<br/>bug-analyzer.md]
+    C --> C1[Windows<br/>deploy-windows.bat]
+    C --> C2[macOS/Linux<br/>deploy-macos.sh]
 
-    D --> D1[Windows<br/>devops/deploy-windows.bat]
-    D --> D2[macOS<br/>devops/deploy-macos.sh]
-    D --> D3[自动化<br/>验证机制]
-
-    E --> E1[AI Commit<br/>generate-commit-msg.sh]
-    E --> E2[Fork 插件<br/>custom-commands.json]
-    E --> E3[GitHub Copilot<br/>AI 引擎]
+    D --> D1[AI Commit<br/>generate-commit-msg.sh]
 
     style A fill:#4CAF50,color:#fff
     style B fill:#2196F3,color:#fff
-    style C fill:#FF9800,color:#fff
-    style D fill:#9C27B0,color:#fff
-    style E fill:#E91E63,color:#fff
+    style C fill:#9C27B0,color:#fff
+    style D fill:#E91E63,color:#fff
 ```
 
 ---
@@ -73,208 +65,129 @@ chmod +x devops/deploy-macos.sh
 
 ### 3. 重启 Claude Code
 
-重启 Claude Code 以加载新的 agent 配置。
+重启 Claude Code 以加载新的 skill 配置。
 
-### 4. 使用 Agent
+### 4. 使用 Skill
 
-在 Claude Code 中，通过指定 agent 名称来调用相应的助手（具体使用方式参考 Claude Code 官方文档）。
+Skills 会根据对话内容中的关键词自动触发。例如：
+- 提到"写文档"、"生成 README" → 自动激活 doc-writer
+- 提到"任务规划"、"拆分任务" → 自动激活 task-planner
+- 提到"分析代码"、"追踪依赖" → 自动激活 code-analyzer
 
 ---
 
-## Agent 文件格式要求
+## SKILL.md 文件格式
 
-### ⚠️ 重要：Frontmatter 强制要求
+### 标准格式
 
-**所有 agent 文件必须在顶部包含 YAML frontmatter，否则 Claude Code 将无法识别。**
+每个 skill 以独立目录存放，包含 `SKILL.md` 文件：
 
-#### 标准格式
+```
+skills/
+└── skill-name/
+    └── SKILL.md
+```
+
+### Frontmatter 格式
 
 ```markdown
 ---
-name: agent-name
-description: Agent 的简短描述（1-2 句话）
-model: sonnet
+name: skill-name
+description: Use when the user asks to "keyword1", "keyword2", mentions "keyword3", or needs help with specific-task. Also responds to "中文关键词1", "中文关键词2".
 ---
 
-# Agent 名称
+# Skill Name Guide
 
-## 概述
+## Overview
 ...
 ```
 
-#### 必需字段说明
+### 必需字段
 
-| 字段 | 说明 | 示例值 |
-|------|------|--------|
-| `name` | Agent 名称（对应文件名，不含 .md 后缀） | `doc-writer` |
-| `description` | 简短描述（说明核心功能） | `专注于技术文档编写的 AI agent` |
-| `model` | Claude 模型名称 | `sonnet`, `opus`, `haiku` |
+| 字段 | 说明 | 示例 |
+|------|------|------|
+| `name` | Skill 名称（对应目录名） | `doc-writer` |
+| `description` | 触发关键词描述（中英文） | `Use when the user asks to "write documentation"... Also responds to "写文档"` |
 
-#### 命名规范
-
-- **文件名**：全小写，单词用连字符 `-` 分隔，`.md` 后缀
-- **name 字段**：与文件名一致（不含 `.md`）
-- **示例**：文件名 `doc-writer.md` → name: `doc-writer`
-
-#### 自动化工具
-
-如果你的 agent 文件缺少 frontmatter，可以使用自动化工具添加：
-
-**Windows**:
-```bash
-devops\add-frontmatter.bat
-```
-
-**macOS/Linux**:
-```bash
-chmod +x devops/add-frontmatter.sh
-./devops/add-frontmatter.sh
-```
-
-#### 验证工具
-
-部署前验证所有 agent 文件是否符合规范：
-
-**Windows**:
-```bash
-devops\validate-agents.bat
-```
-
-**macOS/Linux**:
-```bash
-chmod +x devops/validate-agents.sh
-./devops/validate-agents.sh
-```
-
-更多详细规范请参考 [AGENT_SPEC.md](AGENT_SPEC.md) § 2.4 章节。
+**注意**: Skills 不需要 `model` 字段，Claude Code 会自动选择合适的模型。
 
 ---
 
-## 子系统详解
+## Skill 集合
 
-### 📐 规范体系
-
-#### 概述
-规范体系是本项目的核心基础，定义了所有 agent 的创建、编写和部署标准，确保输出质量和一致性。
-
-#### 架构
-
-```mermaid
-graph LR
-    A[规范体系] --> B[核心输出原则]
-    A --> C[文件规范]
-    A --> D[内容结构]
-    A --> E[可视化要求]
-    A --> F[部署规范]
-
-    B --> B1[概括→可视化→详细]
-    C --> C1[命名/目录/格式]
-    D --> D1[标准模板]
-    E --> E1[Mermaid优先]
-    F --> F1[自动部署]
-```
-
-#### 核心原则
-
-**输出方法论**（详见 `AGENT_SPEC.md`）：
-
-1. **概括性介绍**：先说明"是什么、做什么、为什么"
-2. **流程框架可视化**：优先绘制 Mermaid 图表，再文字描述
-3. **拆分子系统**：识别核心组成部分
-4. **递归展开**：对每个子系统重复以上步骤
-
-**示例流程**：
-```mermaid
-flowchart TD
-    Start([开始输出]) --> Overview[概括介绍]
-    Overview --> Viz[流程可视化]
-    Viz --> Split{有子系统?}
-    Split -->|是| SubSys[拆分子系统]
-    Split -->|否| End([结束])
-    SubSys --> Recursive[递归应用]
-    Recursive --> Overview
-```
-
-#### 规范文档
-
-| 文档 | 说明 |
-|------|------|
-| **AGENT_SPEC.md** | 完整的开发规范，包含命名、结构、可视化、部署等所有标准 |
-
----
-
-### 🤖 Agent 集合
-
-#### 概述
-Agent 集合包含多个专业领域的 AI 助手，每个 agent 都遵循统一规范，提供高质量的专业化服务。
-
-#### Agent 列表
+### 概览
 
 ```mermaid
 mindmap
-  root((Agents))
-    文档类
+  root((Skills))
+    文档与分析
       doc-writer
         README生成
         API文档
-        技术规范
-    开发类
-      frontend-dev
-        React/Vue
-        UI实现
-        组件设计
-      code-reviewer
-        代码审查
-        架构梳理
-        重构建议
-    分析类
-      tech-researcher
-        技术选型
-        方案调研
-        最佳实践
-      bug-analyzer
-        问题诊断
-        根因分析
-        修复方案
-    管理类
+        架构文档
+      code-analyzer
+        代码结构
+        依赖追踪
+        复杂度评估
+      research
+        技术调研
+        方案对比
+        渲染专项
+    任务规划
       task-planner
-        任务拆解
-        里程碑规划
-        进度管理
+        模块化拆分
+        时序化分解
+        文档生成
+      parallel-task-planner
+        并行识别
+        任务树构建
+        自动执行
+    代码审查
+      task-code-reviewer
+        完成度检查
+        依赖验证
+        逻辑分析
+      task-plan-reviewer
+        六维度评审
+        评分计算
+        问题分类
+    执行与修复
+      task-dispatcher
+        DAG调度
+        并行执行
+        进度跟踪
+      review-fixer
+        问题修复
+        先规划后执行
+        批量处理
+    元级生成
+      skill-generator
+        Skill生成
+        规范遵循
+        质量门禁
 ```
 
-#### 详细说明
+### 详细说明
 
-| Agent     | 文件名                  | 核心功能                    | 适用场景           |
-| --------- | -------------------- | ----------------------- | -------------- |
-| **文档助手**  | `doc-writer.md`      | 技术文档编写、README 生成、注释补充   | 项目文档缺失、需要规范化文档 |
-| **前端开发**  | `frontend-dev.md`    | React/Vue 开发、UI 实现、组件设计 | 前端功能开发、组件封装    |
-| **技术调研**  | `tech-researcher.md` | 技术选型、方案调研、最佳实践研究        | 新技术评估、架构设计前期   |
-| **任务规划**  | `task-planner.md`    | 需求拆解、里程碑规划、进度管理         | 项目启动、复杂任务分解    |
-| **代码梳理**  | `code-reviewer.md`   | 代码审查、架构分析、重构建议          | 代码质量提升、技术债务清理  |
-| **Bug分析** | `bug-analyzer.md`    | 问题诊断、根因分析、修复方案          | 故障排查、性能问题定位    |
-
-#### 使用示例
-
-**场景 1：新项目启动**
-1. 使用 **任务规划 agent** 拆解需求
-2. 使用 **技术调研 agent** 选型技术栈
-3. 使用 **前端开发 agent** 实现功能
-4. 使用 **文档助手 agent** 生成 README
-
-**场景 2：代码质量提升**
-1. 使用 **代码梳理 agent** 审查现有代码
-2. 使用 **Bug分析 agent** 定位已知问题
-3. 使用 **前端开发 agent** 实施重构
+| Skill | 目录 | 核心功能 | 触发关键词 |
+|-------|------|----------|------------|
+| **doc-writer** | `skills/doc-writer/` | 技术文档编写、README 生成 | write documentation, 写文档, 生成 README |
+| **code-analyzer** | `skills/code-analyzer/` | 代码结构分析、依赖追踪、可视化 | analyze code, 分析代码, 梳理逻辑 |
+| **research** | `skills/research/` | 技术调研、方案对比、渲染专项 | research technology, 技术调研, 技术选型 |
+| **task-planner** | `skills/task-planner/` | 大型任务规划、模块化拆分 | plan a task, 任务规划, 拆分任务 |
+| **parallel-task-planner** | `skills/parallel-task-planner/` | 并行任务识别、任务树构建 | plan parallel tasks, 并行任务规划 |
+| **task-code-reviewer** | `skills/task-code-reviewer/` | 基于规划的代码审查 | review code against plan, 代码审查 |
+| **task-plan-reviewer** | `skills/task-plan-reviewer/` | 任务规划文档评审 | review task plan, 评审任务计划 |
+| **task-dispatcher** | `skills/task-dispatcher/` | DAG 调度、并行执行 | execute task plan, 执行任务, 任务调度 |
+| **review-fixer** | `skills/review-fixer/` | 审查问题自动修复 | fix review issues, 修复审查问题 |
+| **skill-generator** | `skills/skill-generator/` | 元级 Skill 生成 | create a skill, 创建 skill |
+| **codex** | `skills/codex/` | Codex CLI 集成 | run Codex CLI, codex exec |
 
 ---
 
-### 🚀 部署工具
+## 部署工具
 
-#### 概述
-部署工具提供一键式自动化部署，将 agent 文件复制到 Claude Code 本地配置目录，无需手动操作。
-
-#### 部署流程
+### 部署流程
 
 ```mermaid
 sequenceDiagram
@@ -282,158 +195,34 @@ sequenceDiagram
     participant S as 部署脚本
     participant F as 文件系统
     participant C as Claude Code
+    participant X as Codex CLI
 
     U->>S: 执行部署脚本
     S->>F: 检测目标目录
     alt 目录不存在
         S->>F: 创建目录
     end
-    S->>F: 复制 agents/*.md
+    S->>F: 遍历 skills/ 子目录
+    S->>F: 复制到 ~/.claude/skills/
+    S->>F: 复制到 ~/.codex/skills/
     S->>U: 显示部署结果
     U->>C: 重启 Claude Code
-    C->>F: 加载 agents
-    C->>U: Agents 可用
+    U->>X: codex --enable skills
+    C->>U: Claude Code Skills 可用
+    X->>U: Codex Skills 可用
 ```
 
-#### 部署脚本
+### 目标路径
 
-##### Windows (`devops/deploy-windows.bat`)
+部署脚本会同时部署到 Claude Code 和 Codex CLI 两个环境：
 
-**功能**：
-- 检测 `%USERPROFILE%\.claude\agents\` 目录
-- 自动创建目录（如不存在）
-- 复制所有 `agents/*.md` 文件
-- 显示部署结果和文件列表
+| 操作系统 | Claude Code | Codex CLI |
+|---------|-------------|-----------|
+| **Windows** | `%USERPROFILE%\.claude\skills\` | `%USERPROFILE%\.codex\skills\` |
+| **macOS** | `~/.claude/skills/` | `~/.codex/skills/` |
+| **Linux** | `~/.claude/skills/` | `~/.codex/skills/` |
 
-**使用**：
-```batch
-devops\deploy-windows.bat
-```
-
-##### macOS/Linux (`devops/deploy-macos.sh`)
-
-**功能**：
-- 检测 `~/.claude/agents/` 目录
-- 自动创建目录（如不存在）
-- 复制所有 `agents/*.md` 文件
-- 添加执行权限
-- 显示部署结果和文件列表
-
-**使用**：
-```bash
-chmod +x devops/deploy-macos.sh
-./devops/deploy-macos.sh
-```
-
-#### 目标路径
-
-| 操作系统 | 部署路径 |
-|---------|---------|
-| **Windows** | `%USERPROFILE%\.claude\agents\` |
-| **macOS** | `~/.claude/agents/` |
-| **Linux** | `~/.claude/agents/` |
-
----
-
-### 🤖 Fork AI Commit
-
-#### 概述
-Fork AI Commit 是集成在 Fork Git Client 中的 AI commit message 生成工具，通过 GitHub Copilot 智能分析代码变更，自动生成规范的 commit message 并完成提交。
-
-#### 架构
-
-```mermaid
-flowchart LR
-    A[Fork AI Commit] --> B[自定义命令]
-    A --> C[AI 引擎]
-    A --> D[执行脚本]
-
-    B --> B1[custom-commands.json]
-    C --> C1[GitHub Copilot CLI]
-    D --> D1[generate-commit-msg.sh]
-```
-
-#### 核心功能
-
-**AI 智能生成**：
-- 分析 staged 文件的代码变更
-- 自动生成符合规范的 commit message
-- 格式：`<type>: <summary>\n\nwhat: ...\n\nwhy: ...`
-
-**一键提交**：
-- 自动执行 `git commit`
-- 无需手动编写 commit message
-- 支持跨平台（Windows/macOS/Linux）
-
-**Commit 格式规范**：
-```
-<type>: <summary>
-
-what: <what was changed>
-
-why: <why it was changed>
-```
-
-**Type 类型**：`feat`、`fix`、`refactor`、`chore`、`perf`、`style`、`docs`、`test`
-
-#### 使用方法
-
-**前置要求**：
-1. 安装 GitHub Copilot CLI：
-   ```bash
-   npm install -g @githubnext/github-copilot-cli
-   ```
-2. GitHub Copilot 订阅（约 $10/月）
-
-**在 Fork Git Client 中**：
-1. 暂存要提交的文件（勾选）
-2. 右键点击仓库
-3. 选择 "🤖 AI Commit Message (Copilot)"
-4. 点击"生成"
-5. AI 自动分析并创建 commit
-
-**在命令行中**：
-```bash
-git add .
-bash .fork/generate-commit-msg.sh
-```
-
-#### 工作原理
-
-```mermaid
-sequenceDiagram
-    participant U as 用户
-    participant F as Fork
-    participant S as 脚本
-    participant C as Copilot AI
-    participant G as Git
-
-    U->>F: 暂存文件
-    U->>F: 选择 AI Commit
-    F->>S: 执行 generate-commit-msg.sh
-    S->>S: 检查 staged files
-    S->>S: 收集 diff 信息
-    S->>C: 调用 Copilot AI
-    C->>S: 返回 commit message
-    S->>S: 验证格式
-    S->>G: git commit -m "..."
-    G->>U: 提交成功
-```
-
-#### 文件说明
-
-| 文件 | 说明 |
-|------|------|
-| `.fork/custom-commands.json` | Fork 自定义命令配置 |
-| `.fork/generate-commit-msg.sh` | AI Commit 核心脚本 |
-| `.fork/AI-Commit.md` | 详细使用文档 |
-| `.fork/.gitattributes` | 确保脚本使用 LF 行尾 |
-
-#### 详细文档
-
-完整的使用指南、示例、故障排除和最佳实践，请参考：
-- `.fork/README.md` - 快速入门指南
-- `.fork/AI-Commit.md` - 详细使用文档
+> **提示**: Codex CLI 需要启用 skills 功能: `codex --enable skills`
 
 ---
 
@@ -441,115 +230,91 @@ sequenceDiagram
 
 ```
 agents/
-├── README.md                    # 本文档（项目描述）
-├── AGENT_SPEC.md               # Agent 开发规范
-├── agents/                     # Agent 文件目录
-│   ├── README.md               # 目录说明
-│   ├── doc-writer.md           # 文档助手
-│   ├── frontend-dev.md         # 前端开发助手
-│   ├── tech-researcher.md      # 技术调研助手
-│   ├── task-planner.md         # 任务规划助手
-│   ├── code-reviewer.md        # 代码梳理助手
-│   └── bug-analyzer.md         # Bug 分析助手
-├── devops/                     # DevOps 工具目录
-│   ├── deploy-windows.bat      # Windows 部署脚本
-│   └── deploy-macos.sh         # macOS/Linux 部署脚本
-├── .fork/                      # Fork AI Commit 插件
-│   ├── custom-commands.json    # Fork 自定义命令配置
-│   ├── generate-commit-msg.sh  # AI Commit 核心脚本
-│   ├── AI-Commit.md            # 详细使用文档
-│   ├── README.md               # 快速入门指南
-│   └── .gitattributes          # 行尾配置
-└── .claude/                    # Claude Code 配置
-    └── settings.local.json     # 本地设置
+├── README.md                    # 本文档
+├── skills/                      # Skill 文件目录
+│   ├── doc-writer/
+│   │   └── SKILL.md
+│   ├── code-analyzer/
+│   │   └── SKILL.md
+│   ├── research/
+│   │   └── SKILL.md
+│   ├── task-planner/
+│   │   └── SKILL.md
+│   ├── parallel-task-planner/
+│   │   └── SKILL.md
+│   ├── task-code-reviewer/
+│   │   └── SKILL.md
+│   ├── task-plan-reviewer/
+│   │   └── SKILL.md
+│   ├── task-dispatcher/
+│   │   └── SKILL.md
+│   ├── review-fixer/
+│   │   └── SKILL.md
+│   ├── skill-generator/
+│   │   └── SKILL.md
+│   └── codex/
+│       └── SKILL.md
+├── devops/                      # DevOps 工具目录
+│   ├── deploy-windows.bat       # Windows 部署脚本
+│   └── deploy-macos.sh          # macOS/Linux 部署脚本
+├── .fork/                       # Fork AI Commit 插件
+│   ├── custom-commands.json
+│   ├── generate-commit-msg.sh
+│   └── AI-Commit.md
+└── .claude/                     # Claude Code 配置
+    └── settings.local.json
 ```
 
 ---
 
-## 如何添加新 Agent
-
-### 流程
-
-```mermaid
-flowchart TD
-    A[确定 Agent 需求] --> B[阅读 AGENT_SPEC.md]
-    B --> C[创建 agent 文件]
-    C --> D[遵循规范编写内容]
-    D --> E{内容符合规范?}
-    E -->|否| F[修正问题]
-    F --> D
-    E -->|是| G[执行部署脚本]
-    G --> H[验证部署成功]
-    H --> I[提交代码]
-```
+## 如何添加新 Skill
 
 ### 步骤
 
-1. **阅读规范**：仔细阅读 `AGENT_SPEC.md`，理解核心输出原则
-2. **创建文件**：在 `agents/` 目录下创建新的 `.md` 文件（遵循命名规范）
-3. **编写内容**：
-   - 使用标准模板（参考 `AGENT_SPEC.md` 第 3 节）
-   - 遵循"概括→可视化→详细"的输出原则
-   - 绘制必要的 Mermaid 图表
-4. **质量检查**：
-   - 检查是否包含所有必需章节
-   - 确认 Mermaid 图表可正常渲染
-   - 验证文件命名和格式
-5. **部署测试**：执行部署脚本，确认文件正确复制
-6. **提交代码**：Git commit 并 push
+1. **创建目录**：在 `skills/` 下创建新的子目录
+2. **创建文件**：在子目录中创建 `SKILL.md` 文件
+3. **编写 Frontmatter**：
+   - `name`: 与目录名一致
+   - `description`: 包含中英文触发关键词
+4. **编写内容**：
+   - Overview（概述）
+   - Workflow（工作流程）
+   - Core Rules（核心规则，可选）
+   - Output Requirements（输出要求，可选）
+   - Best Practices（最佳实践）
+5. **部署测试**：执行部署脚本
+6. **验证触发**：在 Claude Code 中测试关键词触发
 
 ---
 
 ## 常见问题
 
-### Q1: 如何知道某个 agent 是否已部署？
+### Q1: Skill 部署后没有生效？
 
-**A**: 执行部署脚本后，会显示部署的文件列表。也可以手动检查：
-- **Windows**: 打开 `%USERPROFILE%\.claude\agents\` 目录
-- **macOS**: 执行 `ls ~/.claude/agents/`
+**A**:
+1. 确认部署脚本执行成功
+2. 重启 Claude Code
+3. 检查 `~/.claude/skills/` 目录下是否有对应的 SKILL.md 文件
 
-### Q2: 修改 agent 文件后需要重新部署吗？
+### Q2: 如何知道某个 skill 是否已部署？
+
+**A**: 执行部署脚本后会显示已部署的 skills 列表。也可以检查：
+
+**Claude Code**:
+- **Windows**: `%USERPROFILE%\.claude\skills\`
+- **macOS/Linux**: `~/.claude/skills/`
+
+**Codex CLI**:
+- **Windows**: `%USERPROFILE%\.codex\skills\`
+- **macOS/Linux**: `~/.codex/skills/`
+
+### Q3: 修改 skill 文件后需要重新部署吗？
 
 **A**: 是的。修改后重新执行部署脚本，覆盖旧文件。
 
-### Q3: 可以自定义部署路径吗？
+### Q4: 如何添加中文触发关键词？
 
-**A**: 部署脚本默认使用 Claude Code 的标准路径。如需自定义，可修改脚本中的路径变量。
-
-### Q4: 如何删除某个 agent？
-
-**A**:
-1. 从 `agents/` 目录删除对应的 `.md` 文件
-2. 从 `~/.claude/agents/` 或 `%USERPROFILE%\.claude\agents\` 手动删除对应文件
-3. 重启 Claude Code
-
-### Q5: Agent 文件支持哪些格式？
-
-**A**: 仅支持 Markdown (`.md`) 格式，使用 GitHub Flavored Markdown (GFM) 规范。
-
----
-
-## 贡献指南
-
-欢迎贡献新的 agent 或改进现有 agent！
-
-### 贡献流程
-
-1. Fork 本项目
-2. 创建特性分支 (`git checkout -b feature/new-agent`)
-3. 按照 `AGENT_SPEC.md` 编写 agent
-4. 提交更改 (`git commit -m 'Add new agent: xxx'`)
-5. 推送到分支 (`git push origin feature/new-agent`)
-6. 创建 Pull Request
-
-### 代码审查标准
-
-所有 PR 需满足：
-- ✅ 遵循 `AGENT_SPEC.md` 规范
-- ✅ 包含必需章节和 Mermaid 图表
-- ✅ 文件命名符合规范
-- ✅ Markdown 语法正确
-- ✅ 部署脚本测试通过
+**A**: 在 `description` 字段末尾添加：`Also responds to "中文关键词1", "中文关键词2".`
 
 ---
 
@@ -557,7 +322,6 @@ flowchart TD
 
 - **Claude Code 官方文档**: [https://docs.anthropic.com/claude/docs](https://docs.anthropic.com/claude/docs)
 - **Mermaid 文档**: [https://mermaid.js.org/](https://mermaid.js.org/)
-- **Mermaid 在线编辑器**: [https://mermaid.live/](https://mermaid.live/)
 - **GitHub Flavored Markdown**: [https://github.github.com/gfm/](https://github.github.com/gfm/)
 
 ---
@@ -568,13 +332,5 @@ flowchart TD
 
 ---
 
-## 联系方式
-
-- **项目维护**: Claude Code Agents Project
-- **GitHub**: [https://github.com/JIA-ss/agents](https://github.com/JIA-ss/agents)
-- **问题反馈**: [Issues](https://github.com/JIA-ss/agents/issues)
-
----
-
-**最后更新**: 2025-11-12
-**版本**: v1.0.0
+**最后更新**: 2025-12-20
+**版本**: v2.1.0

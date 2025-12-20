@@ -6,14 +6,14 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 # Codex Skill Guide
 
 ## Default Configuration (Fixed)
-- **Model**: `gpt-5.2`
+- **Model**: `gpt-5.2-codex`
 - **Reasoning Effort**: `xhigh`
 - **Sandbox**: `danger-full-access` (full read/write/network permissions)
 - **Auto Mode**: `--full-auto` (enabled by default)
 
 ## Running a Task
 1. Directly assemble the command with the following fixed options:
-   - `-m gpt-5.2`
+   - `-m gpt-5.2-codex`
    - `--config model_reasoning_effort="xhigh"`
    - `--sandbox danger-full-access`
    - `--full-auto`
@@ -28,8 +28,8 @@ description: Use when the user asks to run Codex CLI (codex exec, codex resume) 
 ### Quick Reference
 | Use case | Command template |
 | --- | --- |
-| Standard execution | `codex exec -m gpt-5.2 --config model_reasoning_effort="xhigh" --sandbox danger-full-access --full-auto --skip-git-repo-check "prompt" 2>/dev/null` |
-| Run from another directory | `codex exec -m gpt-5.2 --config model_reasoning_effort="xhigh" --sandbox danger-full-access --full-auto --skip-git-repo-check -C <DIR> "prompt" 2>/dev/null` |
+| Standard execution | `codex exec -m gpt-5.2-codex --config model_reasoning_effort="xhigh" --sandbox danger-full-access --full-auto --skip-git-repo-check "prompt" 2>/dev/null` |
+| Run from another directory | `codex exec -m gpt-5.2-codex --config model_reasoning_effort="xhigh" --sandbox danger-full-access --full-auto --skip-git-repo-check -C <DIR> "prompt" 2>/dev/null` |
 | Resume recent session | `echo "prompt" \| codex exec --skip-git-repo-check resume --last 2>/dev/null` |
 
 ## Following Up
