@@ -48,6 +48,8 @@ Phase 1: Task Confirmation
     └── 输出: 00-task-spec.md
             ▼
 Phase 2: Task Execution
+    ├── 执行代码修改
+    ├── 运行: ./scripts/generate-evidence.sh {task-name} "{test-cmd}" "{lint-cmd}"
     └── 输出: evidence/*
             ▼
 Phase 3: Independent Review (Codex)
@@ -63,7 +65,37 @@ Phase 4: Review Analysis
     │               │
     ▼               ▼
 Phase 6:        Phase 5: Improvement
-Delivery            └── 回到 Phase 3
+Delivery            └── 回到 Phase 2
+    │
+    ├── 运行: ./scripts/validate.sh {task-name}
+    └── 输出: final-report.md
+```
+
+### Phase 详细说明
+
+#### Phase 2: Task Execution
+
+执行任务后，使用脚本生成证据包：
+
+```bash
+# 生成证据包（测试结果、lint 结果、需求映射）
+./scripts/generate-evidence.sh {task-name} "{test-command}" "{lint-command}"
+
+# 示例
+./scripts/generate-evidence.sh fix-auth-bug-20260103 "npm test" "npm run lint"
+./scripts/generate-evidence.sh refactor-api "pytest" "ruff check ."
+```
+
+#### Phase 6: Delivery
+
+交付前验证任务目录完整性：
+
+```bash
+# 标准验证
+./scripts/validate.sh {task-name}
+
+# 严格模式（验证所有审查轮次）
+./scripts/validate.sh {task-name} --strict
 ```
 
 ---
@@ -101,10 +133,67 @@ REJECTED:
 
 ## Loop Control
 
-| 配置项 | 默认值 |
-|--------|--------|
-| max_rounds | 3 |
-| consecutive_reject_limit | 2 |
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| max_rounds | 3 | 最大审查轮次 |
+| consecutive_reject_limit | 2 | 连续 REJECTED 次数限制 |
+| early_exit_confidence | 0.9 | 早期退出置信度阈值 |
+
+### Early Exit Mechanism
+
+当满足以下条件时，可提前退出审查循环：
+
+```yaml
+early_exit_conditions:
+  - reviewer_confidence >= 0.9
+  - blocker_count == 0
+  - critical_count == 0
+  - major_count <= 2
+```
+
+**触发逻辑**：
+1. Reviewer 在 response 中提供置信度评分 (0.0-1.0)
+2. 若 `confidence >= early_exit_confidence` 且无严重问题，跳过后续审查
+3. 节省 API 调用成本和时间
+
+---
+
+## Cost Control
+
+API 调用成本监控与预算控制。
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| cost_budget_usd | 10.0 | 单任务成本预算 (USD) |
+| cost_per_round_limit | 3.0 | 单轮成本上限 (USD) |
+| cost_alert_threshold | 0.8 | 预算消耗告警阈值 (80%) |
+
+### Cost Tracking
+
+在 `execution-manifest.json` 中记录成本：
+
+```json
+{
+  "cost_tracking": {
+    "rounds": [
+      {"round": 1, "tokens_in": 5000, "tokens_out": 2000, "cost_usd": 0.15},
+      {"round": 2, "tokens_in": 4000, "tokens_out": 1500, "cost_usd": 0.12}
+    ],
+    "total_cost_usd": 0.27,
+    "budget_remaining_usd": 9.73
+  }
+}
+```
+
+### Budget Enforcement
+
+```
+if accumulated_cost > cost_budget_usd * cost_alert_threshold:
+    log_warning("Cost budget 80% consumed")
+
+if accumulated_cost >= cost_budget_usd:
+    pause_and_request_user_decision()
+```
 
 ---
 
