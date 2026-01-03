@@ -1,0 +1,13 @@
+{
+  "task_id": "{task-name}",
+  "timestamp": "2026-01-03T12:00:00Z",
+  "commit_hash": "abc123...",
+  "base_commit": "def456...",
+  "commands_executed": [
+    {"command": "npm test", "exit_code": 0},
+    {"command": "npm run lint", "exit_code": 0}
+  ],
+  "tool_versions": {
+    "node": "20.10.0"
+  }
+}
