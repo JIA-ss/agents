@@ -45,11 +45,6 @@ cat > "$EVIDENCE_DIR/execution-manifest.json" << MANIFEST
   "tool_versions": {
     "node": "$(node --version 2>/dev/null || echo 'N/A')",
     "python": "$(python3 --version 2>/dev/null || echo 'N/A')"
-  },
-  "cost_tracking": {
-    "rounds": [],
-    "total_cost_usd": 0,
-    "budget_remaining_usd": 10.0
   }
 }
 MANIFEST

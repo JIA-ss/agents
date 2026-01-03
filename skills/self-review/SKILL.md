@@ -154,46 +154,7 @@ early_exit_conditions:
 **触发逻辑**：
 1. Reviewer 在 response 中提供置信度评分 (0.0-1.0)
 2. 若 `confidence >= early_exit_confidence` 且无严重问题，跳过后续审查
-3. 节省 API 调用成本和时间
-
----
-
-## Cost Control
-
-API 调用成本监控与预算控制。
-
-| 配置项 | 默认值 | 说明 |
-|--------|--------|------|
-| cost_budget_usd | 10.0 | 单任务成本预算 (USD) |
-| cost_per_round_limit | 3.0 | 单轮成本上限 (USD) |
-| cost_alert_threshold | 0.8 | 预算消耗告警阈值 (80%) |
-
-### Cost Tracking
-
-在 `execution-manifest.json` 中记录成本：
-
-```json
-{
-  "cost_tracking": {
-    "rounds": [
-      {"round": 1, "tokens_in": 5000, "tokens_out": 2000, "cost_usd": 0.15},
-      {"round": 2, "tokens_in": 4000, "tokens_out": 1500, "cost_usd": 0.12}
-    ],
-    "total_cost_usd": 0.27,
-    "budget_remaining_usd": 9.73
-  }
-}
-```
-
-### Budget Enforcement
-
-```
-if accumulated_cost > cost_budget_usd * cost_alert_threshold:
-    log_warning("Cost budget 80% consumed")
-
-if accumulated_cost >= cost_budget_usd:
-    pause_and_request_user_decision()
-```
+3. 提高审查效率，减少不必要的迭代
 
 ---
 

@@ -46,10 +46,26 @@ codex exec -m "$CODEX_MODEL" \
 2. **查看可用模型**：`codex --list-models`
 3. **更新频率**：每季度检查一次模型可用性
 
-## 成本估算
+## 常见命令用法
 
-| 模型 | 输入价格 | 输出价格 | 单轮估算 |
-|------|----------|----------|----------|
-| gpt-5.2-codex | 按 OpenAI 定价 | 按 OpenAI 定价 | ~$0.15-0.50 |
+```bash
+# 非交互式执行 (推荐用于自动化)
+codex exec --full-auto "your prompt here"
 
-> 实际成本取决于任务复杂度和代码量。建议初次使用时监控成本。
+# 带输出文件
+codex exec --full-auto -o output.md "your prompt here"
+
+# 指定模型
+codex exec -m gpt-5.2-codex --full-auto "your prompt here"
+
+# 代码审查模式
+codex exec review
+
+# 恢复上次会话
+codex resume --last
+```
+
+**注意事项**：
+- 使用 `codex exec` 而非 `codex` 直接执行非交互式任务
+- `--full-auto` 等同于 `--sandbox workspace-write` + 自动审批
+- 不要使用已废弃的 `--approval-mode` 参数

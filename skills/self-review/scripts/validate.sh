@@ -40,9 +40,6 @@ grep -q "^## Success Criteria" "$TASK_DIR/00-task-spec.md" || { echo "❌ Missin
 echo "=== Manifest Validation ==="
 if [ -f "$TASK_DIR/evidence/execution-manifest.json" ]; then
     jq -e '.task_id and .commit_hash and .timestamp' "$TASK_DIR/evidence/execution-manifest.json" > /dev/null 2>&1 || { echo "❌ Invalid manifest: missing required fields"; ((ERRORS++)); }
-
-    # 验证 cost_tracking 字段（新增）
-    jq -e '.cost_tracking' "$TASK_DIR/evidence/execution-manifest.json" > /dev/null 2>&1 || { echo "⚠️  Missing: cost_tracking in manifest (optional)"; }
 fi
 
 echo "=== Reviews Directory Validation ==="
