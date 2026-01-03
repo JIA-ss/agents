@@ -12,6 +12,8 @@ fi
 echo "=== Structure Validation ==="
 [ -f "$TASK_DIR/00-task-spec.md" ] || { echo "Missing: 00-task-spec.md"; exit 1; }
 [ -f "$TASK_DIR/evidence/execution-manifest.json" ] || { echo "Missing: execution-manifest.json"; exit 1; }
+[ -f "$TASK_DIR/evidence/test-results.txt" ] || { echo "Missing: test-results.txt"; exit 1; }
+[ -f "$TASK_DIR/evidence/lint-results.txt" ] || { echo "Missing: lint-results.txt"; exit 1; }
 [ -f "$TASK_DIR/final-report.md" ] || { echo "Missing: final-report.md"; exit 1; }
 
 echo "=== Task Spec Validation ==="

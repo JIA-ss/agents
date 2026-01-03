@@ -28,6 +28,7 @@ description: Execute tasks with independent AI review cycles using Codex, self-c
 ├── evidence/
 │   ├── execution-manifest.json        # 执行清单
 │   ├── test-results.txt               # 测试输出
+│   ├── lint-results.txt               # Lint 输出
 │   └── requirement-mapping.md         # 需求映射
 ├── reviews/round-{N}/
 │   ├── review-prompt.md

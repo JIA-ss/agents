@@ -42,6 +42,12 @@
 3. **获取代码变更**
    ```bash
    git diff {base_commit}..{commit_hash}
+   git diff {base_commit}..{commit_hash} --stat
+   ```
+
+4. **查看相关文件**（根据 diff 结果）
+   ```bash
+   cat {changed_files}
    ```
 
 ### Executor 提供的执行结果
