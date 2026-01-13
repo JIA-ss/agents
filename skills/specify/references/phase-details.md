@@ -1,193 +1,322 @@
-# Phase Details Reference
+# 阶段详细参考文档
 
-## Table of Contents
-- [Phase 1: CAPTURE](#phase-1-capture)
-- [Phase 2: CLARIFY](#phase-2-clarify)
-- [Phase 3: STRUCTURE](#phase-3-structure)
-- [Phase 4: VALIDATE](#phase-4-validate)
-- [Ambiguity Detection](#ambiguity-detection)
-- [INVEST Principle](#invest-principle)
+## 目录
+- [阶段 1: CAPTURE（捕获）](#阶段-1-capture捕获)
+- [阶段 2: CLARIFY（澄清）](#阶段-2-clarify澄清)
+- [阶段 3: STRUCTURE（结构化）](#阶段-3-structure结构化)
+- [阶段 4: REVIEW（审查）](#阶段-4-review审查)
+- [阶段 5: VALIDATE（验证）](#阶段-5-validate验证)
+- [模糊性检测](#模糊性检测)
+- [INVEST 原则](#invest-原则)
 
 ---
 
-## Phase 1: CAPTURE
+## 阶段 1: CAPTURE（捕获）
 
-### Sub-tasks
+### 子任务
 
-1. **Context Gathering (C1)**
-   - Read CLAUDE.md if exists
-   - Read constitution.md if exists
-   - Scan project structure
-   - Identify tech stack
+1. **上下文收集 (C1)**
+   - 读取 CLAUDE.md（如果存在）
+   - 读取 constitution.md（如果存在）
+   - 扫描项目结构
+   - 识别技术栈
 
-2. **Stakeholder Identification (C2)**
-   - List user roles
-   - Identify decision makers
-   - Map impact scope
+2. **利益相关者识别 (C2)**
+   - 列出用户角色
+   - 识别决策者
+   - 映射影响范围
 
-3. **Requirements Extraction (C3)**
-   - Functional requirements
-   - Non-functional requirements
-   - Constraints
+3. **需求提取 (C3)**
+   - 功能性需求
+   - 非功能性需求
+   - 约束条件
 
-### Output Format: raw-notes.md
+### 输出格式: raw-notes.md
 
 ```markdown
-# Raw Notes: {feature}
+# 原始笔记: {功能名称}
 
-## Context
-{Project background, tech stack, existing state}
+## 上下文
+{项目背景、技术栈、现有状态}
 
-## Stakeholders
-- {Role 1}: {Description}
-- {Role 2}: {Description}
+## 利益相关者
+- {角色 1}: {描述}
+- {角色 2}: {描述}
 
-## Raw Requirements
-### Functional
-- {Requirement 1}
-- {Requirement 2}
+## 原始需求
+### 功能性需求
+- {需求 1}
+- {需求 2}
 
-### Non-Functional
-- {Requirement 1}
+### 非功能性需求
+- {需求 1}
 
-### Constraints
-- {Constraint 1}
+### 约束条件
+- {约束 1}
 
-## Open Questions
-- [ ] Q1: {Question}
-- [ ] Q2: {Question}
+## 待澄清问题
+- [ ] Q1: {问题}
+- [ ] Q2: {问题}
 
-## Metrics
+## 指标
 - open_questions_count: {N}
 - ambiguity_score: {N}
 ```
 
 ---
 
-## Phase 2: CLARIFY
+## 阶段 2: CLARIFY（澄清）
 
-### Sub-tasks
+### 子任务
 
-1. **Ambiguity Detection (CL1)**
-   - Scan for vague terms
-   - Identify hidden assumptions
-   - Find missing information
+1. **模糊性检测 (CL1)**
+   - 扫描模糊词汇
+   - 识别隐含假设
+   - 发现缺失信息
 
-2. **Question Generation (CL2)**
-   - Prioritize questions
-   - Provide default recommendations
-   - Categorize as required/optional
+2. **问题生成 (CL2)**
+   - 问题优先级排序
+   - 提供默认推荐值
+   - 分类为必需/可选
 
-3. **Resolution (CL3)**
-   - Use AskUserQuestion tool
-   - Record decisions
-   - Log assumptions
+3. **解决 (CL3)**
+   - 使用 AskUserQuestion 工具
+   - 记录决策
+   - 记录假设
 
-### Skip Condition
+### 跳过条件
 
-Skip CLARIFY phase when:
+当以下条件满足时跳过 CLARIFY 阶段：
 - `ambiguity_score == 0`
 - `open_questions_count == 0`
 
-### Output Format: clarified.md
+### 输出格式: clarified.md
 
 ```markdown
-# Clarification Record: {feature}
+# 澄清记录: {功能名称}
 
-## Resolved Questions
-| Q | Answer | Source |
-|---|--------|--------|
-| {Question} | {Answer} | User/Assumption |
+## 已解决的问题
+| 问题 | 答案 | 来源 |
+|------|------|------|
+| {问题} | {答案} | 用户/假设 |
 
-## Confirmed Assumptions
-- [x] {Assumption 1} - Confirmed by user
-- [x] {Assumption 2} - Accepted risk
+## 已确认的假设
+- [x] {假设 1} - 用户确认
+- [x] {假设 2} - 接受风险
 
-## Decisions Log
-| Decision | Rationale | Date |
-|----------|-----------|------|
-| {Decision} | {Why} | {Date} |
+## 决策日志
+| 决策 | 理由 | 日期 |
+|------|------|------|
+| {决策} | {原因} | {日期} |
 
-## Remaining Ambiguities
-- {Item} - Risk accepted: {reason}
+## 剩余模糊点
+- {项目} - 接受风险: {原因}
 ```
 
 ---
 
-## Phase 3: STRUCTURE
+## 阶段 3: STRUCTURE（结构化）
 
-### Sub-tasks
+### 子任务
 
-1. **User Story Composition (S1)**
-   - Apply As a/I want/So that format
-   - Check INVEST principles
-   - Split large stories
+1. **用户故事编写 (S1)**
+   - 应用 As a/I want/So that 格式
+   - 检查 INVEST 原则
+   - 拆分大型故事
 
-2. **Acceptance Criteria (S2)**
-   - 3-7 criteria per story
-   - Include positive, negative, edge cases
-   - Make testable
+2. **验收标准定义 (S2)**
+   - 每个故事 3-7 个标准
+   - 包含正向、负向、边界场景
+   - 确保可测试
 
-3. **Requirements Classification (S3)**
-   - FR with Must/Should/Could priority
-   - NFR with verification method
-   - Link to user stories
+3. **需求分类 (S3)**
+   - FR 使用 Must/Should/Could 优先级
+   - NFR 带验证方法
+   - 链接到用户故事
 
-4. **Scope Definition (S4)**
-   - Explicit inclusions
-   - Explicit exclusions
-   - Dependencies
+4. **范围定义 (S4)**
+   - 明确包含项
+   - 明确排除项
+   - 依赖项
 
-### Template Selection
+### 模板选择
 
-| Mode | Sections to Fill |
-|------|------------------|
+| 模式 | 填充章节 |
+|------|----------|
 | mini | 1, 3, 7, 9 |
 | standard | 1-7, 9 |
-| full | 1-9, Appendix |
+| full | 1-9, 附录 |
 
 ---
 
-## Phase 4: VALIDATE
+## 阶段 4: REVIEW（审查）
 
-### Validation Checks
+### 概述
 
-1. **Completeness Check (V1)**
-   - All required sections filled
-   - No placeholder text remaining
-   - No TODO markers
+REVIEW 阶段使用独立 Agent 进行审查，确保信息隔离，不污染当前对话上下文。
 
-2. **Consistency Check (V2)**
-   - No conflicting requirements
-   - Consistent terminology
-   - Priority distribution (Must < 60%)
+### 子任务
 
-3. **Quality Check (V3)**
-   - No ambiguous terms
-   - NFRs quantified
-   - ACs testable
+1. **准备审查材料 (R1)**
+   - 收集 spec.md 内容
+   - 准备审查 prompt
+   - 确定审查清单
 
-### Approval Flow
+2. **启动独立审查 (R2)**
+   - 使用 Task 工具启动 Agent
+   - 传递 spec.md 和审查清单
+   - 等待审查结果
 
-1. Display validation results
-2. Show suggestions for improvement
-3. Ask user to approve/modify/cancel
-4. Update status to "approved"
-5. Record approver and timestamp
+3. **分析审查结果 (R3)**
+   - 解析审查报告
+   - 分类问题（CRITICAL/MAJOR/MINOR）
+   - 确定判定结果
 
----
+4. **处理审查结果 (R4)**
+   - PASS: 进入 VALIDATE 阶段
+   - NEEDS_IMPROVEMENT: 返回 STRUCTURE 修复
+   - REJECTED: 返回 CLARIFY 重新澄清
 
-## Ambiguity Detection
+### 审查清单
 
-### Forbidden Terms
+```markdown
+## spec.md 审查清单
 
-English: fast, quick, simple, easy, user-friendly, intuitive, robust, scalable (without numbers)
+### 格式检查
+- [ ] 用户故事符合 "作为/我想要/以便" 格式
+- [ ] 每个故事有 3-7 个验收标准
+- [ ] AC 编号格式正确（AC-X.Y）
 
-Chinese: 快速, 简单, 容易, 友好, 直观, 健壮, 可扩展 (without numbers)
+### 内容质量
+- [ ] 无禁止的模糊词汇
+- [ ] NFR 全部可量化
+- [ ] 验收标准覆盖正向/负向/边界场景
 
-### Ambiguity Score Calculation
+### 一致性
+- [ ] 需求间无冲突
+- [ ] 术语使用一致
+- [ ] 优先级分布合理（Must < 60%）
 
+### 完整性
+- [ ] 所有必填章节已填写
+- [ ] 无占位符文本
+- [ ] Out of Scope 明确定义
 ```
+
+### 审查 Prompt 模板
+
+```markdown
+请审查以下 spec.md 规范文档：
+
+---
+{spec_content}
+---
+
+审查要求：
+1. 检查用户故事格式是否正确（作为/我想要/以便）
+2. 检查每个故事是否有 3-7 个验收标准
+3. 检查验收标准是否覆盖正向/负向/边界场景
+4. 检查 NFR 是否可量化
+5. 检查是否存在禁止的模糊词汇
+6. 检查需求间是否存在冲突
+7. 检查范围边界是否清晰
+
+请返回：
+1. 判定结果：PASS / NEEDS_IMPROVEMENT / REJECTED
+2. 置信度：0.0 - 1.0
+3. 问题列表（按严重性分类）
+4. 改进建议
+```
+
+### 判定规则
+
+| 判定 | 条件 |
+|------|------|
+| **PASS** | 无 MAJOR/CRITICAL 问题，置信度 >= 0.8 |
+| **NEEDS_IMPROVEMENT** | 有 MAJOR 问题但无 CRITICAL，需要修复 |
+| **REJECTED** | 有 CRITICAL 问题或结构严重缺失 |
+
+### 输出格式: review-response.md
+
+```markdown
+# 审查报告: {功能名称}
+
+## 判定结果
+- 结果: PASS / NEEDS_IMPROVEMENT / REJECTED
+- 置信度: 0.85
+- 审查轮次: 1
+
+## 问题列表
+
+### CRITICAL
+- （无）
+
+### MAJOR
+- [M1] 用户故事 US-2 缺少验收标准
+- [M2] NFR-3 "快速响应" 未量化
+
+### MINOR
+- [m1] 术语不一致：登录/登入
+- [m2] AC-1.3 可增加边界条件
+
+## 改进建议
+1. 为 US-2 添加 3-5 个验收标准
+2. 将 "快速响应" 改为具体数值，如 "P95 < 200ms"
+3. 统一使用 "登录" 术语
+
+## 下一步
+- [ ] 修复 MAJOR 问题
+- [ ] 可选修复 MINOR 问题
+- [ ] 重新提交审查
+```
+
+---
+
+## 阶段 5: VALIDATE（验证）
+
+### 验证检查
+
+1. **完整性检查 (V1)**
+   - 所有必填章节已填写
+   - 无占位符文本残留
+   - 无 TODO 标记
+
+2. **一致性检查 (V2)**
+   - 无冲突需求
+   - 术语一致
+   - 优先级分布合理（Must < 60%）
+
+3. **质量检查 (V3)**
+   - 无模糊词汇
+   - NFR 已量化
+   - AC 可测试
+
+4. **可行性检查 (V4)**
+   - 技术可行性
+   - 资源可行性
+   - 时间约束
+
+### 审批流程
+
+1. 展示验证结果
+2. 显示改进建议
+3. 请求用户批准/修改/取消
+4. 更新状态为 "approved"
+5. 记录审批者和时间戳
+
+---
+
+## 模糊性检测
+
+### 禁止词汇
+
+**英文**: fast, quick, simple, easy, user-friendly, intuitive, robust, scalable（无数字时）
+
+**中文**: 快速, 简单, 容易, 友好, 直观, 健壮, 可扩展（无数字时）
+
+### 模糊度评分计算
+
+```python
 score = 0
 for term in forbidden_terms:
     if term in text:
@@ -200,22 +329,22 @@ for missing_boundary in requirements:
 
 ---
 
-## INVEST Principle
+## INVEST 原则
 
-| Letter | Meaning | Check |
-|--------|---------|-------|
-| **I** | Independent | Can be implemented alone? |
-| **N** | Negotiable | Room for discussion? |
-| **V** | Valuable | Delivers user value? |
-| **E** | Estimable | Can estimate effort? |
-| **S** | Small | Fits in one iteration? |
-| **T** | Testable | Has clear acceptance criteria? |
+| 字母 | 含义 | 检查项 |
+|------|------|--------|
+| **I** | Independent（独立） | 可以独立实现吗？ |
+| **N** | Negotiable（可协商） | 有讨论空间吗？ |
+| **V** | Valuable（有价值） | 能交付用户价值吗？ |
+| **E** | Estimable（可估算） | 能估算工作量吗？ |
+| **S** | Small（小） | 能在一个迭代内完成吗？ |
+| **T** | Testable（可测试） | 有清晰的验收标准吗？ |
 
-### Checklist
+### 检查清单
 
-- [ ] Story does not depend on other stories
-- [ ] Implementation approach is flexible
-- [ ] Business value is clear
-- [ ] Team can estimate effort
-- [ ] Small enough for one sprint
-- [ ] Acceptance criteria are testable
+- [ ] 故事不依赖其他故事
+- [ ] 实现方式可灵活选择
+- [ ] 业务价值清晰
+- [ ] 团队可估算工作量
+- [ ] 足够小，一个 Sprint 能完成
+- [ ] 验收标准可测试
