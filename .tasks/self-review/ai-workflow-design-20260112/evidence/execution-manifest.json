@@ -1,0 +1,58 @@
+{
+  "task_id": "ai-workflow-design-20260112",
+  "task_type": "design",
+  "execution_timestamp": "2026-01-12T00:00:00Z",
+  "status": "pending_review",
+  "deliverables": [
+    {
+      "type": "design_document",
+      "path": "workflow-design.md",
+      "status": "complete",
+      "sections": [
+        "Design Philosophy",
+        "Workflow Phases (5-phase model)",
+        "Directory Structure",
+        "Configuration Files",
+        "Integration with Existing Skills",
+        "Quick Start Guide",
+        "Workflow Variants"
+      ]
+    },
+    {
+      "type": "template",
+      "path": "templates/spec.md",
+      "status": "complete"
+    },
+    {
+      "type": "template",
+      "path": "templates/plan.md",
+      "status": "complete"
+    },
+    {
+      "type": "template",
+      "path": "templates/tasks.md",
+      "status": "complete"
+    },
+    {
+      "type": "template",
+      "path": "templates/config.yaml",
+      "status": "complete"
+    },
+    {
+      "type": "template",
+      "path": "templates/constitution.md",
+      "status": "complete"
+    },
+    {
+      "type": "template",
+      "path": "templates/CLAUDE.md",
+      "status": "complete"
+    }
+  ],
+  "design_metrics": {
+    "phases_defined": 5,
+    "templates_created": 6,
+    "skills_integrated": 5,
+    "workflow_variants": 3
+  }
+}

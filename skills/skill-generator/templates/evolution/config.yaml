@@ -1,0 +1,29 @@
+# Skill Self-Iteration Configuration
+# Copy this file to your skill's .evolution/ directory
+
+evolution:
+  enabled: true
+
+  # Automatic improvement triggers
+  triggers:
+    consecutive_failures: 3        # Trigger after N consecutive failures
+    same_error_pattern: 5          # Trigger when same error occurs N times
+    performance_regression: 0.1    # Trigger on 10% performance drop
+
+  # Validation requirements
+  validation:
+    require_tests: true            # Must pass existing tests
+    require_regression: true       # Must not introduce regressions
+    require_human_approval: false  # Auto-deploy if validation passes
+
+  # Safety limits
+  limits:
+    max_auto_changes_per_week: 5   # Prevent runaway evolution
+    rollback_on_failure: true      # Auto-rollback failed improvements
+    preserve_core_rules: true      # Never auto-modify Core Rules section
+
+  # Notification settings
+  notifications:
+    on_trigger: true               # Notify when trigger threshold reached
+    on_proposal: true              # Notify when proposal generated
+    on_deployment: true            # Notify when improvement deployed

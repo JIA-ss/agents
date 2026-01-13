@@ -1,0 +1,136 @@
+# =============================================================================
+# AI Workflow Configuration
+# =============================================================================
+# 将此文件放置在项目的 .agent/config.yaml
+# =============================================================================
+
+version: "1.0"
+
+# -----------------------------------------------------------------------------
+# 项目信息
+# -----------------------------------------------------------------------------
+project:
+  name: "{project-name}"
+  type: "web-app"              # web-app | api | library | cli | mobile
+  language: "typescript"       # typescript | python | go | rust | java
+
+# -----------------------------------------------------------------------------
+# 工作流设置
+# -----------------------------------------------------------------------------
+workflow:
+  # 阶段启用/禁用
+  phases:
+    specify: true              # 规范阶段
+    plan: true                 # 计划阶段
+    tasks: true                # 任务分解阶段
+    implement: true            # 实现阶段
+    review: true               # 审查阶段
+
+  # 人工审批检查点 (Full Mode 默认值，Quick Mode 可全部设为 false)
+  checkpoints:
+    after_specify: true        # 规范后需审批
+    after_plan: true           # 计划后需审批
+    after_tasks: true          # 任务分解后需审批 (Full Mode: true)
+    before_merge: true         # 合并前需审批
+
+  # 自动化配置
+  automation:
+    auto_commit: true          # 自动提交代码
+    auto_test: true            # 自动运行测试
+    auto_lint: true            # 自动运行 lint
+    auto_format: true          # 自动格式化代码
+
+# -----------------------------------------------------------------------------
+# 审查设置
+# -----------------------------------------------------------------------------
+review:
+  # 审查引擎
+  engine: "codex"              # codex | claude | manual
+
+  # 审查参数
+  max_rounds: 3                # 最大审查轮次
+  early_exit_confidence: 0.9   # 早期退出置信度阈值
+
+  # 严重性阈值
+  thresholds:
+    blocker_limit: 0           # blocker 数量上限
+    critical_limit: 2          # critical 数量上限
+    major_limit: 5             # major 数量上限
+
+# -----------------------------------------------------------------------------
+# TDD 设置
+# -----------------------------------------------------------------------------
+tdd:
+  enabled: true                # 启用 TDD
+  test_first: "recommended"    # required | recommended | optional
+
+  # 覆盖率要求
+  coverage:
+    enabled: true
+    threshold: 80              # 最低覆盖率 %
+
+# -----------------------------------------------------------------------------
+# 工具命令
+# -----------------------------------------------------------------------------
+tools:
+  # 测试
+  test:
+    command: "npm test"
+    watch: "npm test -- --watch"
+    coverage: "npm test -- --coverage"
+
+  # Lint
+  lint:
+    command: "npm run lint"
+    fix: "npm run lint -- --fix"
+
+  # 构建
+  build:
+    command: "npm run build"
+    dev: "npm run dev"
+
+  # 类型检查
+  typecheck:
+    command: "npm run typecheck"
+
+# -----------------------------------------------------------------------------
+# 目录配置
+# -----------------------------------------------------------------------------
+paths:
+  specs: ".agent/specs"        # 规范目录
+  templates: ".agent/templates" # 模板目录
+  tasks: ".tasks"              # 任务记录目录
+
+# -----------------------------------------------------------------------------
+# AI 工具配置
+# -----------------------------------------------------------------------------
+ai:
+  # 默认模型
+  default_model: "claude-sonnet"
+
+  # Codex 配置
+  codex:
+    model: "gpt-5.2-codex"
+    reasoning_effort: "xhigh"
+    # 安全默认: 仅在需要时手动设置为 danger-full-access
+    sandbox: "sandbox"  # sandbox | danger-full-access (需明确理由)
+
+  # 上下文配置
+  context:
+    include_patterns:
+      - "src/**/*.ts"
+      - "tests/**/*.ts"
+      - "*.md"
+    exclude_patterns:
+      - "node_modules/**"
+      - "dist/**"
+      - ".git/**"
+
+# -----------------------------------------------------------------------------
+# 通知配置 (可选)
+# -----------------------------------------------------------------------------
+notifications:
+  enabled: false
+  # slack:
+  #   webhook: "${SLACK_WEBHOOK}"
+  #   channel: "#dev"
