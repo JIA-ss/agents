@@ -1,9 +1,9 @@
 ---
-name: specify
-description: 将模糊的用户需求转化为结构化的 spec.md 规范文档。当用户想要定义功能、编写需求、创建规范，或提到"需求"、"规范"、"spec"、"用户故事"时使用。支持 mini/standard/full 三种模式。
+name: workflow-specify
+description: 将模糊的用户需求转化为结构化的 spec.md 规范文档。当用户想要定义功能、编写需求、创建规范，或提到"需求"、"规范"、"spec"、"用户故事"时使用。支持 mini/standard/full 三种模式。也响应 "workflow specify"、"工作流规范"。
 ---
 
-# Specify Skill 指南
+# Workflow Specify 指南
 
 ## 概述
 
@@ -35,7 +35,7 @@ raw-notes  clarified   spec.md   spec.md   spec.md
 4. 提取原始需求（功能性、非功能性、约束条件）
 5. 计算 ambiguity_score 并列出待澄清问题
 
-**输出**: `.agent/specs/{feature}/capture/raw-notes.md`
+**输出**: `.workflow/{feature}/specify/capture/raw-notes.md`
 
 ### 阶段 2: CLARIFY（澄清）
 
@@ -49,7 +49,7 @@ raw-notes  clarified   spec.md   spec.md   spec.md
 
 **跳过条件**: 如果 ambiguity_score == 0 且无待澄清问题
 
-**输出**: `.agent/specs/{feature}/clarify/clarified.md`
+**输出**: `.workflow/{feature}/specify/clarify/clarified.md`
 
 ### 阶段 3: STRUCTURE（结构化）
 
@@ -62,7 +62,7 @@ raw-notes  clarified   spec.md   spec.md   spec.md
 4. 对需求进行分类（FR/NFR）并设置优先级
 5. 定义范围边界（Out of Scope 章节）
 
-**输出**: `.agent/specs/{feature}/spec.md`（草稿）
+**输出**: `.workflow/{feature}/specify/spec.md`（草稿）
 
 ### 阶段 4: REVIEW（审查）
 
@@ -84,7 +84,7 @@ raw-notes  clarified   spec.md   spec.md   spec.md
 - 是否存在模糊词汇
 - 需求间是否存在冲突
 
-**输出**: `.agent/specs/{feature}/reviews/round-{N}/review-response.md`
+**输出**: `.workflow/{feature}/specify/reviews/round-{N}/review-response.md`
 
 ### 阶段 5: VALIDATE（验证）
 
@@ -98,36 +98,36 @@ raw-notes  clarified   spec.md   spec.md   spec.md
 5. 通过 AskUserQuestion 请求用户批准
 6. 更新 spec 状态为 "approved"
 
-**输出**: `.agent/specs/{feature}/spec.md`（已批准）
+**输出**: `.workflow/{feature}/specify/spec.md`（已批准）
 
 ---
 
 ## 命令
 
 ```bash
-# 基本用法
-/specify {需求描述}
+# 基本用法（通过 workflow plugin 调用）
+/workflow-specify {需求描述}
 
 # 模板模式
-/specify --mode=mini {描述}     # 简单任务
-/specify --mode=standard {描述} # 默认，中等功能
-/specify --mode=full {描述}     # 大型功能
+/workflow-specify --mode=mini {描述}     # 简单任务
+/workflow-specify --mode=standard {描述} # 默认，中等功能
+/workflow-specify --mode=full {描述}     # 大型功能
 
 # 交互模式
-/specify --interactive {描述}   # 默认：每阶段暂停确认
-/specify --guided {描述}        # AI 提供建议，用户选择
-/specify --auto {描述}          # AI 决策，仅最终批准
+/workflow-specify --interactive {描述}   # 默认：每阶段暂停确认
+/workflow-specify --guided {描述}        # AI 提供建议，用户选择
+/workflow-specify --auto {描述}          # AI 决策，仅最终批准
 
 # 恢复或验证
-/specify --resume {spec-id}
-/specify --validate {spec-id}
+/workflow-specify --resume {feature}
+/workflow-specify --validate {feature}
 
 # 单阶段执行
-/specify capture {描述}
-/specify clarify {spec-id}
-/specify structure {spec-id}
-/specify review {spec-id}
-/specify validate {spec-id}
+/workflow-specify capture {描述}
+/workflow-specify clarify {feature}
+/workflow-specify structure {feature}
+/workflow-specify review {feature}
+/workflow-specify validate {feature}
 ```
 
 **选项**:
@@ -154,7 +154,7 @@ raw-notes  clarified   spec.md   spec.md   spec.md
 ## 输出结构
 
 ```
-.agent/specs/{feature}/
+.workflow/{feature}/specify/
 ├── capture/
 │   └── raw-notes.md       # 阶段 1 输出
 ├── clarify/
@@ -199,9 +199,9 @@ NFR 必须可量化（如"API P95 < 200ms"，而非"快速响应"）。
 
 ## 集成
 
-输出的 spec.md 被以下 skill 使用：
-- `/plan {feature}` - 创建技术计划
-- `/tasks {feature}` - 生成任务分解
+输出的 spec.md 被以下 workflow 阶段使用：
+- `/workflow-plan {feature}` - 创建技术计划
+- `/workflow-task {feature}` - 生成任务分解
 
 ---
 
