@@ -73,8 +73,12 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 
 **目标**: 解析 spec.md，提取技术决策点
 
+**输入**:
+- `.workflow/{feature}/specify/spec.md`（状态必须为 approved）
+- 项目上下文（CLAUDE.md, constitution.md，如果存在）
+
 **动作**:
-1. 读取 `.workflow/{feature}/specify/spec.md`
+1. 读取 spec.md，解析 frontmatter 和各章节
 2. 提取功能需求 (FR) 和非功能需求 (NFR)
 3. 识别技术约束和依赖
 4. 标记需要架构决策的点
@@ -82,18 +86,29 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 
 **输出**: `.workflow/{feature}/plan/analyze/analysis.md`
 
+> **模板**: 使用 [assets/analysis-template.md](assets/analysis-template.md) 生成 analysis.md
+
 ---
 
 ### 阶段 2: RESEARCH（技术调研）
 
 **目标**: 调研技术方案、最佳实践、依赖选型
 
+**输入**:
+- `.workflow/{feature}/plan/analyze/analysis.md`
+- analysis.md 中标记的调研主题列表
+
 **动作**:
 1. 使用 WebSearch/WebFetch 搜索技术资料
 2. 使用 Task (Explore) 分析现有代码库
-3. 对比技术方案的优缺点
+3. 对比技术方案的优缺点（至少 2 个方案）
 4. 评估依赖项的成熟度
 5. 收集最佳实践
+
+**完成标准**:
+- 所有 P0 调研主题都有明确结论
+- 每个调研主题至少有 1 个可靠来源
+- 技术方案对比完整（列出优缺点）
 
 **超时配置**:
 - 阶段超时: 5 分钟
@@ -102,17 +117,26 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 
 **输出**: `.workflow/{feature}/plan/research/research.md`
 
+> **模板**: 使用 [assets/research-template.md](assets/research-template.md) 生成 research.md
+
 ---
 
 ### 阶段 3: REVIEW-1（分析审查）
 
 **目标**: 审查分析和调研是否充分
 
-**审查清单**:
+**输入**:
+- `.workflow/{feature}/plan/analyze/analysis.md`
+- `.workflow/{feature}/plan/research/research.md`
+- `.workflow/{feature}/specify/spec.md`（用于验证覆盖度）
+
+**审查清单**（简化版）:
 - 是否所有 FR 都被分析？
 - 是否所有 NFR 都被分析？
 - 调研主题是否全部完成？
 - 待决策点是否全部有结论？
+
+> **完整清单**: 参见 [references/review-checklist.md](references/review-checklist.md) 的 REVIEW-1 部分，包含详细的验证逻辑和判定伪代码
 
 **判定规则**:
 
@@ -130,16 +154,23 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 
 **目标**: 生成技术计划 plan.md
 
+**输入**:
+- `.workflow/{feature}/plan/analyze/analysis.md`
+- `.workflow/{feature}/plan/research/research.md`
+- 项目上下文
+
 **动作**:
 1. 设计系统整体架构
 2. 生成 Mermaid 架构图
 3. 确定技术选型（基于调研结果）
 4. 分析内部/外部依赖
-5. 评估技术风险
+5. 评估技术风险（识别 3-5 个关键风险）
 6. 记录架构决策（ADR）
 7. 建立需求可追溯性映射
 
 **输出**: `.workflow/{feature}/plan/plan.md`（草稿）
+
+> **模板**: 使用 [assets/plan-template.md](assets/plan-template.md) 生成 plan.md
 
 ---
 
@@ -147,12 +178,19 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 
 **目标**: 审查设计质量和完整性
 
-**审查清单**:
+**输入**:
+- `.workflow/{feature}/plan/plan.md`（草稿）
+- `.workflow/{feature}/plan/research/research.md`
+- `.workflow/{feature}/specify/spec.md`
+
+**审查清单**（简化版）:
 - 架构是否覆盖所有功能需求？
 - 技术选型是否与调研结论一致？
 - 依赖分析是否完整？
 - 风险评估是否全面？
 - ADR 是否完整记录关键决策？
+
+> **完整清单**: 参见 [references/review-checklist.md](references/review-checklist.md) 的 REVIEW-2 部分，包含 7 个维度 20+ 检查项
 
 **判定规则**:
 
@@ -170,12 +208,17 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 
 **目标**: 最终验证，获取用户批准
 
+**输入**:
+- `.workflow/{feature}/plan/plan.md`（已审查）
+- 审查报告
+
 **动作**:
 1. 运行完整性检查
 2. 运行覆盖度检查
 3. 展示设计摘要
 4. 通过 AskUserQuestion 请求用户批准
-5. 更新 plan 状态为 "approved"
+5. 更新 plan.md frontmatter 状态为 "approved"
+6. 更新 `.state.yaml`
 
 **输出**: `.workflow/{feature}/plan/plan.md`（已批准）
 
@@ -223,6 +266,16 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 └── .state.yaml               # 状态跟踪
 ```
 
+**.state.yaml 格式**（简化）:
+```yaml
+feature: {feature-id}
+version: 2.0.0
+phase: analyze | research | review-1 | plan | review-2 | validate
+status: in_progress | completed | failed
+```
+
+> **完整格式**: 参见 [references/phase-details.md](references/phase-details.md) 中的"状态文件格式"章节
+
 ---
 
 ## 循环控制
@@ -262,10 +315,10 @@ NEEDS_RESEARCH → RESEARCH → REVIEW-1 → PLAN → REVIEW-2
 
 ## 资源
 
-| 资源 | 路径 | 用途 |
-|------|------|------|
-| 计划模板 | [assets/plan-template.md](assets/plan-template.md) | plan.md 模板 |
-| 分析模板 | [assets/analysis-template.md](assets/analysis-template.md) | analysis.md 模板 |
-| 调研模板 | [assets/research-template.md](assets/research-template.md) | research.md 模板 |
-| 阶段参考 | [references/phase-details.md](references/phase-details.md) | 详细阶段文档 |
-| 审查清单 | [references/review-checklist.md](references/review-checklist.md) | 审查清单详情 |
+| 资源 | 路径 | 何时使用 |
+|------|------|----------|
+| 计划模板 | [assets/plan-template.md](assets/plan-template.md) | PLAN 阶段生成 plan.md 时 |
+| 分析模板 | [assets/analysis-template.md](assets/analysis-template.md) | ANALYZE 阶段生成 analysis.md 时 |
+| 调研模板 | [assets/research-template.md](assets/research-template.md) | RESEARCH 阶段生成 research.md 时 |
+| 阶段参考 | [references/phase-details.md](references/phase-details.md) | 需要了解阶段子任务详情、判定逻辑伪代码、状态文件格式时 |
+| 审查清单 | [references/review-checklist.md](references/review-checklist.md) | 执行 REVIEW-1/REVIEW-2 时需要完整检查项列表 |
