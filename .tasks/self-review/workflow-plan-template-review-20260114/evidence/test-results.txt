@@ -1,0 +1,2 @@
+No tests (review only)
+EXIT_CODE: 0

@@ -1,0 +1,2 @@
+No tests (docs only)
+EXIT_CODE: 0
