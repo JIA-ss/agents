@@ -1,0 +1,42 @@
+feature: workflow-task-enhancement
+version: 2.0.0
+phase: validate
+status: completed
+
+completed_phases:
+  analyze:
+    completed_at: "2026-01-15T06:15:00Z"
+    output: analyze/analysis.md
+  research:
+    completed_at: "2026-01-15T06:17:00Z"
+    output: research/research.md
+  review-1:
+    completed_at: "2026-01-15T06:18:00Z"
+    output: reviews/review-1/round-1/review-response.md
+  plan:
+    completed_at: "2026-01-15T06:19:00Z"
+    output: plan.md
+  review-2:
+    completed_at: "2026-01-15T06:20:00Z"
+    output: reviews/review-2/round-1/review-response.md
+  validate:
+    completed_at: "2026-01-15T06:21:00Z"
+    output: plan.md
+
+reviews:
+  review-1:
+    current_round: 1
+    max_rounds: 3
+    history:
+      - round: 1
+        verdict: PASS
+        confidence: 0.95
+  review-2:
+    current_round: 1
+    max_rounds: 3
+    history:
+      - round: 1
+        verdict: PASS
+        confidence: 0.92
+
+rollbacks: []
