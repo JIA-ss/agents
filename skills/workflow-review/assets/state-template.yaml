@@ -1,0 +1,117 @@
+# workflow-review 状态文件模板
+# 路径: .workflow/{feature}/review/.state.yaml
+
+feature: "{feature-id}"           # 功能标识
+version: 1.0.0                     # 状态文件版本
+phase: collect                     # 当前阶段: collect/analyze/review/verdict/improve/report
+status: pending                    # 状态: pending/in_progress/completed/failed
+
+# 阶段进度追踪
+phases:
+  collect:
+    status: pending                # pending/in_progress/completed/failed
+    # completed_at: "2026-01-16T10:00:00Z"
+    # evidence_files: []
+  analyze:
+    status: pending
+    # completed_at: "2026-01-16T10:05:00Z"
+    # dimensions_checked: 5
+  review:
+    status: pending
+    # completed_at: "2026-01-16T10:10:00Z"
+    # agent_id: "xxx"
+  verdict:
+    status: pending
+    # completed_at: "2026-01-16T10:12:00Z"
+    # result: PASS/NEEDS_FIX/REJECTED
+  improve:
+    status: pending
+    # completed_at: "2026-01-16T10:20:00Z"
+    # triggered_implement: true
+  report:
+    status: pending
+    # completed_at: "2026-01-16T10:25:00Z"
+    # output: "final-report.md"
+
+# 审查历史
+reviews: []
+  # - round: 1
+  #   started_at: "2026-01-16T10:00:00Z"
+  #   completed_at: "2026-01-16T10:15:00Z"
+  #   verdict: NEEDS_FIX
+  #   issues_count:
+  #     blocker: 0
+  #     critical: 1
+  #     major: 3
+  #     minor: 2
+  #   issues:
+  #     - id: "I001"
+  #       severity: CRITICAL
+  #       dimension: code_quality
+  #       message: "Function too complex"
+  #       file: "src/auth.ts"
+  #       line: 42
+  #   improve_triggered_at: "2026-01-16T10:16:00Z"
+
+# 证据收集
+evidence:
+  test_results:
+    collected: false
+    # path: "evidence/test-results.txt"
+    # passed: 42
+    # failed: 0
+    # skipped: 2
+  lint_results:
+    collected: false
+    # path: "evidence/lint-results.txt"
+    # errors: 0
+    # warnings: 5
+  coverage:
+    collected: false
+    # path: "evidence/coverage-report.txt"
+    # percentage: 85.5
+  changes:
+    collected: false
+    # path: "evidence/changes.diff"
+    # files_changed: 10
+    # insertions: 150
+    # deletions: 30
+
+# 维度分析结果
+dimensions:
+  code_quality:
+    checked: false
+    # score: 0.9
+    # issues: []
+  test_coverage:
+    checked: false
+    # score: 0.85
+    # issues: []
+  spec_compliance:
+    checked: false
+    # score: 1.0
+    # issues: []
+  security:
+    checked: false
+    # score: 1.0
+    # issues: []
+  performance:
+    checked: false
+    # score: 0.95
+    # issues: []
+
+# 统计信息
+stats:
+  total_rounds: 0
+  total_issues: 0
+  fixed_issues: 0
+  started_at: null
+  completed_at: null
+
+# 错误记录
+errors: []
+  # - timestamp: "2026-01-16T10:05:00Z"
+  #   phase: collect
+  #   type: test_command_not_found
+  #   message: "npm test command not found"
+  #   recoverable: true
