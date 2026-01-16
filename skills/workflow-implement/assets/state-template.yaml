@@ -1,0 +1,83 @@
+# workflow-implement 状态文件模板
+# 路径: .workflow/{feature}/implement/.state.yaml
+
+feature: "{feature-id}"           # 功能标识
+version: 1.0.0                     # 状态文件版本
+phase: load                        # 当前阶段: load/plan/execute/review/commit/report
+status: pending                    # 状态: pending/in_progress/completed/failed
+
+# 阶段进度追踪
+phases:
+  load:
+    status: pending                # pending/in_progress/completed/failed
+    # completed_at: "2026-01-16T10:00:00Z"
+    # output: "任务 DAG"
+  plan:
+    status: pending
+    # completed_at: "2026-01-16T10:01:00Z"
+    # batches: 4
+    # critical_path: ["T1.1", "T1.2", "T3.1"]
+  execute:
+    status: pending
+    current_batch: 0
+    total_batches: 0
+    # started_at: "2026-01-16T10:02:00Z"
+  review:
+    status: pending
+    rounds: 0
+    max_rounds: 3
+    # current_verdict: PASS/NEEDS_FIX/REJECTED
+  commit:
+    status: pending
+    # commits_count: 0
+    # commit_shas: []
+  report:
+    status: pending
+    # output: "implement-report.md"
+
+# 任务状态追踪
+# 键: 任务 ID, 值: 状态对象
+tasks:
+  # T1.1:
+  #   status: completed           # pending/in_progress/completed/failed/skipped
+  #   started_at: "2026-01-16T10:00:00Z"
+  #   completed_at: "2026-01-16T10:05:00Z"
+  #   commit_sha: "abc123"
+  #   error: null
+  #   retry_count: 0
+  # T2.1:
+  #   status: in_progress
+  #   started_at: "2026-01-16T10:06:00Z"
+  # T3.1:
+  #   status: skipped
+  #   reason: "依赖任务 T2.1 失败"
+
+# 审查历史
+reviews: []
+  # - round: 1
+  #   started_at: "2026-01-16T10:10:00Z"
+  #   completed_at: "2026-01-16T10:15:00Z"
+  #   verdict: NEEDS_FIX
+  #   issues:
+  #     - task: T2.1
+  #       type: test_failure
+  #       message: "2 tests failed"
+  #   fixed_at: "2026-01-16T10:20:00Z"
+
+# 执行统计
+stats:
+  total_tasks: 0
+  completed_tasks: 0
+  failed_tasks: 0
+  skipped_tasks: 0
+  total_commits: 0
+  started_at: null
+  completed_at: null
+
+# 错误记录
+errors: []
+  # - timestamp: "2026-01-16T10:05:00Z"
+  #   task: T2.1
+  #   type: execution_error
+  #   message: "Test assertion failed"
+  #   recoverable: true
