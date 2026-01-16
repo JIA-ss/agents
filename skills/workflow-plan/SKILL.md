@@ -100,16 +100,56 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 - `.workflow/{feature}/plan/analyze/analysis.md`
 - analysis.md 中标记的调研主题列表
 
+#### 5 阶段子流程
+
+RESEARCH 阶段采用 5 个子阶段的结构化流程：
+
+```mermaid
+graph LR
+    A[1-Overview] --> B[2-Current State]
+    B --> C[3-Analysis]
+    C --> D{复杂度}
+    D -->|复杂| E[4-Deep Dive]
+    E --> F[5-Implementation]
+    D -->|简单| G[跳过]
+    F --> H[汇总]
+    G --> H
+    H --> I[research.md]
+```
+
+| 子阶段 | 目标 | 必选 | 输出 |
+|--------|------|------|------|
+| 1-Overview | 建立整体概览、背景、范围 | 是 | overview.md |
+| 2-Current State | 收集现有方案、资源清单 | 是 | current-state.md |
+| 3-Analysis | 方案对比、权衡矩阵、推荐 | 是 | analysis.md |
+| 4-Deep Dive | 深入分析、依赖评估、POC | 否 | deep-dive.md |
+| 5-Implementation | 最佳实践、实现细节 | 否 | implementation.md |
+
+#### 证据管理
+
+每次搜索/分析都需要记录证据：
+
+- **证据文件**: `research/evidence/evidence-{N}.md`
+- **引用格式**: 在结论中使用 `[E-{N}]` 引用
+- **证据等级**: A（官方）/ B（维护者）/ C（社区）/ D（论坛）
+
+> **模板**: 使用 [assets/research/evidence-template.md](assets/research/evidence-template.md)
+
+#### 断点恢复
+
+使用 `--resume` 选项时：
+1. 读取 .state.yaml 中的 `sub_phases` 状态
+2. 跳过已完成的子阶段
+3. 从 `current_sub_phase` 继续执行
+4. 保留已生成的证据文件
+
 **动作**:
-1. 建立整体概览（调研背景、范围、技术全景图）
-2. 使用 WebSearch/WebFetch 搜索技术资料
-3. 使用 Task (Explore) 分析现有代码库
-4. 对比技术方案的优缺点（至少 2 个方案，使用可视化对比图）
-5. 建立权衡决策矩阵
-6. 评估依赖项的成熟度
-7. 收集最佳实践
-8. 生成调研结论（决策点状态表 + 推荐选型）
-9. 撰写总结与展望（核心发现、风险、后续建议）
+1. 执行 1-Overview 子阶段（建立调研概览）
+2. 执行 2-Current State 子阶段（收集现有方案）
+3. 执行 3-Analysis 子阶段（方案对比和推荐）
+4. 执行 4-Deep Dive 子阶段（可选，深入分析）
+5. 执行 5-Implementation 子阶段（可选，最佳实践）
+6. 汇总生成最终 research.md
 
 **输出要求（9 个必需章节）**:
 1. 整体概览 - 调研背景 + 范围 + 技术全景图（Mermaid）
@@ -120,7 +160,7 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 6. 实验/POC 结果（可选）
 7. 最佳实践
 8. 调研结论 - 决策点状态表 + 推荐选型
-9. 总结与展望 - 核心发现 + 风险 + 后续建议
+9. 总结与展望 - 核心发现 + 风险 + 后续建议 + 证据索引
 
 **完成标准**:
 - 所有 P0 调研主题都有明确结论
@@ -128,15 +168,18 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 - 技术方案对比完整（列出优缺点）
 - 包含至少 1 个可视化图表（技术全景图或方案对比图）
 - 包含总结与展望章节
+- 证据记录完整（每次搜索/分析都有记录）
 
 **超时配置**:
 - 阶段超时: 5 分钟
 - 单次搜索: 30 秒
 - 最多引用: 10 个来源
+- 单子阶段: 1 分钟
 
 **输出**: `.workflow/{feature}/plan/research/research.md`
 
 > **模板**: 使用 [assets/research-template.md](assets/research-template.md) 生成 research.md
+> **子阶段模板**: 参见 [assets/research/](assets/research/) 目录
 
 ---
 
@@ -273,7 +316,21 @@ description: 基于需求规范生成技术计划。通过 6 阶段流程（ANAL
 ├── analyze/
 │   └── analysis.md           # ANALYZE 阶段输出
 ├── research/
-│   └── research.md           # RESEARCH 阶段输出
+│   ├── 1-overview/           # 子阶段 1 输出
+│   │   └── overview.md
+│   ├── 2-current-state/      # 子阶段 2 输出
+│   │   └── current-state.md
+│   ├── 3-analysis/           # 子阶段 3 输出
+│   │   └── analysis.md
+│   ├── 4-deep-dive/          # 子阶段 4 输出（可选）
+│   │   └── deep-dive.md
+│   ├── 5-implementation/     # 子阶段 5 输出（可选）
+│   │   └── implementation.md
+│   ├── evidence/             # 证据记录
+│   │   ├── evidence-1.md
+│   │   ├── evidence-2.md
+│   │   └── ...
+│   └── research.md           # 汇总报告
 ├── reviews/
 │   ├── review-1/             # 分析审查
 │   │   └── round-{N}/
@@ -338,6 +395,17 @@ NEEDS_RESEARCH → RESEARCH → REVIEW-1 → PLAN → REVIEW-2
 |------|------|----------|
 | 计划模板 | [assets/plan-template.md](assets/plan-template.md) | PLAN 阶段生成 plan.md 时 |
 | 分析模板 | [assets/analysis-template.md](assets/analysis-template.md) | ANALYZE 阶段生成 analysis.md 时 |
-| 调研模板 | [assets/research-template.md](assets/research-template.md) | RESEARCH 阶段生成 research.md 时 |
+| 调研模板 | [assets/research-template.md](assets/research-template.md) | RESEARCH 阶段生成汇总 research.md 时 |
 | 阶段参考 | [references/phase-details.md](references/phase-details.md) | 需要了解阶段子任务详情、判定逻辑伪代码、状态文件格式时 |
 | 审查清单 | [references/review-checklist.md](references/review-checklist.md) | 执行 REVIEW-1/REVIEW-2 时需要完整检查项列表 |
+
+### RESEARCH 子阶段模板
+
+| 资源 | 路径 | 何时使用 |
+|------|------|----------|
+| Overview 模板 | [assets/research/overview-template.md](assets/research/overview-template.md) | 子阶段 1: 建立调研概览 |
+| Current State 模板 | [assets/research/current-state-template.md](assets/research/current-state-template.md) | 子阶段 2: 收集现有方案 |
+| Analysis 模板 | [assets/research/analysis-template.md](assets/research/analysis-template.md) | 子阶段 3: 方案对比分析 |
+| Deep Dive 模板 | [assets/research/deep-dive-template.md](assets/research/deep-dive-template.md) | 子阶段 4: 深入分析（可选）|
+| Implementation 模板 | [assets/research/implementation-template.md](assets/research/implementation-template.md) | 子阶段 5: 实现指南（可选）|
+| Evidence 模板 | [assets/research/evidence-template.md](assets/research/evidence-template.md) | 记录每次搜索/分析的证据 |

@@ -99,72 +99,194 @@
 - `analyze/analysis.md`
 - 调研主题列表
 
-### 子任务
+### 5 阶段子流程
 
-1. **建立整体概览**
-   - 撰写调研背景（为什么需要调研）
-   - 定义调研范围（涵盖哪些维度）
-   - 绘制技术全景图（Mermaid graph）
+RESEARCH 阶段采用 5 个子阶段的结构化流程：
 
-2. **定义评价准则**
-   - 明确性能/成本/维护/安全等维度
-   - 为权衡矩阵准备权重
+```mermaid
+graph LR
+    A[1-Overview] --> B[2-Current State]
+    B --> C[3-Analysis]
+    C --> D{复杂度检查}
+    D -->|复杂/标准模式| E[4-Deep Dive]
+    E --> F[5-Implementation]
+    D -->|简单/--quick| G[跳过可选阶段]
+    F --> H[汇总生成]
+    G --> H
+    H --> I[research.md]
+```
 
-3. **执行技术调研**
-   - 使用 WebSearch 搜索技术资料
-   - 使用 WebFetch 获取文档内容
-   - 使用 Task (Explore) 分析代码库
+#### 子阶段 1: Overview（必选）
 
-4. **记录证据等级与置信度**
-   - 标注来源类型（标准/官方/社区）
-   - 给出置信度（High/Med/Low）
+**目标**: 建立整体概览，明确调研背景和范围
 
-5. **对比技术方案**
-   - 绘制方案概览图（Mermaid graph）
-   - 至少对比 2 个方案
-   - 列出优缺点和适用场景
-   - 给出推荐度评分
+**输入**: analysis.md 中的调研主题
+**输出**: `research/1-overview/overview.md`
 
-6. **建立权衡决策矩阵**
-   - 按评价准则评分（1-5 分）
-   - 计算加权总分
-   - 明确推荐方案与理由
+**动作**:
+1. 撰写调研背景
+2. 定义调研范围表格
+3. 绘制技术全景图（Mermaid）
+4. 定义证据等级标准
+5. 列出调研主题
 
-7. **评估依赖**
-   - 检查维护状态
-   - 查看最近更新时间
-   - 评估风险等级
+**模板**: [assets/research/overview-template.md](../assets/research/overview-template.md)
 
-8. **实验/POC（可选）**
-   - 验证关键假设
-   - 记录结果与风险
+#### 子阶段 2: Current State（必选）
 
-9. **收集最佳实践**
-   - 从官方文档提取
-   - 从社区经验提取
+**目标**: 收集现有方案和资源清单
 
-10. **形成调研结论**
-    - 决策点状态表（状态、结论、置信度）
-    - 推荐技术选型表（领域、推荐、理由、关联决策点）
+**输入**: overview.md
+**输出**: `research/2-current-state/current-state.md`
 
-11. **撰写总结与展望**
-    - 核心发现（3-5 条）
-    - 风险与不确定性
-    - 后续建议（action items）
+**动作**:
+1. 搜索现有方案（WebSearch）
+2. 获取文档内容（WebFetch）
+3. 分析代码库（Task Explore）
+4. 整理资源清单
+5. 绘制技术发展时间线
 
-### 9 个必需章节
+**模板**: [assets/research/current-state-template.md](../assets/research/current-state-template.md)
 
-| 章节 | 内容 | 可视化要求 |
-|------|------|------------|
-| 1. 整体概览 | 背景 + 范围 + 全景图 | 技术全景图（Mermaid） |
-| 2. 调研主题详情 | 问题、结论、建议、来源 | - |
-| 3. 技术方案对比 | 方案概览 + 对比表 | 方案对比图（可选） |
-| 4. 权衡决策矩阵 | 量化评分表 | - |
-| 5. 依赖评估 | 版本、状态、风险 | - |
-| 6. 实验/POC 结果 | 目标、方法、结果 | 可选 |
-| 7. 最佳实践 | 实践列表 | - |
-| 8. 调研结论 | 决策点表 + 选型表 | - |
-| 9. 总结与展望 | 发现 + 风险 + 建议 | - |
+#### 子阶段 3: Analysis（必选）
+
+**目标**: 方案对比、建立权衡矩阵、形成推荐
+
+**输入**: current-state.md
+**输出**: `research/3-analysis/analysis.md`
+
+**动作**:
+1. 绘制方案概览图
+2. 填写方案对比表
+3. 定义评价准则和权重
+4. 计算权衡决策矩阵
+5. 确定推荐方案
+
+**模板**: [assets/research/analysis-template.md](../assets/research/analysis-template.md)
+
+#### 子阶段 4: Deep Dive（可选）
+
+**目标**: 对推荐方案进行深入分析和验证
+
+**触发条件**:
+- 调研主题 > 2 个
+- 非 `--quick` 模式
+- 存在高风险技术选型
+
+**输入**: analysis.md
+**输出**: `research/4-deep-dive/deep-dive.md`
+
+**动作**:
+1. 深入技术细节分析
+2. 依赖评估（版本、许可证、维护状态）
+3. 执行 POC/实验（可选）
+4. 边界情况分析
+5. 集成考虑
+
+**模板**: [assets/research/deep-dive-template.md](../assets/research/deep-dive-template.md)
+
+#### 子阶段 5: Implementation（可选）
+
+**目标**: 收集最佳实践和实现指南
+
+**触发条件**: 同 Deep Dive
+
+**输入**: deep-dive.md（或 analysis.md 如果跳过 Deep Dive）
+**输出**: `research/5-implementation/implementation.md`
+
+**动作**:
+1. 收集最佳实践
+2. 整理实现模式
+3. 编写配置指南
+4. 记录常见问题
+5. 提供监控建议
+
+**模板**: [assets/research/implementation-template.md](../assets/research/implementation-template.md)
+
+### 证据管理
+
+每次搜索/分析都需要记录证据：
+
+**证据文件**: `research/evidence/evidence-{N}.md`
+
+**证据格式**:
+```markdown
+## 证据记录 #{N}
+
+| 字段 | 值 |
+|------|-----|
+| **ID** | E-{N} |
+| **时间** | {ISO 8601} |
+| **阶段** | 1-overview / 2-current-state / ... |
+| **类型** | web-search / code-analysis / ... |
+| **状态** | success / failed |
+
+### 关键发现
+- {发现1}
+- {发现2}
+
+### 来源
+- [来源名称](url)
+
+### 证据等级
+A/B/C/D
+```
+
+**引用格式**: 在结论中使用 `[E-{N}]` 引用证据
+
+**模板**: [assets/research/evidence-template.md](../assets/research/evidence-template.md)
+
+### 子阶段状态文件格式
+
+```yaml
+completed_phases:
+  research:
+    status: in_progress
+    sub_phases:
+      overview:
+        status: completed
+        completed_at: "2026-01-16T10:00:00Z"
+        output: "research/1-overview/overview.md"
+      current_state:
+        status: completed
+        completed_at: "2026-01-16T10:05:00Z"
+        output: "research/2-current-state/current-state.md"
+      analysis:
+        status: in_progress
+        output: null
+      deep_dive:
+        status: pending
+        skipped: false
+      implementation:
+        status: pending
+        skipped: false
+    evidence_count: 3
+    current_sub_phase: analysis
+```
+
+### 断点恢复
+
+使用 `--resume` 选项时：
+
+1. 读取 .state.yaml 中的 `sub_phases` 状态
+2. 跳过已完成的子阶段
+3. 从 `current_sub_phase` 继续执行
+4. 保留已生成的证据文件
+
+### 汇总生成
+
+所有子阶段完成后，汇总生成最终的 `research.md`：
+
+| 子阶段 | 映射到 research.md 章节 |
+|--------|-------------------------|
+| 1-Overview | § 1 整体概览 |
+| 2-Current State | § 2 调研主题详情（部分） |
+| 3-Analysis | § 3-4 方案对比 + 权衡矩阵 |
+| 4-Deep Dive | § 5-6 依赖评估 + POC |
+| 5-Implementation | § 7 最佳实践 |
+| 汇总 | § 8-9 结论 + 展望 |
+
+**跳过处理**: 未执行的子阶段在对应章节标注 "未执行"
 
 ### 超时配置
 
@@ -173,6 +295,28 @@ research:
   stage_timeout: 300  # 5 分钟
   single_search_timeout: 30  # 单次搜索 30 秒
   max_sources: 10  # 最多引用 10 个来源
+  sub_phase_timeout: 60  # 单子阶段 1 分钟
+```
+
+### 输出结构
+
+```
+research/
+├── 1-overview/
+│   └── overview.md
+├── 2-current-state/
+│   └── current-state.md
+├── 3-analysis/
+│   └── analysis.md
+├── 4-deep-dive/           # 可选
+│   └── deep-dive.md
+├── 5-implementation/      # 可选
+│   └── implementation.md
+├── evidence/
+│   ├── evidence-1.md
+│   ├── evidence-2.md
+│   └── ...
+└── research.md            # 汇总报告
 ```
 
 ### 输出格式
