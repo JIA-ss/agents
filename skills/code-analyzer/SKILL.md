@@ -1,64 +1,131 @@
 ---
 name: code-analyzer
-description: Use when the user asks to "analyze code", "understand codebase", "trace dependencies", "visualize architecture", "complexity analysis", mentions "code structure", "call graph", "module dependencies", or needs help understanding unfamiliar code. Also responds to "分析代码", "梳理逻辑", "追踪依赖", "可视化架构", "代码结构".
+description: 专业的代码逻辑梳理工具，支持多语言代码结构分析、依赖追踪、流程可视化和复杂度评估。当用户要求"分析代码"、"理解代码库"、"追踪依赖"、"可视化架构"、"复杂度分析"，或提到"代码结构"、"调用图"、"模块依赖"时使用。也响应 "analyze code", "trace dependencies", "visualize architecture"。
 ---
 
-# Code Analyzer Skill Guide
+# Code Analyzer
 
-## Overview
+代码逻辑梳理与架构分析：SCOPE → SCAN → ANALYZE → VISUALIZE → REPORT
 
-专业的代码逻辑梳理和可视化分析工具，帮助开发者快速理解代码结构、依赖关系和执行流程。
+---
 
-**核心价值**：自动识别代码结构、绘制依赖关系图、生成执行流程可视化、评估代码复杂度
+## 🚀 执行流程
 
-## Analysis Scenarios
+**当此 skill 被触发时，你必须按以下流程执行：**
 
-| Input Type | Scenario | Focus |
-|------------|----------|-------|
-| File path | File-level | 深度分析函数定义、内部逻辑、复杂度评估 |
-| Directory path | Module-level | 模块结构、导出接口、依赖关系 |
-| Function name | Call chain | 追踪定义位置、调用者、被调用者 |
-| "arch"/"overview" | Architecture | 宏观目录结构、模块划分、技术栈 |
+### 立即行动
 
-## Workflow
+1. 解析用户输入，确定分析目标（文件/目录/模块）
+2. 识别分析类型：结构分析 / 依赖追踪 / 流程可视化 / 复杂度评估
+3. 开始 Phase 1: SCOPE
 
-1. **Scenario Identification** - 根据输入智能判断分析场景
-2. **Code Scanning** - 使用 Glob/Read/Grep 定位和读取代码
-3. **Structure Parsing** - 提取模块、类、函数、入口点、依赖关系
-4. **Visualization** - 智能选择图表类型，生成 Mermaid 可视化
-5. **Documentation** - 生成标准化 Markdown 分析报告
+### 📋 进度追踪 Checklist
 
-## Chart Selection Strategy
+**复制此清单并逐项完成：**
 
-| Analysis Target | Optimal Chart | Mermaid Type |
-|-----------------|---------------|--------------|
-| Overall architecture | 架构拓扑图 | `graph TB` |
-| Module dependencies | 依赖关系图 | `graph LR` |
-| Execution flow | 流程图 | `flowchart TD` |
-| Function call chain | 时序图 | `sequenceDiagram` |
-| Class inheritance | 类图 | `classDiagram` |
+```
+- [ ] Phase 1: SCOPE → 确定分析范围和目标
+- [ ] Phase 2: SCAN → 扫描代码文件，收集元数据
+- [ ] Phase 3: ANALYZE → 深度分析结构/依赖/复杂度
+- [ ] Phase 4: VISUALIZE → 生成 Mermaid 图表
+- [ ] Phase 5: REPORT → 输出分析报告
+```
 
-## Output Report Structure (8 Sections)
+### ✅ 阶段完成验证
 
-1. **概览** - 技术栈识别、代码规模统计
-2. **架构可视化** - Mermaid 架构图 + 架构说明
-3. **执行流程** - Mermaid 流程图/时序图 + 关键流程
-4. **核心组件说明** - 位置、职责、关键方法、依赖项
-5. **复杂度评估** - 整体评估、高复杂度区域、改进建议
-6. **依赖关系** - Mermaid 依赖图 + 分析
-7. **关键发现** - 优点、风险点、改进方向
-8. **相关文件索引** - 按重要性排序
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| SCOPE | 分析范围已确定 | → SCAN |
+| SCAN | 文件列表和元数据已收集 | → ANALYZE |
+| ANALYZE | 分析结果已生成 | → VISUALIZE |
+| VISUALIZE | Mermaid 图表已创建 | → REPORT |
+| REPORT | 报告已输出给用户 | → 结束 |
 
-## Quality Requirements
+---
 
-- At least 2 Mermaid diagrams (architecture + flow/dependency)
-- Code references with exact file path and line number (`file.js:123`)
-- Report length: 300-500 lines
-- Max 12 nodes per diagram (use subgraph for larger)
-- No ASCII art or plain text trees
+## Phase 详情
 
-## Limitations
+### Phase 1: SCOPE（确定范围）
 
-- Single analysis: recommend ≤ 50 files
-- Dynamic imports may not be fully tracked
-- Complex semantic analysis needs manual verification
+**你必须：**
+1. 解析用户指定的目标（文件路径/目录/模块名）
+2. 识别编程语言（自动检测或用户指定）
+3. 确定分析深度：浅层（结构）/ 中层（依赖）/ 深层（逻辑流）
+4. 列出将要分析的文件范围
+
+**完成标志**: 分析范围和深度已确定
+
+---
+
+### Phase 2: SCAN（扫描代码）
+
+**你必须：**
+1. 读取目标范围内的代码文件
+2. 提取基础元数据：文件大小、行数、函数/类数量
+3. 识别导入/导出语句
+4. 构建初步的文件依赖图
+
+**完成标志**: 文件元数据已收集
+
+---
+
+### Phase 3: ANALYZE（深度分析）
+
+**你必须：**
+1. 根据分析类型执行对应分析：
+   - **结构分析**: 类/函数/模块层次结构
+   - **依赖追踪**: 调用链、导入关系、数据流
+   - **复杂度评估**: 圈复杂度、认知复杂度、嵌套深度
+2. 识别关键节点和热点区域
+3. 记录发现的问题和优化建议
+
+**完成标志**: 分析结果已生成
+
+---
+
+### Phase 4: VISUALIZE（可视化）
+
+**你必须：**
+1. 根据分析结果生成 Mermaid 图表：
+   - 结构分析 → `classDiagram` 或 `flowchart`
+   - 依赖追踪 → `flowchart` 或 `graph`
+   - 调用链 → `sequenceDiagram`
+2. 控制图表复杂度（≤15 节点）
+3. 添加图例和说明
+
+**完成标志**: Mermaid 图表已创建
+
+---
+
+### Phase 5: REPORT（输出报告）
+
+**你必须：**
+1. 汇总分析发现
+2. 按重要性排序输出：
+   - 关键发现（必看）
+   - 架构问题（建议关注）
+   - 优化建议（可选）
+3. 附上 Mermaid 可视化图表
+4. 提供后续分析建议（如需要）
+
+**完成标志**: 报告已输出
+
+---
+
+## 分析类型说明
+
+| 类型 | 关键词 | 输出 |
+|------|--------|------|
+| 结构分析 | "代码结构"、"类图"、"模块划分" | 层次结构图 + 模块说明 |
+| 依赖追踪 | "依赖关系"、"调用链"、"谁调用了" | 依赖图 + 调用路径 |
+| 流程可视化 | "执行流程"、"数据流"、"状态变化" | 流程图 + 关键节点 |
+| 复杂度评估 | "复杂度"、"代码质量"、"热点" | 复杂度报告 + 重构建议 |
+
+---
+
+## 约束
+
+- 单次分析文件数：≤50 个
+- Mermaid 图表节点：≤15 个
+- 分析深度：最多 3 层调用链
+- 超出范围时主动询问用户是否缩小范围

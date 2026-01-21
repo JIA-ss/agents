@@ -1,63 +1,135 @@
 ---
 name: doc-writer
-description: Use when the user asks to "write documentation", "generate README", "create API docs", "document this code", "restructure documentation", mentions "technical documentation", or discusses documentation quality, documentation standards, or improving existing docs. Also responds to "写文档", "生成 README", "创建 API 文档".
+description: 专注于技术文档编写的 AI agent，自动生成结构化、高质量的 README、API 文档和架构说明。当用户要求"写文档"、"生成 README"、"创建 API 文档"、"记录这段代码"、"重构文档"，或提到"技术文档"、"文档质量"、"文档标准"时使用。也响应 "write documentation", "generate README", "create API docs"。
 ---
 
-# Documentation Writer Skill Guide
+# Doc Writer
 
-## Overview
+技术文档自动生成：ANALYZE → OUTLINE → DRAFT → REVIEW → FINALIZE
 
-专注于技术文档编写的 AI skill，自动生成结构化、高质量的 README、API 文档和架构说明。
+---
 
-**核心价值**：标准化、结构化、自动化、可维护性
+## 🚀 执行流程
 
-## Workflow (5 Phases)
+**当此 skill 被触发时，你必须按以下流程执行：**
 
-1. **Requirement Analysis** - 识别文档类型、目标受众、风格要求
-2. **Information Gathering** - 分析代码结构、提取 API、读取配置、解析注释
-3. **Structure Design** - 选择模板、规划章节、规划可视化元素
-4. **Content Generation** - 填充内容、生成图表、生成代码示例
-5. **Quality Check** - 完整性、准确性、格式、可读性检查
+### 立即行动
 
-## Document Templates
+1. 解析用户输入，确定文档类型（README / API / 架构 / 指南）
+2. 识别目标代码或项目范围
+3. 开始 Phase 1: ANALYZE
 
-| Type | Core Sections |
-|------|---------------|
-| **README** | 项目简介、功能特性、快速开始、安装部署、使用示例、贡献指南 |
-| **API Docs** | 接口概述、认证方式、端点列表、请求/响应格式、错误码、示例 |
-| **Architecture** | 系统概述、架构设计、技术栈、模块说明、数据流、部署架构 |
-| **Dev Guide** | 环境搭建、项目结构、开发流程、编码规范、测试指南、发布流程 |
+### 📋 进度追踪 Checklist
 
-## Quality Checklist
+**复制此清单并逐项完成：**
 
-- [ ] 必需章节完整
-- [ ] API 信息准确一致
-- [ ] Markdown 语法正确
-- [ ] 代码块语言标识正确
-- [ ] Mermaid 图表可渲染
-- [ ] 章节层次清晰（不超过4级）
-- [ ] 示例充足、可运行
-- [ ] 专业术语有解释
+```
+- [ ] Phase 1: ANALYZE → 分析代码/项目，提取文档素材
+- [ ] Phase 2: OUTLINE → 生成文档大纲
+- [ ] Phase 3: DRAFT → 编写文档草稿
+- [ ] Phase 4: REVIEW → 检查文档质量
+- [ ] Phase 5: FINALIZE → 输出最终文档
+```
 
-## Visualization Requirements
+### ✅ 阶段完成验证
 
-复杂架构和流程**必须**使用 Mermaid 图表：
-- 系统架构：使用 `flowchart` + `subgraph` 分层
-- 数据流：使用 `sequenceDiagram`
-- 关系模型：使用 `erDiagram`
-- 能力概览：使用 `mindmap`
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| ANALYZE | 文档素材已提取 | → OUTLINE |
+| OUTLINE | 大纲已生成并确认 | → DRAFT |
+| DRAFT | 草稿已完成 | → REVIEW |
+| REVIEW | 质量检查通过 | → FINALIZE |
+| FINALIZE | 文档已输出 | → 结束 |
 
-## Best Practices
+---
 
-1. 保持代码注释完整（JSDoc/TSDoc/Docstring）
-2. 使用标准项目结构（src/、docs/、tests/）
-3. 明确文档受众，调整技术深度
-4. 每个 API 接口提供完整调用示例
-5. 定期更新，代码重构后及时同步
+## Phase 详情
 
-## Limitations
+### Phase 1: ANALYZE（分析素材）
 
-- 文档质量依赖于代码注释完整性
-- 复杂业务逻辑需人工补充背景
-- 支持语言：JavaScript/TypeScript、Python、Java、Go
-- 生成的是静态快照，代码变更后需重新生成
+**你必须：**
+1. 读取目标代码文件/项目结构
+2. 提取关键信息：
+   - README: 项目名、描述、安装方式、使用方法
+   - API 文档: 接口、参数、返回值、示例
+   - 架构文档: 模块、依赖、数据流
+3. 识别现有文档（如有），分析需要更新的内容
+4. 记录缺失的信息，准备向用户询问
+
+**完成标志**: 文档素材已收集
+
+---
+
+### Phase 2: OUTLINE（生成大纲）
+
+**你必须：**
+1. 根据文档类型选择模板结构
+2. 生成章节大纲
+3. 展示大纲给用户确认（复杂文档）
+
+**文档类型模板**:
+- **README**: 简介 → 特性 → 安装 → 使用 → 配置 → 贡献 → 许可
+- **API 文档**: 概述 → 认证 → 端点列表 → 错误码 → 示例
+- **架构文档**: 概述 → 架构图 → 组件说明 → 数据流 → 部署
+
+**完成标志**: 大纲已生成
+
+---
+
+### Phase 3: DRAFT（编写草稿）
+
+**你必须：**
+1. 按大纲逐节编写内容
+2. 代码示例必须可运行
+3. 使用清晰的 Markdown 格式
+4. 添加必要的 Mermaid 图表（架构文档）
+
+**写作原则**:
+- 简洁清晰，避免冗余
+- 示例驱动，先展示后解释
+- 格式一致，层次分明
+
+**完成标志**: 草稿已完成
+
+---
+
+### Phase 4: REVIEW（质量检查）
+
+**你必须：**
+1. 检查完整性：所有必需章节已填写
+2. 检查准确性：代码示例正确、链接有效
+3. 检查可读性：语句通顺、格式规范
+4. 检查一致性：术语统一、风格一致
+
+**完成标志**: 质量检查通过
+
+---
+
+### Phase 5: FINALIZE（输出文档）
+
+**你必须：**
+1. 应用最终格式调整
+2. 输出文档内容或写入文件
+3. 提供后续维护建议（如需要）
+
+**完成标志**: 文档已输出
+
+---
+
+## 文档质量标准
+
+| 维度 | 标准 |
+|------|------|
+| 完整性 | 必需章节 100% 覆盖 |
+| 准确性 | 代码示例可运行，信息与代码一致 |
+| 可读性 | 目标读者能在 5 分钟内理解核心内容 |
+| 可维护性 | 结构清晰，易于后续更新 |
+
+---
+
+## 约束
+
+- README 长度：500-2000 字
+- API 文档每个端点：必须含示例
+- 架构文档：必须含 Mermaid 图
+- 禁止包含敏感信息（密钥、密码、内部 URL）

@@ -1,41 +1,120 @@
 ---
 name: codex
-description: Use when the user asks to run Codex CLI (codex exec, codex resume) or references OpenAI Codex for code analysis, refactoring, or automated editing
+description: 调用 OpenAI Codex CLI 进行代码分析、重构或自动化编辑。当用户要求运行 Codex CLI（codex exec, codex resume）或提及使用 OpenAI Codex 进行代码分析、重构或自动化编辑时使用。
 ---
 
-# Codex Skill Guide
+# Codex
 
-## Default Configuration (Fixed)
-- **Model**: `gpt-5.2-codex`
-- **Reasoning Effort**: `xhigh`
-- **Sandbox**: `danger-full-access` (full read/write/network permissions)
-- **Auto Mode**: `--full-auto` (enabled by default)
+OpenAI Codex CLI 集成：PARSE → VALIDATE → EXECUTE → REPORT
 
-## Running a Task
-1. Directly assemble the command with the following fixed options:
-   - `-m gpt-5.2-codex`
-   - `--config model_reasoning_effort="xhigh"`
-   - `--sandbox danger-full-access`
-   - `--full-auto`
-   - `--skip-git-repo-check`
-   - `-C, --cd <DIR>` (if needed)
-2. Always use --skip-git-repo-check.
-3. When continuing a previous session, use `codex exec --skip-git-repo-check resume --last` via stdin. When resuming don't use any configuration flags unless explicitly requested by the user. Resume syntax: `echo "your prompt here" | codex exec --skip-git-repo-check resume --last 2>/dev/null`. All flags have to be inserted between exec and resume.
-4. **IMPORTANT**: By default, append `2>/dev/null` to all `codex exec` commands to suppress thinking tokens (stderr). Only show stderr if the user explicitly requests to see thinking tokens or if debugging is needed.
-5. Run the command, capture stdout/stderr (filtered as appropriate), and summarize the outcome for the user.
-6. **After Codex completes**, inform the user: "You can resume this Codex session at any time by saying 'codex resume' or asking me to continue with additional analysis or changes."
+---
 
-### Quick Reference
-| Use case | Command template |
-| --- | --- |
-| Standard execution | `codex exec -m gpt-5.2-codex --config model_reasoning_effort="xhigh" --sandbox danger-full-access --full-auto --skip-git-repo-check "prompt" 2>/dev/null` |
-| Run from another directory | `codex exec -m gpt-5.2-codex --config model_reasoning_effort="xhigh" --sandbox danger-full-access --full-auto --skip-git-repo-check -C <DIR> "prompt" 2>/dev/null` |
-| Resume recent session | `echo "prompt" \| codex exec --skip-git-repo-check resume --last 2>/dev/null` |
+## 🚀 执行流程
 
-## Following Up
-- After every `codex` command, immediately use `AskUserQuestion` to confirm next steps, collect clarifications, or decide whether to resume with `codex exec resume --last`.
-- When resuming, pipe the new prompt via stdin: `echo "new prompt" | codex exec resume --last 2>/dev/null`. The resumed session automatically uses the same model, reasoning effort, and sandbox mode from the original session.
+**当此 skill 被触发时，你必须按以下流程执行：**
 
-## Error Handling
-- Stop and report failures whenever `codex --version` or a `codex exec` command exits non-zero; request direction before retrying.
-- When output includes warnings or partial results, summarize them and ask how to adjust using `AskUserQuestion`.
+### 立即行动
+
+1. 解析用户输入，识别 Codex 命令类型（exec / resume）
+2. 提取命令参数和提示词
+3. 开始 Phase 1: PARSE
+
+### 📋 进度追踪 Checklist
+
+**复制此清单并逐项完成：**
+
+```
+- [ ] Phase 1: PARSE → 解析命令和参数
+- [ ] Phase 2: VALIDATE → 验证环境和参数
+- [ ] Phase 3: EXECUTE → 执行 Codex 命令
+- [ ] Phase 4: REPORT → 输出执行结果
+```
+
+### ✅ 阶段完成验证
+
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| PARSE | 命令和参数已解析 | → VALIDATE |
+| VALIDATE | 环境检查通过 | → EXECUTE |
+| EXECUTE | 命令已执行 | → REPORT |
+| REPORT | 结果已输出 | → 结束 |
+
+---
+
+## Phase 详情
+
+### Phase 1: PARSE（解析命令）
+
+**你必须：**
+1. 识别命令类型：
+   - `codex exec <prompt>` - 执行新任务
+   - `codex resume` - 恢复上一会话
+2. 提取提示词内容
+3. 识别可选参数（-C 目录等）
+
+**完成标志**: 命令和参数已解析
+
+---
+
+### Phase 2: VALIDATE（验证环境）
+
+**你必须：**
+1. 确认将使用的固定配置参数
+2. 如指定目录（-C），验证目录存在
+
+**固定配置（不可修改）**:
+- Model: `gpt-5.2-codex`
+- Reasoning: `xhigh`
+- Sandbox: `danger-full-access`
+- Mode: `--full-auto`
+
+**完成标志**: 参数验证通过
+
+---
+
+### Phase 3: EXECUTE（执行命令）
+
+**你必须：**
+1. 组装完整命令
+2. 使用 Bash 工具执行
+3. 追加 `2>/dev/null` 抑制 thinking tokens
+
+**命令模板**:
+```bash
+# 标准执行
+codex exec -m gpt-5.2-codex --config model_reasoning_effort="xhigh" --sandbox danger-full-access --full-auto --skip-git-repo-check "prompt" 2>/dev/null
+
+# 恢复会话
+echo "prompt" | codex exec --skip-git-repo-check resume --last 2>/dev/null
+```
+
+**完成标志**: 命令已执行
+
+---
+
+### Phase 4: REPORT（输出结果）
+
+**你必须：**
+1. 格式化输出执行结果
+2. 如有代码变更，展示关键 diff
+3. 如有错误，提供排查建议
+4. 告知用户可随时说 "codex resume" 恢复会话
+
+**完成标志**: 结果已输出
+
+---
+
+## 命令参考
+
+| 场景 | 命令 |
+|------|------|
+| 标准执行 | `codex exec -m gpt-5.2-codex --config model_reasoning_effort="xhigh" --sandbox danger-full-access --full-auto --skip-git-repo-check "prompt" 2>/dev/null` |
+| 指定目录 | 添加 `-C <DIR>` |
+| 恢复会话 | `echo "prompt" \| codex exec --skip-git-repo-check resume --last 2>/dev/null` |
+
+---
+
+## 错误处理
+
+- 命令非零退出 → 停止并报告，请求用户指示
+- 部分结果/警告 → 汇总并通过 AskUserQuestion 询问下一步

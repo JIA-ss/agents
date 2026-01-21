@@ -3,205 +3,145 @@ name: workflow-specify
 description: 将模糊的用户需求转化为结构化的 spec.md 规范文档。当用户想要定义功能、编写需求、创建规范，或提到"需求"、"规范"、"spec"、"用户故事"时使用。支持 mini/standard/full 三种模式。也响应 "workflow specify"、"工作流规范"。
 ---
 
-# Workflow Specify 指南
+# Workflow Specify
 
-## 概述
-
-通过 5 阶段流程将模糊的用户需求转化为 AI 可执行的结构化规范：CAPTURE（捕获）→ CLARIFY（澄清）→ STRUCTURE（结构化）→ REVIEW（审查）→ VALIDATE（验证）。
-
-**核心价值**：确保需求在实现前是完整的、无歧义的、可追溯的。
+将模糊需求转化为 AI 可执行的结构化规范：CAPTURE → CLARIFY → STRUCTURE → REVIEW → VALIDATE
 
 ---
 
-## 工作流程
+## 🚀 执行流程
+
+**当此 skill 被触发时，你必须按以下流程执行：**
+
+### 立即行动
+
+1. 解析用户输入，提取 feature 名称和需求描述
+2. 确定模式: mini（默认）/ standard / full
+3. 创建目录: `.workflow/{feature}/specify/`
+4. 开始 Phase 1: CAPTURE
+
+### 📋 进度追踪 Checklist
+
+**复制此清单并逐项完成：**
 
 ```
-CAPTURE → CLARIFY → STRUCTURE → REVIEW → VALIDATE
-  捕获      澄清      结构化      审查      验证
-    │         │          │          │         │
-    ▼         ▼          ▼          ▼         ▼
-raw-notes  clarified   spec.md   spec.md   spec.md
-   .md       .md       (草稿)    (已审查)  (已批准)
+- [ ] Phase 1: CAPTURE → 输出: capture/raw-notes.md
+- [ ] Phase 2: CLARIFY → 输出: clarify/clarified.md（可跳过）
+- [ ] Phase 3: STRUCTURE → 输出: spec.md（草稿）
+- [ ] Phase 4: REVIEW → 输出: reviews/round-{N}/review-response.md
+- [ ] Phase 5: VALIDATE → 输出: spec.md（status: approved）
 ```
 
-### 阶段 1: CAPTURE（捕获）
+### ✅ 阶段完成验证
 
-**目标**: 收集和理解原始需求
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| CAPTURE | `capture/raw-notes.md` 存在 | → CLARIFY |
+| CLARIFY | `clarify/clarified.md` 存在 或 ambiguity_score=0 | → STRUCTURE |
+| STRUCTURE | `spec.md` 存在且包含用户故事 | → REVIEW |
+| REVIEW | 判定为 PASS | → VALIDATE |
+| VALIDATE | 用户批准，status: approved | → 结束 |
 
-**动作**:
-1. 读取项目上下文（CLAUDE.md, constitution.md 如果存在）
+---
+
+## Phase 详情
+
+### Phase 1: CAPTURE（捕获）
+
+**你必须：**
+1. 读取项目上下文（CLAUDE.md, constitution.md 如存在）
 2. 扫描现有代码库结构
 3. 识别利益相关者和用户角色
-4. 提取原始需求（功能性、非功能性、约束条件）
-5. 计算 ambiguity_score 并列出待澄清问题
+4. 提取原始需求（FR、NFR、约束）
+5. 计算 ambiguity_score，列出待澄清问题
+6. 创建 `capture/raw-notes.md`
 
-**输出**: `.workflow/{feature}/specify/capture/raw-notes.md`
+**完成标志**: `capture/raw-notes.md` 存在
 
-### 阶段 2: CLARIFY（澄清）
+---
 
-**目标**: 消除歧义，确认假设
+### Phase 2: CLARIFY（澄清）
 
-**动作**:
-1. 检测模糊词汇（"快速"、"简单"、"友好"、"fast"、"simple"）
-2. 生成澄清问题并提供推荐默认值
-3. 使用 AskUserQuestion 工具解决歧义
-4. 记录决策和已确认的假设
+**跳过条件**: ambiguity_score == 0 且无待澄清问题
 
-**跳过条件**: 如果 ambiguity_score == 0 且无待澄清问题
+**你必须：**
+1. 检测模糊词汇（"快速"、"简单"、"友好"等）
+2. 使用 AskUserQuestion 解决歧义
+3. 记录已确认的假设和决策
+4. 创建 `clarify/clarified.md`
 
-**输出**: `.workflow/{feature}/specify/clarify/clarified.md`
+**完成标志**: `clarify/clarified.md` 存在 或 跳过
 
-### 阶段 3: STRUCTURE（结构化）
+---
 
-**目标**: 将澄清后的需求转化为标准格式
+### Phase 3: STRUCTURE（结构化）
 
-**动作**:
-1. 编写用户故事（As a/I want/So that 格式）
-2. 应用 INVEST 原则检查
+**你必须：**
+1. 根据模式选择模板:
+   - mini → [assets/spec-mini.md](assets/spec-mini.md)
+   - standard/full → [assets/spec-template.md](assets/spec-template.md)
+2. 编写用户故事（As a/I want/So that 格式）
 3. 为每个故事定义 3-7 个验收标准
-4. 对需求进行分类（FR/NFR）并设置优先级
-5. 定义范围边界（Out of Scope 章节）
+4. 定义范围边界（Out of Scope）
+5. 创建 `spec.md`（草稿）
 
-**输出**: `.workflow/{feature}/specify/spec.md`（草稿）
+**完成标志**: `spec.md` 存在且包含至少 1 个用户故事
 
-### 阶段 4: REVIEW（审查）
+---
 
-**目标**: 独立审查，确保规范质量
+### Phase 4: REVIEW（审查）
 
-**动作**:
+**你必须：**
 1. 使用 Task 工具启动独立审查 Agent（信息隔离）
-2. 审查 Agent 检查规范完整性和一致性
-3. 生成审查报告（PASS/NEEDS_IMPROVEMENT/REJECTED）
-4. 如果 NEEDS_IMPROVEMENT，返回 STRUCTURE 阶段修复
-5. 记录审查结果到 `reviews/round-{N}/`
+2. 审查内容: 用户故事格式、验收标准覆盖度、NFR 可量化、无模糊词
+3. 创建 `reviews/round-{N}/review-response.md`
+4. 判定: PASS → VALIDATE，NEEDS_IMPROVEMENT → 修改后重新审查
 
-**独立上下文**: 审查 Agent 通过 Task 工具调用，拥有独立的上下文，不会污染当前对话。
+**判定规则**:
+- **PASS**: 无 MAJOR/CRITICAL 问题
+- **NEEDS_IMPROVEMENT**: 有 MAJOR 但无 CRITICAL（最多 3 轮）
+- **REJECTED**: 有 CRITICAL 或结构严重缺失
 
-**审查清单**:
-- 用户故事格式是否正确
-- 验收标准是否覆盖正向/负向/边界场景
-- NFR 是否可量化
-- 是否存在模糊词汇
-- 需求间是否存在冲突
-
-**输出**: `.workflow/{feature}/specify/reviews/round-{N}/review-response.md`
-
-### 阶段 5: VALIDATE（验证）
-
-**目标**: 最终验证，获取用户批准
-
-**动作**:
-1. 运行完整性检查（所有必填章节已填写）
-2. 运行一致性检查（无冲突、术语一致）
-3. 运行可行性检查（技术、资源、时间约束）
-4. 展示验证结果和建议
-5. 通过 AskUserQuestion 请求用户批准
-6. 更新 spec 状态为 "approved"
-
-**输出**: `.workflow/{feature}/specify/spec.md`（已批准）
+**完成标志**: 判定为 PASS
 
 ---
 
-## 命令
+### Phase 5: VALIDATE（验证）
 
-```bash
-# 基本用法（通过 workflow plugin 调用）
-/workflow-specify {需求描述}
+**你必须：**
+1. 运行完整性检查（必填章节已填写）
+2. 通过 AskUserQuestion 请求用户批准
+3. 更新 spec.md frontmatter: `status: approved`
+4. 更新 `.state.yaml`
 
-# 模板模式
-/workflow-specify --mode=mini {描述}     # 简单任务
-/workflow-specify --mode=standard {描述} # 默认，中等功能
-/workflow-specify --mode=full {描述}     # 大型功能
-
-# 交互模式
-/workflow-specify --interactive {描述}   # 默认：每阶段暂停确认
-/workflow-specify --guided {描述}        # AI 提供建议，用户选择
-/workflow-specify --auto {描述}          # AI 决策，仅最终批准
-
-# 恢复或验证
-/workflow-specify --resume {feature}
-/workflow-specify --validate {feature}
-
-# 单阶段执行
-/workflow-specify capture {描述}
-/workflow-specify clarify {feature}
-/workflow-specify structure {feature}
-/workflow-specify review {feature}
-/workflow-specify validate {feature}
-```
-
-**选项**:
-
-| 选项 | 默认值 | 说明 |
-|------|--------|------|
-| `--mode` | standard | 模板规模：mini/standard/full |
-| `--interactive` | 是 | 每阶段暂停等待用户确认 |
-| `--guided` | 否 | AI 提供选项，用户选择 |
-| `--auto` | 否 | AI 做所有决策，仅最终批准 |
+**完成标志**: spec.md 状态为 approved
 
 ---
 
-## 模板模式
-
-| 模式 | 必需章节 | 适用场景 |
-|------|----------|----------|
-| **mini** | 1（概述）、3（用户故事）、7（范围外）、9（清单） | Bug 修复、小改动 |
-| **standard** | 1-7、9 | 中等功能（默认） |
-| **full** | 全部（1-9、附录 A-C） | 大型功能、新项目 |
-
----
-
-## 输出结构
+## 目录结构
 
 ```
 .workflow/{feature}/specify/
 ├── capture/
-│   └── raw-notes.md       # 阶段 1 输出
+│   └── raw-notes.md
 ├── clarify/
-│   └── clarified.md       # 阶段 2 输出
+│   └── clarified.md
 ├── reviews/
-│   └── round-{N}/         # 阶段 4 审查记录
-│       ├── review-prompt.md
+│   └── round-{N}/
 │       └── review-response.md
-├── spec.md                # 最终规范
-└── .state.yaml            # 进度跟踪
+├── spec.md
+└── .state.yaml
 ```
 
 ---
 
-## 验证规则
+## 模式对比
 
-用户故事必须遵循格式：
-```
-作为 {角色}，
-我想要 {动作}，
-以便 {收益}。
-```
-
-每个故事需要 3-7 个验收标准，覆盖：
-- 正向场景
-- 负向场景
-- 边界条件
-
-NFR 必须可量化（如"API P95 < 200ms"，而非"快速响应"）。
-
-禁止词汇（除非量化）：快速、简单、容易、友好、直观、健壮、可扩展、fast、quick、simple、easy、user-friendly、intuitive、robust、scalable
-
----
-
-## 状态管理
-
-进度保存到 `.state.yaml`。如果中断：
-- 使用 `/specify --resume {spec-id}` 继续
-- 状态包含：当前阶段、已完成阶段、输出文件
-
----
-
-## 集成
-
-输出的 spec.md 被以下 workflow 阶段使用：
-- `/workflow-plan {feature}` - 创建技术计划
-- `/workflow-task {feature}` - 生成任务分解
+| 模式 | 必需章节 | 适用场景 |
+|------|----------|----------|
+| mini | 概述、用户故事、范围外、清单 | Bug 修复、小改动 |
+| standard | 1-7、9 | 中等功能（默认） |
+| full | 全部（1-9、附录 A-C） | 大型功能 |
 
 ---
 
@@ -209,67 +149,12 @@ NFR 必须可量化（如"API P95 < 200ms"，而非"快速响应"）。
 
 | 资源 | 路径 | 用途 |
 |------|------|------|
-| 完整模板 | [assets/spec-template.md](assets/spec-template.md) | standard/full 模式的 spec.md 模板 |
-| 精简模板 | [assets/spec-mini.md](assets/spec-mini.md) | mini 模式的 spec.md 模板 |
-| 验证脚本 | [scripts/validate-spec.sh](scripts/validate-spec.sh) | 验证 spec 完整性 |
-| 阶段参考 | [references/phase-details.md](references/phase-details.md) | 详细阶段文档 |
-
-### 资源使用
-
-**验证脚本**:
-```bash
-./scripts/validate-spec.sh <spec-file> [mode]
-# mode: mini | standard | full（默认：standard）
-# 返回：PASSED 或 FAILED（带错误详情）
-```
-
-**模板选择**:
-- `--mode=mini` → 使用 [spec-mini.md](assets/spec-mini.md)
-- `--mode=standard` 或 `--mode=full` → 使用 [spec-template.md](assets/spec-template.md)
-
-**阶段参考**: 当需要以下内容时加载 [phase-details.md](references/phase-details.md)：
-- 各阶段的详细子任务分解
-- 输出格式示例（raw-notes.md、clarified.md）
-- 用户故事的 INVEST 原则清单
-- REVIEW 阶段的审查清单
+| 完整模板 | [assets/spec-template.md](assets/spec-template.md) | standard/full 模式 |
+| 精简模板 | [assets/spec-mini.md](assets/spec-mini.md) | mini 模式 |
+| 阶段详情 | [references/phase-details.md](references/phase-details.md) | 详细子任务 |
 
 ---
 
-## REVIEW 阶段详细说明
+## 集成
 
-REVIEW 阶段使用独立 Agent 进行审查，确保信息隔离：
-
-```python
-# 伪代码示例
-review_prompt = f"""
-请审查以下 spec.md 规范文档：
-
-{spec_content}
-
-审查清单：
-1. 用户故事格式是否正确（As a/I want/So that）
-2. 每个故事是否有 3-7 个验收标准
-3. 验收标准是否覆盖正向/负向/边界场景
-4. NFR 是否可量化
-5. 是否存在禁止的模糊词汇
-6. 需求间是否存在冲突
-7. 范围边界是否清晰
-
-请返回审查结果（PASS/NEEDS_IMPROVEMENT/REJECTED）和具体问题列表。
-"""
-
-# 使用 Task 工具启动独立 Agent
-Task(
-    prompt=review_prompt,
-    subagent_type="general-purpose",
-    description="审查 spec.md"
-)
-```
-
-**审查判定规则**:
-
-| 判定 | 条件 |
-|------|------|
-| **PASS** | 无 MAJOR/CRITICAL 问题 |
-| **NEEDS_IMPROVEMENT** | 有 MAJOR 问题但无 CRITICAL |
-| **REJECTED** | 有 CRITICAL 问题或结构严重缺失 |
+**输出**: 供 `/workflow-plan` 使用的 `spec.md`（已批准）

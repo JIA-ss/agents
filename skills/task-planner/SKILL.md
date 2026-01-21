@@ -1,101 +1,174 @@
 ---
 name: task-planner
-description: Use when the user asks to "plan a task", "break down project", "create task plan", "decompose requirements", "modular planning", mentions "task breakdown", "project planning", or needs to systematically organize a complex development task into executable steps. Also responds to "任务规划", "拆分任务", "创建任务计划", "需求分解", "模块化规划".
+description: 将复杂大型任务进行系统性规划和拆分，通过模块化和时序化分解，输出结构化的任务规划文档。当用户要求"任务规划"、"拆分任务"、"创建任务计划"、"需求分解"、"模块化规划"，或提到"任务分解"、"项目规划"时使用。也响应 "plan a task", "break down project", "create task plan"。
 ---
 
-# Task Planner Skill Guide
+# Task Planner
 
-## Overview
+系统性任务规划：UNDERSTAND → MODULAR → SEQUENTIAL → DEPEND → DOCUMENT → CONFIRM
 
-将复杂大型任务进行系统性规划和拆分，通过模块化和时序化分解，输出结构化的任务规划文档。
+---
 
-**核心价值**：
-- 系统性拆分（模块化 + 时序化双维度递归分解）
-- 可视化优先（先 Mermaid 图表，后文字说明）
-- 分层文档结构（技术方案 + 任务编排分离）
-- 高层架构视角（只搭建大框架，严禁深入代码实现细节）
+## 🚀 执行流程
 
-## Core Methodology: Four-Step Rule
+**当此 skill 被触发时，你必须按以下流程执行：**
 
-1. **Summarize** - 从整体概览开始，概括性介绍
-2. **Visualize** - 先放 Mermaid 图表，再补充文字
-3. **Decompose** - 识别子系统，拆分为更小单元
-4. **Recurse** - 对复杂子系统重复应用四步法则（深度 2-3 层）
+### 立即行动
 
-## Workflow (7 Phases)
+1. 解析用户输入，提取任务目标和约束
+2. 评估任务复杂度
+3. 创建目录：`.tasks/{task-name}/`
+4. 开始 Phase 1: UNDERSTAND
 
-| Phase | Description |
-|-------|-------------|
-| 1. Task Understanding | 解析目标、范围、约束、评估复杂度 |
-| 2. Modular Decomposition | 按单一职责识别 3-7 个核心模块 |
-| 3. Sequential Decomposition | 划分执行阶段、识别并行机会、标注关键路径 |
-| 4. Dependency Analysis | 整合模块依赖和任务依赖 |
-| 5. Technical Plan Doc | 生成 main-plan.md + module-*.md |
-| 6. Task Scheduling Doc | 独立生成 tasks.md |
-| 7. User Confirmation | 展示结果、收集反馈、优化规划 |
+### 📋 进度追踪 Checklist
 
-## Output Structure
+**复制此清单并逐项完成：**
 
 ```
-.tasks/
-└── {task-name}/
-    ├── main-plan.md            # 主框架技术方案（高层架构）
-    ├── tasks.md                # 任务编排文档（独立）
-    ├── module-{模块1}.md       # 子模块1技术方案
-    └── module-{模块2}.md       # 子模块2技术方案
+- [ ] Phase 1: UNDERSTAND → 理解任务目标和范围
+- [ ] Phase 2: MODULAR → 模块化分解（3-7 个模块）
+- [ ] Phase 3: SEQUENTIAL → 时序化分解（执行阶段）
+- [ ] Phase 4: DEPEND → 依赖分析和关键路径
+- [ ] Phase 5: DOCUMENT → 生成规划文档
+- [ ] Phase 6: CONFIRM → 用户确认
 ```
 
-## Document Templates Overview
+### ✅ 阶段完成验证
 
-### main-plan.md
-- 任务目标（一句话 + 预期产出）
-- 整体架构（Mermaid 架构图 + 文字说明）
-- 模块概览（组件图 + 模块职责表）
-- 执行阶段概览（流程图 + 阶段目标表）
-- 关键路径（甘特图）
-- 约束与风险
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| UNDERSTAND | 目标和范围已明确 | → MODULAR |
+| MODULAR | 模块已识别 | → SEQUENTIAL |
+| SEQUENTIAL | 阶段已划分 | → DEPEND |
+| DEPEND | 依赖已分析 | → DOCUMENT |
+| DOCUMENT | 文档已生成 | → CONFIRM |
+| CONFIRM | 用户已确认 | → 结束 |
 
-### tasks.md
-- 任务总览（Mermaid 甘特图）
-- 任务清单（按阶段分组，含优先级、依赖、可并行、状态）
-- 依赖关系图
-- 验收标准
+---
 
-### module-{模块名}.md
-- 模块职责 + 输入/输出
-- 模块架构（类图或组件图）
-- 核心流程（流程图）
-- 接口设计（类图 + 接口表）
-- 依赖关系
+## Phase 详情
 
-## Prohibited Content (Red Lines)
+### Phase 1: UNDERSTAND（理解任务）
 
-| Prohibited | Example | Alternative |
-|------------|---------|-------------|
-| Function code | `function handleLogin() {...}` | Mermaid class diagram |
-| SQL statements | `SELECT * FROM users...` | ER diagram + description |
-| Config files | `package.json` content | Tech stack list |
-| API calls | `axios.get('/api/user')` | Interface table |
-| Script content | Shell/Batch scripts | Flowchart + steps |
+**你必须：**
+1. 解析任务目标和预期产出
+2. 识别约束条件（技术栈、时间、资源）
+3. 评估复杂度（低/中/高）
+4. 确定分解深度（2-4 层）
 
-## Recommended Approaches
+**完成标志**: 目标和范围已明确
 
-- **Interface design** → Mermaid `classDiagram`
-- **Algorithm logic** → Pseudocode or natural language steps
-- **Data model** → Mermaid `erDiagram`
-- **Process flow** → Mermaid `flowchart`
-- **Timeline** → Mermaid `gantt`
+---
 
-## Constraints
+### Phase 2: MODULAR（模块化分解）
 
-- **Decomposition depth**: 2-4 levels (avoid over-splitting)
-- **Task granularity**: 30 min - 8 hours per task
-- **Diagram complexity**: Max 15 nodes per Mermaid diagram
+**你必须：**
+1. 按单一职责原则识别核心模块（3-7 个）
+2. 为每个模块定义：
+   - 职责边界
+   - 输入/输出
+   - 对外接口
+3. 生成 Mermaid 组件图
+4. 对复杂模块递归应用四步法则（深度 2-3 层）
 
-## Best Practices
+**四步法则**:
+1. Summarize - 概括性介绍
+2. Visualize - 先 Mermaid 图，后文字
+3. Decompose - 拆分为更小单元
+4. Recurse - 对复杂子系统重复
 
-1. Always visualize first, then describe in text
-2. Separate technical design (main-plan.md) from execution plan (tasks.md)
-3. Keep main doc at high-level architecture view
-4. Use class diagrams instead of code for interfaces
-5. Use pseudocode instead of real code for algorithms
+**完成标志**: 模块已识别
+
+---
+
+### Phase 3: SEQUENTIAL（时序化分解）
+
+**你必须：**
+1. 划分执行阶段
+2. 为每个阶段定义目标和产出
+3. 识别并行机会
+4. 标注关键路径
+5. 生成 Mermaid 甘特图或流程图
+
+**完成标志**: 阶段已划分
+
+---
+
+### Phase 4: DEPEND（依赖分析）
+
+**你必须：**
+1. 整合模块依赖和任务依赖
+2. 构建依赖 DAG
+3. 检测循环依赖
+4. 计算关键路径
+5. 验证任务粒度（30min-8h）
+
+**完成标志**: 依赖已分析
+
+---
+
+### Phase 5: DOCUMENT（生成文档）
+
+**你必须：**
+1. 生成 `main-plan.md`：
+   - 任务目标
+   - 整体架构（Mermaid）
+   - 模块概览
+   - 执行阶段
+   - 关键路径
+   - 约束与风险
+2. 生成 `tasks.md`：
+   - 任务总览（甘特图）
+   - 任务清单（按阶段分组）
+   - 依赖关系图
+   - 验收标准
+3. 为复杂模块生成 `module-{name}.md`
+
+**完成标志**: 文档已生成
+
+---
+
+### Phase 6: CONFIRM（用户确认）
+
+**你必须：**
+1. 展示规划摘要
+2. 展示关键 Mermaid 图
+3. 通过 AskUserQuestion 确认：
+   - 模块划分合理性
+   - 执行顺序正确性
+   - 依赖关系完整性
+4. 收集反馈，优化规划
+
+**完成标志**: 用户已确认
+
+---
+
+## 输出结构
+
+```
+.tasks/{task-name}/
+├── main-plan.md         # 主框架技术方案
+├── tasks.md             # 任务编排文档
+├── module-{模块1}.md    # 子模块1技术方案
+└── module-{模块2}.md    # 子模块2技术方案
+```
+
+---
+
+## 禁止内容（红线）
+
+| 禁止 | 示例 | 替代方案 |
+|------|------|----------|
+| 函数代码 | `function handleLogin()` | Mermaid 类图 |
+| SQL 语句 | `SELECT * FROM...` | ER 图 + 描述 |
+| 配置文件 | `package.json` 内容 | 技术栈清单 |
+| API 调用 | `axios.get('/api/user')` | 接口表 |
+
+---
+
+## 约束
+
+- 分解深度：2-4 层（避免过度拆分）
+- 任务粒度：30min - 8h
+- Mermaid 图复杂度：≤15 节点
+- 可视化优先，先图后文

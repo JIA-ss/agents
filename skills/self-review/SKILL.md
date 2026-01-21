@@ -3,37 +3,143 @@ name: self-review
 description: Execute tasks with independent AI review cycles using Codex, self-correction, and iterative improvement until quality criteria are met. Use when needing self-supervised execution, automated QA loops, iterative code review, or quality assurance workflows. Also responds to "自我监督", "迭代审查", "自我修正", "质量循环", "自动改进", "独立审查".
 ---
 
-# Self-Review Skill Guide
+# Self-Review
 
-## Overview
-
-自我监督执行框架，通过独立 Reviewer（Codex）对执行结果进行严格审查，形成"执行→审查→改进"的闭环，直到任务通过评估才交付。
-
-**核心价值**：独立审查 + 信息隔离 + 过程可追溯 + 迭代改进 + 质量保证
-
-## Non-goals
-
-以下场景不适用本 skill：
-- 简单的一次性代码审查（无迭代）
-- 手动 review 请求
-- 不需要独立验证的任务
+自我监督执行框架：执行→审查→改进的闭环，直到任务通过评估才交付。
 
 ---
 
-## Task Directory Structure
+## 🚀 执行流程
+
+**当此 skill 被触发时，你必须按以下流程执行：**
+
+### 立即行动
+
+1. 解析用户输入，提取任务描述
+2. 生成 task-name: `{简短描述}-{YYYYMMDD}` 格式
+3. 创建任务目录: `.tasks/self-review/{task-name}/`
+4. 开始 Phase 1
+
+### 📋 进度追踪 Checklist
+
+**复制此清单并逐项完成：**
+
+```
+- [ ] Phase 1: Task Confirmation → 输出: 00-task-spec.md
+- [ ] Phase 2: Task Execution → 输出: evidence/
+- [ ] Phase 3: Independent Review → 输出: reviews/round-{N}/review-response.md
+- [ ] Phase 4: Review Analysis → 判定: PASS/NEEDS_IMPROVEMENT/REJECTED
+- [ ] Phase 5: Improvement (如需要) → 回到 Phase 2
+- [ ] Phase 6: Delivery → 输出: final-report.md
+```
+
+### ✅ 阶段完成验证
+
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| Phase 1 | `00-task-spec.md` 存在 | → Phase 2 |
+| Phase 2 | `evidence/` 目录含 ≥3 文件 | → Phase 3 |
+| Phase 3 | `reviews/round-{N}/review-response.md` 存在 | → Phase 4 |
+| Phase 4 | 判定结果明确 | → Phase 5/6 |
+| Phase 5 | 改进完成 | → Phase 2 |
+| Phase 6 | `final-report.md` 存在 | → 结束 |
+
+---
+
+## Phase 详情
+
+### Phase 1: Task Confirmation
+
+**你必须：**
+1. 创建目录 `.tasks/self-review/{task-name}/`
+2. 使用模板 [templates/task-spec.md](templates/task-spec.md) 创建 `00-task-spec.md`
+3. 填写: 任务描述、验收标准、涉及文件
+
+**完成标志**: `00-task-spec.md` 文件存在且包含验收标准
+
+---
+
+### Phase 2: Task Execution
+
+**你必须：**
+1. 执行任务中定义的代码修改
+2. 创建 `evidence/` 目录
+3. 生成证据文件:
+   - `execution-manifest.json`: 记录所有修改的文件
+   - `test-results.txt`: 运行测试的输出
+   - `requirement-mapping.md`: 需求与实现的对应关系
+
+**完成标志**: `evidence/` 目录存在且包含至少 3 个文件
+
+---
+
+### Phase 3: Independent Review
+
+**你必须：**
+1. 创建 `reviews/round-{N}/` 目录
+2. 准备 `review-prompt.md` (使用模板 [templates/review-prompt.md](templates/review-prompt.md))
+3. 调用 Codex 进行独立审查 (参见 [references/codex-integration.md](references/codex-integration.md))
+4. 将审查结果保存到 `review-response.md`
+
+**完成标志**: `reviews/round-{N}/review-response.md` 存在
+
+---
+
+### Phase 4: Review Analysis
+
+**你必须：**
+1. 分析审查结果，按严重程度分类问题
+2. 统计: blocker_count, critical_count, major_count, minor_count
+3. 根据判定规则得出结论
+
+**判定规则**:
+- **PASS**: blocker=0, critical=0, major≤5
+- **NEEDS_IMPROVEMENT**: blocker=0, critical∈[1,2] 或 major>5
+- **REJECTED**: blocker>0 或 critical>2
+
+**完成标志**: 判定结果明确 (PASS/NEEDS_IMPROVEMENT/REJECTED)
+
+---
+
+### Phase 5: Improvement
+
+**触发条件**: 判定为 NEEDS_IMPROVEMENT 且 round < 3
+
+**你必须：**
+1. 创建 `improvements/round-{N}-changes.md`
+2. 记录需要修复的问题列表
+3. 执行修复
+4. 回到 Phase 2 重新生成证据
+
+**完成标志**: 修复完成，返回 Phase 2
+
+---
+
+### Phase 6: Delivery
+
+**触发条件**: 判定为 PASS
+
+**你必须：**
+1. 使用模板 [templates/final-report.md](templates/final-report.md) 生成最终报告
+2. 汇总所有审查轮次记录
+3. 输出 `final-report.md`
+
+**完成标志**: `final-report.md` 存在
+
+---
+
+## 目录结构
 
 ```
 .tasks/self-review/{task-name}/
-├── 00-task-spec.md                    # 任务规范
+├── 00-task-spec.md
 ├── evidence/
-│   ├── execution-manifest.json        # 执行清单
-│   ├── test-results.txt               # 测试输出
-│   ├── lint-results.txt               # Lint 输出
-│   └── requirement-mapping.md         # 需求映射
+│   ├── execution-manifest.json
+│   ├── test-results.txt
+│   └── requirement-mapping.md
 ├── reviews/round-{N}/
 │   ├── review-prompt.md
-│   ├── review-response.md
-│   └── review-analysis.md
+│   └── review-response.md
 ├── improvements/
 │   └── round-{N}-changes.md
 └── final-report.md
@@ -41,158 +147,13 @@ description: Execute tasks with independent AI review cycles using Codex, self-c
 
 ---
 
-## Workflow (6 Phases)
+## 资源
 
-```
-Phase 1: Task Confirmation
-    └── 输出: 00-task-spec.md
-            ▼
-Phase 2: Task Execution
-    ├── 执行代码修改
-    ├── 运行: ./scripts/generate-evidence.sh {task-name} "{test-cmd}" "{lint-cmd}"
-    └── 输出: evidence/*
-            ▼
-Phase 3: Independent Review (Codex)
-    └── 输出: reviews/round-{N}/review-response.md
-            ▼
-Phase 4: Review Analysis
-    ├── 分类问题 (BLOCKER/CRITICAL/MAJOR/MINOR)
-    └── 判断: PASS / NEEDS_IMPROVEMENT / REJECTED
-            ▼
-    ┌───────┴───────┐
-    ▼               ▼
-  PASS          NEEDS_IMPROVEMENT
-    │               │
-    ▼               ▼
-Phase 6:        Phase 5: Improvement
-Delivery            └── 回到 Phase 2
-    │
-    ├── 运行: ./scripts/validate.sh {task-name}
-    └── 输出: final-report.md
-```
-
-### Phase 详细说明
-
-#### Phase 2: Task Execution
-
-执行任务后，使用脚本生成证据包：
-
-```bash
-# 生成证据包（测试结果、lint 结果、需求映射）
-./scripts/generate-evidence.sh {task-name} "{test-command}" "{lint-command}"
-
-# 示例
-./scripts/generate-evidence.sh fix-auth-bug-20260103 "npm test" "npm run lint"
-./scripts/generate-evidence.sh refactor-api "pytest" "ruff check ."
-```
-
-#### Phase 6: Delivery
-
-交付前验证任务目录完整性：
-
-```bash
-# 标准验证
-./scripts/validate.sh {task-name}
-
-# 严格模式（验证所有审查轮次）
-./scripts/validate.sh {task-name} --strict
-```
-
----
-
-## Severity Levels
-
-| 级别 | 定义 | 处理 |
+| 资源 | 路径 | 用途 |
 |------|------|------|
-| **BLOCKER** | 阻止合并（安全漏洞、测试失败） | 必须修复 |
-| **CRITICAL** | 影响核心功能 | >2个则 REJECTED |
-| **MAJOR** | 影响可维护性 | >5个则 NEEDS_IMPROVEMENT |
-| **MINOR** | 可选优化 | 不影响判定 |
-
----
-
-## Verdict Rules
-
-```yaml
-PASS:
-  - blocker_count == 0
-  - critical_count == 0
-  - major_count <= 5
-
-NEEDS_IMPROVEMENT:
-  - blocker_count == 0
-  - critical_count IN [1, 2] OR major_count > 5
-
-REJECTED:
-  - blocker_count > 0 OR critical_count > 2
-  - OR tests_passed == false
-  - OR git_is_dirty == true
-```
-
----
-
-## Loop Control
-
-| 配置项 | 默认值 | 说明 |
-|--------|--------|------|
-| max_rounds | 3 | 最大审查轮次 |
-| consecutive_reject_limit | 2 | 连续 REJECTED 次数限制 |
-| early_exit_confidence | 0.9 | 早期退出置信度阈值 |
-
-### Early Exit Mechanism
-
-当满足以下条件时，可提前退出审查循环：
-
-```yaml
-early_exit_conditions:
-  - reviewer_confidence >= 0.9
-  - blocker_count == 0
-  - critical_count == 0
-  - major_count <= 2
-```
-
-**触发逻辑**：
-1. Reviewer 在 response 中提供置信度评分 (0.0-1.0)
-2. 若 `confidence >= early_exit_confidence` 且无严重问题，跳过后续审查
-3. 提高审查效率，减少不必要的迭代
-
----
-
-## Execution Commands
-
-```bash
-# 启动自我监督任务
-/self-review 执行并审查: {任务描述}
-
-# 继续上次未完成的任务
-/self-review --resume {task-name}
-
-# 手动触发 Review
-/self-review --review-only
-
-# 查看任务历史
-/self-review --list
-```
-
----
-
-## Best Practices
-
-1. **任务命名**：使用有意义的 task-name，如 `fix-login-bug-20260103`
-2. **原子任务**：将大任务拆分为可独立审查的小任务
-3. **证据完整**：确保 evidence/ 目录包含所有必需文件
-4. **及时归档**：完成后归档或提交任务目录
-
----
-
-## Additional Resources
-
-详细文档请参考以下文件：
-
-| 文档 | 路径 | 内容 |
-|------|------|------|
-| 文件模板 | [templates/](templates/) | task-spec, review-prompt, final-report 等模板 |
-| 证据规范 | [references/evidence-spec.md](references/evidence-spec.md) | Reviewer/Executor 证据分类 |
-| Codex 集成 | [references/codex-integration.md](references/codex-integration.md) | Codex 调用方式 |
-| 验证脚本 | [scripts/validate.sh](scripts/validate.sh) | 任务目录验证 |
-| 生成脚本 | [scripts/generate-evidence.sh](scripts/generate-evidence.sh) | 证据包生成 |
+| 任务规范模板 | [templates/task-spec.md](templates/task-spec.md) | Phase 1 创建任务规范 |
+| 审查提示模板 | [templates/review-prompt.md](templates/review-prompt.md) | Phase 3 准备审查 |
+| 最终报告模板 | [templates/final-report.md](templates/final-report.md) | Phase 6 生成报告 |
+| 证据规范 | [references/evidence-spec.md](references/evidence-spec.md) | 证据分类说明 |
+| Codex 集成 | [references/codex-integration.md](references/codex-integration.md) | 如何调用独立审查 |
+| 判定规则 | [references/verdict-rules.md](references/verdict-rules.md) | 详细判定逻辑 |

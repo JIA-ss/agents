@@ -1,71 +1,135 @@
 ---
 name: task-code-reviewer
-description: Use when the user asks to "review code against plan", "check implementation completeness", "validate task implementation", "verify code matches specification", mentions "task-based review", "plan compliance", or needs to verify code implementation against a task planning document. Also responds to "代码审查", "检查实现", "验证代码", "任务完成度".
+description: 基于任务规划文档检查代码实现的完成度、时序依赖、逻辑正确性和框架集成，输出结构化的代码审查报告。当用户要求"审查代码与计划的一致性"、"检查实现完成度"、"验证任务实现"，或提到"任务审查"、"计划合规"时使用。也响应 "review code against plan", "check implementation completeness", "validate task implementation"。
 ---
 
-# Task Code Reviewer Skill Guide
+# Task Code Reviewer
 
-## Overview
+基于规划的代码审查：LOAD → DETECT → CHECK → ANALYZE → REPORT
 
-基于任务规划文档检查代码实现的完成度、时序依赖、逻辑正确性和框架集成，输出结构化的代码审查报告。
+---
 
-**核心价值**：规划对齐 + 依赖验证 + 逻辑分析 + 集成评估 + 结构化报告
+## 🚀 执行流程
 
-## Workflow (7 Phases)
+**当此 skill 被触发时，你必须按以下流程执行：**
 
-| Phase | Description |
-|-------|-------------|
-| 1. Plan Parsing | 从 `.tasks/` 解析规划文档，提取模块、依赖、验收标准 |
-| 2. Change Detection | git diff 分析，分类变更文件，映射到规划模块 |
-| 3. Completeness Check | 验证模块实现、核心函数、接口定义、任务清单 |
-| 4. Dependency Verification | 检查时序依赖、数据依赖、初始化顺序、模块依赖 |
-| 5. Logic Analysis | 边界条件、异常路径、状态一致性、竞态条件 |
-| 6. Framework Integration | 代码模式、命名规范、文件组织、架构层级 |
-| 7. Extended Analysis | 安全性、最佳实践、代码质量（按重要性分级） |
+### 立即行动
 
-## Check Dimensions
+1. 定位任务规划文档（`.tasks/` 目录）
+2. 识别待审查的代码范围
+3. 开始 Phase 1: LOAD
 
-### Completeness
-| Check | Criteria |
-|-------|----------|
-| Module implementation | 文件路径匹配 |
-| Core functions | 符号存在性 |
-| Interface definitions | 接口签名匹配 |
-| Task checklist | 变更关联 |
+### 📋 进度追踪 Checklist
 
-### Dependencies
-| Type | Example Issue |
-|------|---------------|
-| Temporal | 任务B依赖A，但A未完成就实现B |
-| Data | 使用了未定义的数据结构 |
-| Initialization | 依赖服务未初始化就调用 |
-| Module | 循环依赖、跨层调用 |
+**复制此清单并逐项完成：**
 
-### Logic Analysis
-| Check | Example Issue |
-|-------|---------------|
-| Boundary conditions | 数组越界、未检查null |
-| Exception paths | catch块为空、未处理所有错误 |
-| State consistency | 状态更新不原子、数据不一致 |
-| Race conditions | 共享资源未加锁、死锁风险 |
+```
+- [ ] Phase 1: LOAD → 解析规划文档，提取模块和验收标准
+- [ ] Phase 2: DETECT → 检测代码变更，映射到规划模块
+- [ ] Phase 3: CHECK → 完成度检查、依赖验证
+- [ ] Phase 4: ANALYZE → 逻辑分析、框架集成检查
+- [ ] Phase 5: REPORT → 输出结构化审查报告
+```
 
-### Extended Checks (Priority)
-| Level | Checks |
-|-------|--------|
-| Required | 输入验证、认证授权、敏感数据、边界条件、异常路径 |
-| Important | 错误处理、日志记录、文档完整性 |
-| Optional | 代码复杂度、重复代码、性能优化 |
+### ✅ 阶段完成验证
 
-## Report Structure
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| LOAD | 规划文档已解析 | → DETECT |
+| DETECT | 变更已检测并映射 | → CHECK |
+| CHECK | 完成度和依赖已验证 | → ANALYZE |
+| ANALYZE | 逻辑和集成已分析 | → REPORT |
+| REPORT | 审查报告已输出 | → 结束 |
 
-1. **Executive Summary** - 总体状态、各维度评分、Top 3 问题
-2. **Detailed Analysis** - 规划文档分析、完成度、依赖验证、逻辑分析、集成评估
-3. **Improvement Suggestions** - 高/中/低优先级建议
-4. **File Index** - 文件路径、变更类型、关联模块、问题数
+---
 
-## Best Practices
+## Phase 详情
 
-1. Use task-planner first to generate plan before development
-2. Submit code incrementally, review incrementally
-3. Prioritize Top 3 issues from executive summary
-4. Adjust development practices based on review reports
+### Phase 1: LOAD（加载规划）
+
+**你必须：**
+1. 读取 `.tasks/` 下的规划文档
+2. 提取模块列表、依赖关系、验收标准
+3. 构建规划模型
+
+**完成标志**: 规划文档已解析
+
+---
+
+### Phase 2: DETECT（检测变更）
+
+**你必须：**
+1. 运行 `git diff` 分析变更
+2. 分类变更文件（新增/修改/删除）
+3. 将变更映射到规划中的模块
+4. 标记未关联到规划的变更
+
+**完成标志**: 变更已检测并映射
+
+---
+
+### Phase 3: CHECK（检查完成度）
+
+**你必须：**
+1. **完成度检查**：
+   - 模块是否实现
+   - 核心函数是否存在
+   - 接口定义是否匹配
+2. **依赖验证**：
+   - 时序依赖：A 依赖 B，B 是否完成
+   - 数据依赖：使用的数据结构是否定义
+   - 初始化顺序：依赖服务是否先初始化
+
+**完成标志**: 完成度和依赖已验证
+
+---
+
+### Phase 4: ANALYZE（深度分析）
+
+**你必须：**
+1. **逻辑分析**：
+   - 边界条件检查
+   - 异常路径处理
+   - 状态一致性
+2. **框架集成**：
+   - 代码模式符合规范
+   - 命名规范一致
+   - 文件组织正确
+3. **扩展检查**（按优先级）：
+   - 必需：输入验证、认证授权、敏感数据
+   - 重要：错误处理、日志记录
+   - 可选：代码复杂度、重复代码
+
+**完成标志**: 逻辑和集成已分析
+
+---
+
+### Phase 5: REPORT（输出报告）
+
+**你必须：**
+1. **执行摘要**：总体状态、各维度评分、Top 3 问题
+2. **详细分析**：规划对齐、完成度、依赖、逻辑、集成
+3. **改进建议**：按高/中/低优先级分组
+4. **文件索引**：路径、变更类型、关联模块、问题数
+
+**完成标志**: 审查报告已输出
+
+---
+
+## 检查维度
+
+| 维度 | 检查项 |
+|------|--------|
+| 完成度 | 模块实现、核心函数、接口定义、任务清单 |
+| 依赖 | 时序依赖、数据依赖、初始化顺序、模块依赖 |
+| 逻辑 | 边界条件、异常路径、状态一致性、竞态条件 |
+| 集成 | 代码模式、命名规范、文件组织、架构层级 |
+
+---
+
+## 最佳实践
+
+1. 先用 task-planner 生成规划再开发
+2. 增量提交，增量审查
+3. 优先处理执行摘要中的 Top 3 问题
+4. 根据审查报告调整开发实践

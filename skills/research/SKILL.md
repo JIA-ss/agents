@@ -1,56 +1,152 @@
 ---
 name: research
-description: Use when the user asks to "research technology", "compare frameworks", "evaluate solutions", "tech selection", mentions "technical research", "pros and cons", "best practices", or needs help with technology decision-making. Provides specialized support for rendering/graphics technologies. Also responds to "技术调研", "对比框架", "评估方案", "技术选型".
+description: 遵循"自顶向下、层次递归、可视化优先"方法论的技术调研助手，对渲染领域提供专项支持。当用户要求"技术调研"、"对比框架"、"评估方案"、"技术选型"，或提到"技术研究"、"优缺点"、"最佳实践"时使用。也响应 "research technology", "compare frameworks", "evaluate solutions"。
 ---
 
-# Research Skill Guide
+# Research
 
-## Overview
+技术调研与方案评估：SCOPE → GATHER → ANALYZE → COMPARE → RECOMMEND
 
-遵循"自顶向下、层次递归、可视化优先"方法论的技术调研助手，对渲染领域提供专项支持。
+---
 
-**核心原则**：自顶向下、层次递归、可视化优先
+## 🚀 执行流程
 
-## Workflow (5 Phases)
+**当此 skill 被触发时，你必须按以下流程执行：**
 
-| Phase | Goal | Output |
-|-------|------|--------|
-| 1. Overview | 建立全局认知 | 概括性介绍 + 架构可视化 |
-| 2. Current State | 收集现有资源 | 资源清单 + 时间线 + 方案汇总 |
-| 3. Analysis | 对比各方案 | 自述优势 + 客观提炼 + 对比表格 |
-| 4. Deep Dive | 子特性展开 | 递归应用"概括→可视化→详细" |
-| 5. Implementation | 深度细节 | 伪代码 + 具体实现 + 最佳实践 |
+### 立即行动
 
-## Output Requirements
+1. 解析用户输入，提取调研主题和目标
+2. 识别调研类型：技术选型 / 方案对比 / 最佳实践 / 深度研究
+3. 开始 Phase 1: SCOPE
 
-**File Location**: `research-reports/【技术名称】-调研报告-【YYYYMMDD】.md`
+### 📋 进度追踪 Checklist
 
-**9 Required Sections**:
-1. 整体概览 - 概括性介绍 + 架构可视化
-2. 技术发展时间线 - Mermaid 时间线图 + 里程碑
-3. 现有方案汇总 - 资源清单 + 对比表格
-4. 方案详细分析 - 自述优势 + 客观提炼 + 适用场景 + 局限性
-5. 核心子特性深入 - 递归展开
-6. 技术实现细节 - 伪代码 + 具体实现
-7. 渲染专项分析（如适用）
-8. 最佳实践与建议
-9. 总结与展望
+**复制此清单并逐项完成：**
 
-## Rendering Domain Support
+```
+- [ ] Phase 1: SCOPE → 明确调研范围和评估维度
+- [ ] Phase 2: GATHER → 收集技术资料和证据
+- [ ] Phase 3: ANALYZE → 分析各方案优缺点
+- [ ] Phase 4: COMPARE → 生成对比表和可视化
+- [ ] Phase 5: RECOMMEND → 输出结论和建议
+```
 
-When analyzing rendering technologies, include specialized analysis:
+### ✅ 阶段完成验证
 
-| Dimension | Metrics |
-|-----------|---------|
-| Performance | FPS, 帧时间, GPU利用率, Draw Calls |
-| Hardware | Desktop/Mobile/Web/Console support |
-| Graphics API | Vulkan/DX12/Metal/OpenGL/WebGL/WebGPU |
-| Pipeline | Forward/Deferred/Tile-Based, PBR, Post-processing |
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| SCOPE | 调研范围和维度已确定 | → GATHER |
+| GATHER | 资料已收集完成 | → ANALYZE |
+| ANALYZE | 各方案分析完成 | → COMPARE |
+| COMPARE | 对比表已生成 | → RECOMMEND |
+| RECOMMEND | 结论已输出 | → 结束 |
 
-## Best Practices
+---
 
-1. Always start with visualization before text description
-2. Use adaptive timeline granularity (yearly/version/milestone)
-3. Quote original claims, then provide objective analysis
-4. Control recursive depth to 2-3 levels
-5. All output must be in Chinese
+## Phase 详情
+
+### Phase 1: SCOPE（确定范围）
+
+**你必须：**
+1. 明确调研主题和具体问题
+2. 确定评估维度（性能/易用性/生态/成本/学习曲线等）
+3. 识别约束条件（技术栈/团队能力/预算等）
+4. 列出待比较的技术选项
+
+**完成标志**: 调研范围和评估维度已确定
+
+---
+
+### Phase 2: GATHER（收集资料）
+
+**你必须：**
+1. 使用 WebSearch 搜索最新技术资料
+2. 收集官方文档、性能基准、社区反馈
+3. 记录每条信息的来源（URL）
+4. 标记信息的时效性（发布日期）
+
+**资料来源优先级**:
+1. 官方文档
+2. 权威技术博客（如 blog.google, engineering.fb.com）
+3. 性能基准测试报告
+4. GitHub Stars/Issues 趋势
+5. Stack Overflow 讨论
+
+**完成标志**: 核心资料已收集
+
+---
+
+### Phase 3: ANALYZE（分析方案）
+
+**你必须：**
+1. 按评估维度分析每个技术选项
+2. 识别每个方案的优势和劣势
+3. 评估与项目约束的匹配度
+4. 标记关键风险点
+
+**分析框架**:
+- 技术成熟度
+- 社区活跃度
+- 学习成本
+- 迁移成本
+- 长期维护风险
+
+**完成标志**: 各方案分析完成
+
+---
+
+### Phase 4: COMPARE（对比可视化）
+
+**你必须：**
+1. 生成多维度对比表
+2. 创建 Mermaid 可视化（如适用）：
+   - 功能对比 → 表格
+   - 架构差异 → flowchart
+   - 决策流程 → flowchart
+3. 突出关键差异点
+
+**完成标志**: 对比表和可视化已生成
+
+---
+
+### Phase 5: RECOMMEND（输出建议）
+
+**你必须：**
+1. 给出明确的推荐结论
+2. 说明推荐理由（基于评估维度）
+3. 指出推荐方案的潜在风险
+4. 提供备选方案
+5. 附上所有信息来源（Sources 列表）
+
+**完成标志**: 结论和建议已输出
+
+---
+
+## 调研类型说明
+
+| 类型 | 关键词 | 输出重点 |
+|------|--------|----------|
+| 技术选型 | "用什么框架"、"选择哪个" | 推荐 + 理由 + 备选 |
+| 方案对比 | "A vs B"、"对比" | 多维度对比表 |
+| 最佳实践 | "怎么做"、"最佳方案" | 步骤 + 示例 + 注意事项 |
+| 深度研究 | "原理"、"底层实现" | 技术细节 + 图解 |
+
+---
+
+## 渲染领域专项支持
+
+对于 WebGL、WebGPU、Three.js、图形渲染相关调研：
+- 优先参考 Khronos Group 官方规范
+- 关注浏览器兼容性（Can I Use）
+- 包含性能基准对比
+- 提供实际代码示例
+
+---
+
+## 约束
+
+- 所有结论必须附带信息来源
+- 使用 WebSearch 获取最新信息
+- 评估维度至少 3 个
+- 对比选项至少 2 个
+- 结果必须包含 Sources 列表

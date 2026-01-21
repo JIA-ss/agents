@@ -1,77 +1,141 @@
 ---
 name: task-dispatcher
-description: Use when the user asks to "execute task plan", "dispatch tasks", "run task scheduler", "parallel task execution", mentions "task execution", "DAG scheduling", "progress tracking", or needs to execute tasks from a planning document with dependency management. Also responds to "执行任务", "任务调度", "并行执行", "进度跟踪".
+description: 根据任务规划文档进行任务分发、调度和开发执行，支持并行任务编排和进度跟踪，确保按依赖顺序高效完成所有任务。当用户要求"执行任务计划"、"分发任务"、"运行任务调度"，或提到"任务执行"、"DAG 调度"、"进度跟踪"时使用。也响应 "execute task plan", "dispatch tasks", "run task scheduler"。
 ---
 
-# Task Dispatcher Skill Guide
+# Task Dispatcher
 
-## Overview
+任务调度与执行：LOAD → SCHEDULE → EXECUTE → SYNC → COMPLETE
 
-根据任务规划文档进行任务分发、调度和执行，支持并行任务编排和进度跟踪，确保按依赖顺序高效完成所有任务。
+---
 
-**核心价值**：智能调度 + 并行编排 + 进度追踪 + 失败处理 + 文档同步
+## 🚀 执行流程
 
-## Workflow (4 Phases)
+**当此 skill 被触发时，你必须按以下流程执行：**
 
-| Phase | Description |
-|-------|-------------|
-| 1. Task Loading | 读取文档，提取任务清单和依赖关系，构建 DAG |
-| 2. Plan Generation | 拓扑排序，分组为并行批次，计算关键路径 |
-| 3. Task Execution | 按批次执行，并行任务使用 Task 工具，验证结果 |
-| 4. Progress Sync | 更新文档状态，生成进度报告，处理失败任务 |
+### 立即行动
 
-## DAG Scheduling Algorithm
+1. 定位任务规划文档
+2. 验证文档格式和依赖完整性
+3. 开始 Phase 1: LOAD
 
-**Kahn's Algorithm (Topological Sort)**:
-1. Add all nodes with in-degree 0 to queue
-2. Remove node from queue, add to result
-3. Decrease in-degree of all successors by 1
-4. Add nodes with in-degree 0 to queue
-5. Repeat until queue is empty
+### 📋 进度追踪 Checklist
 
-**Parallel Grouping**:
+**复制此清单并逐项完成：**
+
 ```
-Batch 1: [in-degree 0 tasks] -- parallel
-Batch 2: [depend on Batch 1, in-degree becomes 0] -- parallel
-Batch 3: [depend on Batch 2, in-degree becomes 0] -- parallel
+- [ ] Phase 1: LOAD → 读取文档，构建任务 DAG
+- [ ] Phase 2: SCHEDULE → 拓扑排序，划分并行批次
+- [ ] Phase 3: EXECUTE → 按批次执行任务
+- [ ] Phase 4: SYNC → 更新状态，生成进度报告
+- [ ] Phase 5: COMPLETE → 验证完成，输出最终状态
 ```
 
-## Task Status
+### ✅ 阶段完成验证
 
-| Status | Mark | Description |
-|--------|------|-------------|
-| Pending | `[ ]` | 任务尚未开始 |
-| In Progress | `[~]` | 任务正在执行 |
-| Completed | `[x]` | 任务成功完成 |
-| Failed | `[!]` | 任务执行失败 |
-| Skipped | `[-]` | 任务被跳过 |
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| LOAD | DAG 已构建，无循环依赖 | → SCHEDULE |
+| SCHEDULE | 批次已划分 | → EXECUTE |
+| EXECUTE | 当前批次已执行 | → SYNC |
+| SYNC | 状态已更新 | → EXECUTE (下一批次) 或 COMPLETE |
+| COMPLETE | 所有任务完成/失败处理完毕 | → 结束 |
 
-## Output Documents
+---
 
-| File | Content |
-|------|---------|
-| `execution-plan.md` | 任务依赖图、执行批次、关键路径、执行命令示例 |
-| `progress-report.md` | 完成率、模块进度、任务状态明细、阻塞分析 |
+## Phase 详情
 
-## Failure Handling Strategies
+### Phase 1: LOAD（加载任务）
 
-| Strategy | When to Use | Impact |
-|----------|-------------|--------|
-| Retry | 临时性错误（网络、资源） | 重新执行该任务 |
-| Skip | 非关键任务失败 | 依赖该任务的后续任务也被跳过 |
-| Abort | 关键任务失败 | 停止整个执行流程 |
+**你必须：**
+1. 读取规划文档，提取任务清单
+2. 解析每个任务：ID、标题、依赖、优先级、状态
+3. 构建有向无环图（DAG）
+4. 检测循环依赖（如有则中止）
 
-## Constraints
+**完成标志**: DAG 已构建，无循环依赖
 
-- Max parallel tasks: 5 (avoid resource contention)
-- Dependencies must be explicitly marked in task documents
-- Task granularity: 30 min - 4 hours
-- Cycle detection: abort scheduling if found
+---
 
-## Best Practices
+### Phase 2: SCHEDULE（调度规划）
 
-1. Verify 1-2 tasks serially before parallelizing
-2. Update document status immediately after completion
-3. Prioritize critical path tasks
-4. Handle failed tasks promptly to avoid blocking
-5. Review progress report after each batch
+**你必须：**
+1. 拓扑排序确定执行顺序（Kahn 算法）
+2. 划分并行批次：
+   - 批次 1: 入度为 0 的任务
+   - 批次 2: 批次 1 完成后入度变为 0 的任务
+   - ...
+3. 计算关键路径
+4. 生成 `execution-plan.md`
+
+**完成标志**: 批次已划分
+
+---
+
+### Phase 3: EXECUTE（执行任务）
+
+**你必须：**
+1. 按批次顺序执行
+2. 同批次内的任务可使用 Task 工具并行执行
+3. 标记任务状态：
+   - `[~]` 进行中
+   - `[x]` 已完成
+   - `[!]` 失败
+   - `[-]` 跳过
+4. 记录执行日志
+
+**失败处理**:
+| 策略 | 适用场景 | 影响 |
+|------|----------|------|
+| Retry | 临时性错误 | 重新执行 |
+| Skip | 非关键任务 | 跳过后续依赖任务 |
+| Abort | 关键任务失败 | 停止整个流程 |
+
+**完成标志**: 当前批次已执行
+
+---
+
+### Phase 4: SYNC（同步状态）
+
+**你必须：**
+1. 更新规划文档中的任务状态
+2. 生成/更新 `progress-report.md`：
+   - 完成率
+   - 模块进度
+   - 阻塞分析
+3. 判断是否继续下一批次
+
+**完成标志**: 状态已更新
+
+---
+
+### Phase 5: COMPLETE（完成验证）
+
+**你必须：**
+1. 验证所有任务状态
+2. 汇总执行结果
+3. 输出最终状态报告
+4. 如有失败任务，提供后续建议
+
+**完成标志**: 所有任务完成/失败处理完毕
+
+---
+
+## 任务状态
+
+| 状态 | 标记 | 说明 |
+|------|------|------|
+| 待执行 | `[ ]` | 尚未开始 |
+| 进行中 | `[~]` | 正在执行 |
+| 已完成 | `[x]` | 成功完成 |
+| 失败 | `[!]` | 执行失败 |
+| 跳过 | `[-]` | 被跳过 |
+
+---
+
+## 约束
+
+- 最大并行任务数：5（避免资源竞争）
+- 依赖必须在文档中明确标注
+- 任务粒度：30min - 4h
+- 检测到循环依赖时中止调度

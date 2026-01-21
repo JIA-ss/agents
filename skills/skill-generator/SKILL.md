@@ -1,217 +1,200 @@
 ---
 name: skill-generator
-description: Creates new Claude Code skills following official Agent Skills specification. Generates SKILL.md files with Progressive Disclosure architecture. Use when users want to create, design, or generate a new skill, need help with SKILL.md format, or want to extend Claude's capabilities. Also responds to "创建 skill", "生成 skill", "设计 skill", "skill 模板".
+description: 根据用户需求自动生成符合 Claude Code Agent Skills 规范的 SKILL.md 文件，支持渐进式披露架构。当用户想要创建、设计或生成新 skill，需要 SKILL.md 格式帮助，或想要扩展 Claude 能力时使用。也响应 "创建 skill", "生成 skill", "设计 skill", "skill 模板"。
 ---
 
-# Skill Generator Guide
+# Skill Generator
 
-## Overview
-
-Meta-level skill for creating well-structured Claude Code skills that follow Anthropic's official Agent Skills specification. Generates SKILL.md files with proper Progressive Disclosure architecture.
-
-## Core Principle: Progressive Disclosure
-
-Skills use a three-level loading system to optimize context usage:
-
-| Level | When Loaded | Token Budget | Content |
-|-------|-------------|--------------|---------|
-| **1: Metadata** | Always (at startup) | ~100 tokens | `name` + `description` in frontmatter |
-| **2: Instructions** | When skill triggers | <5k tokens | SKILL.md body |
-| **3: Resources** | As needed by Claude | Unlimited | scripts/, references/, assets/ |
-
-**Key insight**: You can install many skills without context penalty. Claude only loads what's needed.
+Skill 创建向导：REQUIRE → PLAN → INIT → WRITE → VALIDATE → ITERATE
 
 ---
 
-## Workflow (6 Steps)
+## 🚀 执行流程
 
-### Step 1: Understand Requirements
+**当此 skill 被触发时，你必须按以下流程执行：**
 
-Gather concrete examples of how the skill will be used:
-- "What tasks should this skill handle?"
-- "Give examples of user requests that should trigger it"
-- "What would a user say to activate this skill?"
+### 立即行动
 
-### Step 2: Plan Reusable Contents
+1. 解析用户需求，确定 skill 用途
+2. 收集触发场景和示例
+3. 开始 Phase 1: REQUIRE
 
-For each example, identify:
-- **Scripts** - Code that would be repeatedly rewritten
-- **References** - Domain knowledge to load as needed
-- **Assets** - Templates, images used in output
+### 📋 进度追踪 Checklist
 
-### Step 3: Initialize Skill
+**复制此清单并逐项完成：**
 
-**Option A: Use init script (recommended)**
-```bash
-./scripts/init-skill.sh <skill-name>
+```
+- [ ] Phase 1: REQUIRE → 收集需求和使用场景
+- [ ] Phase 2: PLAN → 规划可复用内容
+- [ ] Phase 3: INIT → 创建目录结构
+- [ ] Phase 4: WRITE → 编写 SKILL.md
+- [ ] Phase 5: VALIDATE → 验证规范合规
+- [ ] Phase 6: ITERATE → 测试和优化
 ```
 
-**Option B: Copy template manually**
-```bash
-cp templates/SKILL-template.md <skill-name>/SKILL.md
-# Then replace SKILL_NAME_PLACEHOLDER with actual name
-```
+### ✅ 阶段完成验证
 
-Creates:
-```
-skill-name/
-├── SKILL.md          # Main file (required)
-├── references/       # Domain docs (optional)
-├── scripts/          # Executable code (optional)
-└── assets/           # Output resources (optional)
-```
-
-### Step 4: Write SKILL.md
-
-**Frontmatter (required)**:
-```yaml
----
-name: skill-name
-description: What it does. Use when [specific triggers]. Also responds to "中文关键词".
----
-```
-
-**Body sections** (customize based on skill type):
-- Overview - What, why, core value
-- Workflow - Step-by-step process
-- Core Rules - Constraints and requirements
-- Output Requirements - Expected format
-- Best Practices - Usage guidance
-
-> **Need detailed constraints?** See [references/spec-reference.md](references/spec-reference.md) for complete field specifications.
-
-### Step 5: Validate
-
-```bash
-./scripts/validate-skill.sh <skill-dir>
-```
-
-Checks: frontmatter format, name conventions, description quality, file structure.
-
-### Step 6: Iterate
-
-Test with fresh Claude instance → Observe behavior → Refine → Repeat.
-
-> **Need iteration guidance?** See [references/best-practices.md](references/best-practices.md) for testing methodology and common pitfalls.
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| REQUIRE | 需求和场景已收集 | → PLAN |
+| PLAN | 可复用内容已规划 | → INIT |
+| INIT | 目录结构已创建 | → WRITE |
+| WRITE | SKILL.md 已编写 | → VALIDATE |
+| VALIDATE | 验证通过 | → ITERATE |
+| ITERATE | 用户确认完成 | → 结束 |
 
 ---
 
-## Specification Constraints
+## Phase 详情
 
-### Frontmatter Fields
+### Phase 1: REQUIRE（收集需求）
 
-| Field | Constraint | Example |
-|-------|------------|---------|
-| `name` | max 64 chars, only `a-z`, `0-9`, `-` | `pdf-processor` |
-| `description` | max 1024 chars, third person only | "Extracts text from PDFs. Use when..." |
+**你必须：**
+1. 询问 skill 用途和目标
+2. 收集具体使用场景示例
+3. 确定触发关键词（中英文）
+4. 识别预期输出形式
 
-**Forbidden in name**: "anthropic", "claude"
-**Forbidden everywhere**: XML tags
+**关键问题**:
+- "这个 skill 应该处理什么任务？"
+- "给出用户请求的示例"
+- "用户会说什么来激活它？"
 
-### Content Limits
-
-| Metric | Limit | Rationale |
-|--------|-------|-----------|
-| SKILL.md lines | <500 | Move details to references/ |
-| Reference depth | 1 level | No nested references |
-| Mermaid nodes | ≤15 | Keep diagrams simple |
-
-### Description Requirements
-
-Must include BOTH:
-1. **What it does** - Functionality description
-2. **When to use** - Specific triggers and contexts
-
-**Good**: "Extract text and tables from PDFs. Use when working with PDF files or when user mentions forms, document extraction."
-
-**Bad**: "Helps with documents" (too vague)
+**完成标志**: 需求和场景已收集
 
 ---
 
-## Degrees of Freedom
+### Phase 2: PLAN（规划内容）
 
-Match specificity to task fragility:
+**你必须：**
+1. 识别可复用内容：
+   - **Scripts**: 会被重复编写的代码
+   - **References**: 按需加载的领域知识
+   - **Assets**: 输出中使用的模板/图片
+2. 确定工作流阶段
+3. 规划目录结构
 
-| Freedom | When to Use | Format |
-|---------|-------------|--------|
-| **High** | Multiple valid approaches | Prose guidelines |
-| **Medium** | Preferred pattern exists | Pseudocode with params |
-| **Low** | Operations fragile | Specific scripts |
+**渐进式披露三层**:
+| 层级 | 加载时机 | Token 预算 | 内容 |
+|------|----------|------------|------|
+| 1: 元数据 | 启动时 | ~100 | frontmatter |
+| 2: 指令 | 触发时 | <5k | SKILL.md 正文 |
+| 3: 资源 | 按需 | 无限制 | scripts/, references/, assets/ |
+
+**完成标志**: 可复用内容已规划
 
 ---
 
-## Quality Checklist
+### Phase 3: INIT（初始化结构）
 
-Before finalizing, verify:
+**你必须：**
+1. 创建 skill 目录：`{skill-name}/`
+2. 创建子目录（按需）：
+   - `references/` - 领域文档
+   - `scripts/` - 可执行代码
+   - `assets/` - 模板和资源
+3. 创建空的 SKILL.md
+
+**完成标志**: 目录结构已创建
+
+---
+
+### Phase 4: WRITE（编写 SKILL.md）
+
+**你必须：**
+1. 编写 frontmatter：
+   ```yaml
+   ---
+   name: skill-name
+   description: 功能描述。Use when [触发条件]。Also responds to "中文关键词"。
+   ---
+   ```
+2. 编写正文结构：
+   - 🚀 执行流程（必须）
+   - 📋 进度追踪 Checklist（必须）
+   - ✅ 阶段完成验证表（必须）
+   - Phase 详情（必须）
+   - 约束/资源（按需）
+
+**关键格式**:
+- 使用 "**你必须：**" 引导具体指令
+- 每个 Phase 必须有 "**完成标志**"
+- 使用表格和列表提高可读性
+
+**完成标志**: SKILL.md 已编写
+
+---
+
+### Phase 5: VALIDATE（验证规范）
+
+**你必须：**
+1. 检查 frontmatter：
+   - name: ≤64 字符，仅 `a-z`、`0-9`、`-`
+   - description: ≤1024 字符，第三人称
+   - 禁止包含 "anthropic"、"claude"
+2. 检查内容：
+   - SKILL.md < 500 行
+   - 包含执行流程和 Checklist
+   - references 仅 1 层深度
+   - 无 XML 标签
+
+**完成标志**: 验证通过
+
+---
+
+### Phase 6: ITERATE（测试优化）
+
+**你必须：**
+1. 在新会话中测试 skill 触发
+2. 观察执行行为
+3. 收集用户反馈
+4. 优化并重新验证
+
+**完成标志**: 用户确认完成
+
+---
+
+## 规范约束
+
+### Frontmatter 字段
+
+| 字段 | 约束 | 示例 |
+|------|------|------|
+| `name` | ≤64 字符，仅 `a-z`、`0-9`、`-` | `pdf-processor` |
+| `description` | ≤1024 字符，第三人称 | "Extracts text from PDFs..." |
+
+### Description 要求
+
+必须包含：
+1. **功能描述** - 做什么
+2. **触发条件** - 何时使用
+
+**正确**: "Extract text from PDFs. Use when working with PDF files..."
+**错误**: "Helps with documents"（太模糊）
+
+---
+
+## 质量清单
 
 **Frontmatter**:
-- [ ] `name` follows naming rules
-- [ ] `description` under 1024 chars
-- [ ] `description` includes "what" AND "when"
-- [ ] No first-person pronouns
+- [ ] name 符合命名规则
+- [ ] description < 1024 字符
+- [ ] description 包含 "what" 和 "when"
+- [ ] 无第一人称代词
 
-**Content**:
-- [ ] SKILL.md < 500 lines
-- [ ] Overview explains core value
-- [ ] Workflow has clear steps
-- [ ] References only 1 level deep
-- [ ] No time-sensitive information
-- [ ] Consistent terminology
-
-**Resources**:
-- [ ] Scripts tested and working
-- [ ] References have table of contents (if >100 lines)
-- [ ] Forward slashes in all paths
+**内容**:
+- [ ] SKILL.md < 500 行
+- [ ] 包含 🚀 执行流程
+- [ ] 包含 📋 进度追踪 Checklist
+- [ ] 包含 ✅ 阶段完成验证表
+- [ ] 每个 Phase 有 "你必须" 和 "完成标志"
 
 ---
 
-## Self-Iteration Support
+## 资源
 
-Generated skills can include self-iteration capability for autonomous improvement.
-
-### Enable Self-Iteration
-
-Add `--with-evolution` flag when initializing:
-```bash
-./scripts/init-skill.sh <skill-name> --with-evolution
-```
-
-This creates `.evolution/` directory with:
-- `config.yaml` - Trigger thresholds and validation settings
-- `failures/` - Failure case library
-- `patterns/` - Identified error patterns
-- `improvements/` - Proposed improvements
-- `metrics/` - Execution logs
-
-### Self-Iteration Workflow
-
-```
-Record Outcome → Analyze Trends → Propose Improvement → Validate → Deploy
-```
-
-1. **Record**: `./scripts/record-outcome.sh <skill-dir> <status> [details]`
-2. **Analyze**: `./scripts/analyze-trends.sh <skill-dir>`
-3. **Propose**: `./scripts/propose-improvement.sh <skill-dir>`
-4. **Validate**: `./scripts/validate-improvement.sh <skill-dir> <proposal-file>`
-5. **Deploy**: `./scripts/deploy-improvement.sh <skill-dir> <proposal-file>`
-
-> **Detailed guide**: See [references/self-iteration-guide.md](references/self-iteration-guide.md) for complete self-iteration architecture.
-
----
-
-## Additional Resources
-
-| Resource | Path | When to Use |
-|----------|------|-------------|
-| **Spec Reference** | [references/spec-reference.md](references/spec-reference.md) | When you need exact field constraints, forbidden patterns, or runtime environment details |
-| **Best Practices** | [references/best-practices.md](references/best-practices.md) | When iterating on a skill, testing across models, or troubleshooting common pitfalls |
-| **Self-Iteration Guide** | [references/self-iteration-guide.md](references/self-iteration-guide.md) | When designing skills that can analyze failures and self-improve |
-| **Skill Template** | [templates/SKILL-template.md](templates/SKILL-template.md) | When manually creating a skill without using init script |
-| **Evolution Config Template** | [templates/evolution/config.yaml](templates/evolution/config.yaml) | When manually adding self-iteration to existing skill |
-| **Init Script** | [scripts/init-skill.sh](scripts/init-skill.sh) | When starting a new skill - creates directory structure and SKILL.md |
-| **Validation** | [scripts/validate-skill.sh](scripts/validate-skill.sh) | After writing SKILL.md - checks spec compliance before deployment |
-| **Record Outcome** | [scripts/record-outcome.sh](scripts/record-outcome.sh) | After each skill execution - records success/failure for analysis |
-| **Analyze Trends** | [scripts/analyze-trends.sh](scripts/analyze-trends.sh) | Periodically - identifies failure patterns and improvement opportunities |
-| **Propose Improvement** | [scripts/propose-improvement.sh](scripts/propose-improvement.sh) | When patterns reach threshold - generates improvement proposal |
-| **Validate Improvement** | [scripts/validate-improvement.sh](scripts/validate-improvement.sh) | Before deploying - validates proposal against 5 safety gates |
-| **Deploy Improvement** | [scripts/deploy-improvement.sh](scripts/deploy-improvement.sh) | After validation passes - deploys improvement with backup |
+| 资源 | 路径 | 用途 |
+|------|------|------|
+| 规范参考 | [references/spec-reference.md](references/spec-reference.md) | 详细字段约束 |
+| 最佳实践 | [references/best-practices.md](references/best-practices.md) | 测试和迭代指南 |
+| 模板 | [templates/SKILL-template.md](templates/SKILL-template.md) | 快速开始 |

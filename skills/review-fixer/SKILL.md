@@ -1,66 +1,140 @@
 ---
 name: review-fixer
-description: Use when the user asks to "fix review issues", "apply review suggestions", "auto-fix code problems", "resolve audit findings", mentions "review fixes", "batch fix", or needs to automatically fix issues identified in a code review report. Also responds to "修复审查问题", "应用审查建议", "自动修复".
+description: 基于代码审查报告和任务规划文档，自动规划并执行每条审查问题的代码修复。当用户要求"修复审查问题"、"应用审查建议"、"自动修复代码问题"、"解决审计发现"，或提到"审查修复"、"批量修复"时使用。也响应 "fix review issues", "apply review suggestions", "auto-fix code problems"。
 ---
 
-# Review Fixer Skill Guide
+# Review Fixer
 
-## Overview
+审查问题自动修复：PARSE → FILTER → PLAN → EXECUTE → REPORT
 
-审查问题修复器是 task-code-reviewer 的配套修复工具，解析代码审查报告并结合任务规划文档，自动规划并执行代码修复。
+---
 
-**核心价值**：自动化修复 + 规划驱动 + 可配置范围 + 先规划后执行
+## 🚀 执行流程
 
-## Workflow (5 Phases)
+**当此 skill 被触发时，你必须按以下流程执行：**
 
-1. **Document Parsing** - 解析 Review 报告和 Plan 文档，关联分析
-2. **Scope Filtering** - 根据配置参数筛选待处理问题
-3. **Fix Planning** - 生成修复方案，依赖排序，用户审批
-4. **Execute Fixes** - 批准后按顺序执行，验证检查
-5. **Generate Report** - 输出修复摘要、变更清单、剩余问题
+### 立即行动
 
-## Configuration Parameters
+1. 定位审查报告文件路径
+2. 定位相关的任务规划文档（如有）
+3. 开始 Phase 1: PARSE
 
-| Parameter | Description | Example |
-|-----------|-------------|---------|
+### 📋 进度追踪 Checklist
+
+**复制此清单并逐项完成：**
+
+```
+- [ ] Phase 1: PARSE → 解析审查报告和规划文档
+- [ ] Phase 2: FILTER → 根据配置筛选待处理问题
+- [ ] Phase 3: PLAN → 生成修复方案，请求用户审批
+- [ ] Phase 4: EXECUTE → 按顺序执行修复
+- [ ] Phase 5: REPORT → 输出修复摘要
+```
+
+### ✅ 阶段完成验证
+
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| PARSE | 问题列表已提取 | → FILTER |
+| FILTER | 待处理问题已筛选 | → PLAN |
+| PLAN | 修复方案已生成并批准 | → EXECUTE |
+| EXECUTE | 所有修复已执行 | → REPORT |
+| REPORT | 修复报告已输出 | → 结束 |
+
+---
+
+## Phase 详情
+
+### Phase 1: PARSE（解析文档）
+
+**你必须：**
+1. 读取审查报告，提取问题列表
+2. 解析每个问题：ID、类型、严重程度、位置、描述
+3. 读取任务规划文档（如有），关联问题与任务
+4. 构建问题-任务映射关系
+
+**完成标志**: 问题列表已提取
+
+---
+
+### Phase 2: FILTER（筛选问题）
+
+**你必须：**
+1. 解析用户配置参数：
+   - `--type`: 只处理特定类型
+   - `--module`: 只处理特定模块
+   - `--priority`: 只处理特定优先级
+   - `--skip`: 跳过特定问题
+2. 应用筛选条件
+3. 输出待处理问题清单
+
+**完成标志**: 待处理问题已筛选
+
+---
+
+### Phase 3: PLAN（生成修复方案）
+
+**你必须：**
+1. 为每个问题生成修复方案：
+   - 目标文件和位置
+   - 修复策略和风险等级
+   - 原代码 vs 修复后代码
+   - 依赖其他修复（如有）
+2. 按依赖关系排序（拓扑排序）
+3. 展示修复方案，请求用户审批
+
+**问题类型与修复策略**:
+| 类型 | 策略 | 风险 |
+|------|------|------|
+| 缺失模块 | 创建新文件/函数 | 高 |
+| 逻辑错误 | 修改实现代码 | 中 |
+| 空值检查 | 添加 null 检查 | 低 |
+| 命名规范 | 重命名变量/函数 | 低 |
+
+**完成标志**: 修复方案已生成并批准
+
+---
+
+### Phase 4: EXECUTE（执行修复）
+
+**你必须：**
+1. 按拓扑顺序执行修复
+2. 每次修复后验证语法
+3. 单个修复失败不影响其他修复
+4. 验证失败时自动回滚该修复
+5. 记录每个修复的状态
+
+**完成标志**: 所有修复已执行
+
+---
+
+### Phase 5: REPORT（输出报告）
+
+**你必须：**
+1. 汇总修复统计：成功/失败/跳过
+2. 列出变更文件清单
+3. 列出剩余未修复问题
+4. 建议：运行测试、重新审查
+
+**完成标志**: 修复报告已输出
+
+---
+
+## 配置参数
+
+| 参数 | 说明 | 示例 |
+|------|------|------|
 | `--type` | 只处理特定类型 | `--type logic,security` |
 | `--module` | 只处理特定模块 | `--module user-service` |
 | `--priority` | 只处理特定优先级 | `--priority high,medium` |
 | `--skip` | 跳过特定问题 | `--skip 3,7,12` |
 
-## Problem Classification & Fix Strategies
+---
 
-| Type | Subtype | Strategy | Risk |
-|------|---------|----------|------|
-| Completeness | 缺失模块 | 创建新文件/函数 | High |
-| Completeness | 缺失功能 | 补充实现代码 | Medium |
-| Dependency | 时序错误 | 调整初始化顺序 | High |
-| Dependency | 循环依赖 | 重构模块结构 | High |
-| Logic | 边界条件 | 添加边界检查 | Medium |
-| Logic | 空值检查 | 添加 null 检查 | Low |
-| Integration | 命名规范 | 重命名变量/函数 | Low |
-| Security | 输入验证 | 添加验证逻辑 | High |
+## 最佳实践
 
-## Fix Plan Structure
-
-Each fix includes:
-- Problem ID and description
-- Target file and location
-- Fix strategy and risk level
-- Original code vs fixed code
-- Dependency on other fixes
-
-## Execution Strategy
-
-- **Dependency-first**: Execute in topological order
-- **Atomic operations**: Single fix failure doesn't affect others
-- **Verification**: Syntax check after each fix
-- **Rollback**: Auto-rollback on verification failure
-
-## Best Practices
-
-1. Process in batches by type or module for large issues
-2. Handle low-risk fixes first, then high-risk
-3. Carefully review fix plans, especially high-risk items
-4. Run tests after fixes to ensure no regressions
-5. Re-run reviewer to verify fixes
+1. 大量问题时按类型或模块分批处理
+2. 先处理低风险修复，再处理高风险
+3. 仔细审查高风险修复方案
+4. 修复后运行测试确保无回归
+5. 重新运行审查器验证修复效果
