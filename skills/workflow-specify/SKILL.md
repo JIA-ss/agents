@@ -17,8 +17,12 @@ description: 将模糊的用户需求转化为结构化的 spec.md 规范文档�
 
 1. 解析用户输入，提取 feature 名称和需求描述
 2. 确定模式: mini（默认）/ standard / full
-3. 创建目录: `.workflow/{feature}/specify/`
-4. 开始 Phase 1: CAPTURE
+3. **询问用户审查方式**：使用 AskUserQuestion 让用户选择:
+   - **选项 1: Codex 审查**（推荐）- 使用 /codex skill 进行高质量审查
+   - **选项 2: 独立 Agent 审查** - 使用 Task 工具启动独立审查 Agent
+4. 记录审查方式到 `.state.yaml`
+5. 创建目录: `.workflow/{feature}/specify/`
+6. 开始 Phase 1: CAPTURE
 
 ### 📋 进度追踪 Checklist
 
@@ -122,7 +126,9 @@ description: 将模糊的用户需求转化为结构化的 spec.md 规范文档�
 ### Phase 4: REVIEW（审查）
 
 **你必须：**
-1. 使用 Task 工具启动独立审查 Agent（信息隔离）
+1. 根据用户在"立即行动"阶段选择的审查方式执行:
+   - **Codex 审查**: 使用 Skill 工具调用 `/codex` skill，传递 spec.md 路径
+   - **独立 Agent 审查**: 使用 Task 工具启动独立审查 Agent（信息隔离）
 2. 审查内容:
    - 用户故事格式正确
    - 验收标准覆盖度充分
