@@ -1,0 +1,230 @@
+# Test Specification for skill-generator
+# This is the self-test for the skill-generator itself
+# Generated: 2026-01-28
+
+skill:
+  name: "skill-generator"
+  description: "根据用户需求自动生成符合 Claude Code Agent Skills 规范的 SKILL.md 文件"
+
+# Test scenarios for skill-generator
+scenarios:
+  #############################################
+  # TRIGGER TESTS
+  #############################################
+  - id: "trigger-create-skill"
+    name: "Chinese trigger - create skill"
+    type: "trigger"
+    query: "帮我创建一个 skill"
+    expected_behavior:
+      - "Skill activates"
+      - "Starts Phase 1: REQUIRE"
+      - "Asks about skill purpose"
+
+  - id: "trigger-generate-skill"
+    name: "Chinese trigger - generate skill"
+    type: "trigger"
+    query: "生成一个新的 skill 模板"
+    expected_behavior:
+      - "Skill activates"
+      - "Begins requirement collection"
+
+  - id: "trigger-english"
+    name: "English trigger"
+    type: "trigger"
+    query: "I want to create a new Claude Code skill"
+    expected_behavior:
+      - "Skill activates"
+      - "Understands intent to create skill"
+
+  - id: "trigger-skill-template"
+    name: "Skill template request"
+    type: "trigger"
+    query: "给我一个 SKILL.md 模板"
+    expected_behavior:
+      - "Skill activates"
+      - "Provides template or starts workflow"
+
+  #############################################
+  # EXECUTION TESTS
+  #############################################
+  - id: "exec-full-workflow"
+    name: "Full TDD workflow execution"
+    type: "execution"
+    query: "帮我创建一个处理 PDF 的 skill"
+    expected_behavior:
+      - "Shows progress checklist"
+      - "Phase 1: Collects requirements"
+      - "Phase 2: Plans content"
+      - "Phase 3: Creates test-spec.yaml BEFORE SKILL.md"
+      - "Phase 4: Creates directory structure"
+      - "Phase 5: Writes SKILL.md"
+      - "Phase 6: Runs tests"
+      - "Phase 7: Iterates until pass"
+
+  - id: "exec-test-first"
+    name: "Verify test-first approach"
+    type: "execution"
+    query: "创建 skill 时，先生成测试还是先生成 SKILL.md？"
+    expected_behavior:
+      - "Explains TDD approach"
+      - "States test-spec.yaml is created first"
+      - "Mentions Phase 3: TEST-DESIGN before Phase 5: WRITE"
+
+  - id: "exec-validate"
+    name: "Validation script execution"
+    type: "execution"
+    query: "如何验证我创建的 skill 是否符合规范？"
+    expected_behavior:
+      - "Mentions validate-skill.sh"
+      - "Mentions run-skill-tests.sh"
+      - "Explains validation process"
+
+  #############################################
+  # EDGE CASE TESTS
+  #############################################
+  - id: "edge-minimal-info"
+    name: "Minimal information provided"
+    type: "edge"
+    query: "创建 skill"
+    expected_behavior:
+      - "Asks clarifying questions"
+      - "Does not fail"
+      - "Requests more details about purpose"
+
+  - id: "edge-invalid-name"
+    name: "Invalid skill name"
+    type: "edge"
+    query: "创建一个叫 'My_Skill' 的 skill"
+    expected_behavior:
+      - "Detects invalid name format"
+      - "Explains naming rules (lowercase, hyphens only)"
+      - "Suggests valid alternative like 'my-skill'"
+
+  - id: "edge-reserved-word"
+    name: "Reserved word in name"
+    type: "edge"
+    query: "创建一个叫 'claude-helper' 的 skill"
+    expected_behavior:
+      - "Detects reserved word 'claude'"
+      - "Explains restriction"
+      - "Suggests alternative name"
+
+  - id: "edge-long-description"
+    name: "Very long description"
+    type: "edge"
+    query: "创建一个 skill，description 超过 1024 字符"
+    expected_behavior:
+      - "Warns about description length limit"
+      - "Suggests ways to shorten"
+      - "References spec constraints"
+
+  #############################################
+  # NEGATIVE TESTS
+  #############################################
+  - id: "negative-general-coding"
+    name: "General coding request"
+    type: "negative"
+    query: "帮我写一个 Python 脚本处理 CSV 文件"
+    expected_behavior:
+      - "Skill does NOT activate"
+      - "This is a general coding task, not skill creation"
+
+  - id: "negative-documentation"
+    name: "Documentation request"
+    type: "negative"
+    query: "帮我写一个 README.md 文件"
+    expected_behavior:
+      - "Skill does NOT activate"
+      - "README.md is different from SKILL.md"
+
+  - id: "negative-claude-api"
+    name: "Claude API question"
+    type: "negative"
+    query: "如何使用 Claude API？"
+    expected_behavior:
+      - "Skill does NOT activate"
+      - "This is about API usage, not skill creation"
+
+  #############################################
+  # ERROR HANDLING TESTS
+  #############################################
+  - id: "error-missing-tests"
+    name: "Skip test phase"
+    type: "error"
+    query: "跳过测试直接生成 SKILL.md"
+    expected_behavior:
+      - "Warns about TDD requirement"
+      - "Explains importance of test-first"
+      - "Refuses to skip Phase 3"
+
+  - id: "error-no-scenarios"
+    name: "Empty test scenarios"
+    type: "error"
+    query: "创建一个没有测试场景的 skill"
+    expected_behavior:
+      - "Explains minimum test coverage requirements"
+      - "Lists required test types (trigger, execution, edge, negative)"
+      - "Guides user to define scenarios"
+
+  #############################################
+  # TDD SPECIFIC TESTS
+  #############################################
+  - id: "tdd-red-green-refactor"
+    name: "TDD cycle explanation"
+    type: "execution"
+    query: "解释 TDD 在 skill 开发中的应用"
+    expected_behavior:
+      - "Explains RED-GREEN-REFACTOR cycle"
+      - "Maps to skill development phases"
+      - "Emphasizes test-first approach"
+
+  - id: "tdd-test-failure-handling"
+    name: "Handle test failure"
+    type: "execution"
+    query: "测试失败后应该怎么办？"
+    expected_behavior:
+      - "Return to Phase 5 to fix SKILL.md"
+      - "Re-run tests"
+      - "Iterate until all pass"
+
+# Validation rules
+validation:
+  frontmatter:
+    - rule: "name_format"
+      pattern: "^[a-z0-9-]+$"
+      max_length: 64
+    - rule: "description_required"
+      min_length: 10
+      max_length: 1024
+    - rule: "no_forbidden_words"
+      forbidden: ["anthropic"]
+
+  content:
+    - rule: "max_lines"
+      limit: 500
+    - rule: "required_sections"
+      sections:
+        - "执行流程"
+        - "进度追踪"
+        - "阶段完成验证"
+        - "TEST-DESIGN"
+        - "TEST-RUN"
+    - rule: "no_xml_tags"
+
+  references:
+    - rule: "max_depth"
+      depth: 1
+
+# Performance expectations
+performance:
+  max_trigger_time_ms: 100
+  max_execution_time_ms: 60000
+
+# Test execution configuration
+execution:
+  models:
+    - haiku
+    - sonnet
+    - opus
+  require_all_pass: true
+  retry_on_failure: 1

@@ -1,0 +1,116 @@
+# Skill Test Specification Template
+# Copy this file to your skill's tests/ directory and customize
+
+# Skill metadata for test context
+skill:
+  name: "skill-name-here"
+  description: "Brief description"
+
+# Test scenarios - define BEFORE writing SKILL.md (TDD approach)
+scenarios:
+  # Happy path tests - basic functionality
+  - id: "happy-path-1"
+    name: "Basic trigger test"
+    type: "trigger"
+    query: "User request that should trigger this skill"
+    expected_behavior:
+      - "Skill should activate"
+      - "Expected behavior 1"
+      - "Expected behavior 2"
+    expected_output:
+      format: "markdown|json|text|file"
+      contains:
+        - "expected substring 1"
+        - "expected substring 2"
+      not_contains:
+        - "error"
+        - "failed"
+
+  - id: "happy-path-2"
+    name: "Standard use case"
+    type: "execution"
+    query: "Another typical user request"
+    setup:
+      files:
+        - path: "test-files/sample.txt"
+          content: "Sample content for testing"
+    expected_behavior:
+      - "Processes input correctly"
+      - "Produces expected output"
+
+  # Edge case tests
+  - id: "edge-case-1"
+    name: "Empty input handling"
+    type: "edge"
+    query: "Request with minimal or empty context"
+    expected_behavior:
+      - "Handles gracefully"
+      - "Provides helpful guidance"
+
+  - id: "edge-case-2"
+    name: "Special characters"
+    type: "edge"
+    query: "Request with <special> & \"characters\""
+    expected_behavior:
+      - "Escapes properly"
+      - "No errors"
+
+  # Negative tests - should NOT trigger
+  - id: "negative-1"
+    name: "Unrelated request"
+    type: "negative"
+    query: "Completely unrelated user request"
+    expected_behavior:
+      - "Skill should NOT activate"
+      - "No false positives"
+
+  # Error handling tests
+  - id: "error-1"
+    name: "Invalid input"
+    type: "error"
+    query: "Request with invalid data"
+    expected_behavior:
+      - "Detects invalid input"
+      - "Provides clear error message"
+      - "Suggests correction"
+
+# Validation rules - automated checks
+validation:
+  frontmatter:
+    - rule: "name_format"
+      pattern: "^[a-z0-9-]+$"
+      max_length: 64
+    - rule: "description_required"
+      min_length: 10
+      max_length: 1024
+    - rule: "no_forbidden_words"
+      forbidden: ["anthropic", "claude"]
+
+  content:
+    - rule: "max_lines"
+      limit: 500
+    - rule: "required_sections"
+      sections:
+        - "执行流程"
+        - "进度追踪"
+        - "阶段完成验证"
+    - rule: "no_xml_tags"
+      pattern: "<[a-zA-Z][^>]*>"
+
+  references:
+    - rule: "max_depth"
+      depth: 1
+
+# Performance baseline
+performance:
+  max_trigger_time_ms: 100
+  max_execution_time_ms: 30000
+
+# Test execution config
+execution:
+  models:
+    - haiku
+    - sonnet
+    - opus
+  require_all_pass: true
+  retry_on_failure: 1

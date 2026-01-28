@@ -1,16 +1,140 @@
 # Skill Development Best Practices
 
-Guidance for creating, testing, and iterating on Claude Code skills.
+Guidance for creating, testing, and iterating on Claude Code skills using TDD methodology.
 
 ---
 
 ## Table of Contents
 
-1. [Development Workflow](#development-workflow)
-2. [Evaluation-Driven Development](#evaluation-driven-development)
-3. [Iteration Strategies](#iteration-strategies)
-4. [Testing Methodology](#testing-methodology)
-5. [Common Pitfalls](#common-pitfalls)
+1. [TDD Workflow](#tdd-workflow)
+2. [Test Specification Design](#test-specification-design)
+3. [Development Workflow](#development-workflow)
+4. [Evaluation-Driven Development](#evaluation-driven-development)
+5. [Iteration Strategies](#iteration-strategies)
+6. [Testing Methodology](#testing-methodology)
+7. [Common Pitfalls](#common-pitfalls)
+
+---
+
+## TDD Workflow
+
+### The Core Principle
+
+**Write tests BEFORE implementation. Always.**
+
+```
+1. Define expected behavior (test-spec.yaml)
+2. Verify test spec is complete
+3. Write SKILL.md to make tests pass
+4. Run tests
+5. Fix failures, repeat until all pass
+```
+
+### TDD Development Cycle
+
+```
+┌─────────────┐
+│ 1. REQUIRE  │ ── Collect requirements and scenarios
+└─────┬───────┘
+      ▼
+┌─────────────┐
+│ 2. PLAN     │ ── Plan content and test coverage
+└─────┬───────┘
+      ▼
+┌──────────────────┐
+│ 3. TEST-DESIGN   │ ── Write test-spec.yaml FIRST (RED)
+└─────┬────────────┘
+      ▼
+┌─────────────┐
+│ 4. INIT     │ ── Create directory with tests/
+└─────┬───────┘
+      ▼
+┌─────────────┐
+│ 5. WRITE    │ ── Write SKILL.md (GREEN)
+└─────┬───────┘
+      ▼
+┌──────────────────┐
+│ 6. TEST-RUN      │ ── Run all tests
+└─────┬────────────┘
+      │
+      ▼ Pass?
+     / \
+   No   Yes
+   │     │
+   │     ▼
+   │  ┌─────────────┐
+   │  │ 7. ITERATE  │ ── User acceptance
+   │  └─────────────┘
+   │
+   └──► Back to WRITE (fix issues)
+```
+
+### Why TDD for Skills?
+
+| Benefit | Explanation |
+|---------|-------------|
+| Clear requirements | Tests define expected behavior upfront |
+| Prevents scope creep | Implementation targets specific scenarios |
+| Regression protection | Changes don't break existing functionality |
+| Documentation | Tests serve as usage examples |
+| Confidence | Know your skill works before shipping |
+
+---
+
+## Test Specification Design
+
+### Required Test Types
+
+Every skill MUST have these test types:
+
+| Type | Purpose | Minimum Count |
+|------|---------|---------------|
+| `trigger` | Verify skill activates correctly | 2 (CN + EN) |
+| `execution` | Verify core functionality works | 1 |
+| `edge` | Verify boundary conditions | 2 |
+| `negative` | Verify no false activation | 1 |
+| `error` | Verify error handling | Optional |
+
+### Good Test Scenario Structure
+
+```yaml
+- id: "unique-identifier"
+  name: "Human readable name"
+  type: "trigger|execution|edge|negative|error"
+  query: "Exact user input to test"
+  expected_behavior:
+    - "Specific, verifiable behavior 1"
+    - "Specific, verifiable behavior 2"
+  expected_output:  # optional
+    format: "markdown"
+    contains:
+      - "expected content"
+    not_contains:
+      - "error"
+```
+
+### Test Coverage Guidelines
+
+**Trigger Tests:**
+- Include both Chinese and English triggers
+- Test all documented trigger phrases
+- Test variations and synonyms
+
+**Execution Tests:**
+- Cover the main use case
+- Test complete workflow
+- Verify output format
+
+**Edge Tests:**
+- Minimal input
+- Special characters
+- Boundary values
+- Unusual but valid requests
+
+**Negative Tests:**
+- Similar but unrelated requests
+- Requests that should use different skills
+- Ambiguous requests
 
 ---
 
