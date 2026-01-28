@@ -3,47 +3,89 @@ name: SKILL_NAME_PLACEHOLDER
 description: [What it does]. Use when [specific triggers]. Also responds to "[中文关键词]".
 ---
 
-# SKILL_NAME_PLACEHOLDER Guide
+# SKILL_NAME_PLACEHOLDER
 
-## Overview
-
-[1-2 sentences explaining what this skill does and its core value]
-
-## Workflow
-
-### Step 1: [First Phase]
-
-[Description]
-
-### Step 2: [Second Phase]
-
-[Description]
+[简短描述：一句话说明此 skill 的核心功能]
 
 ---
 
-## Core Rules
+## 🚀 执行流程
 
-1. **[Rule 1]** - [Description]
-2. **[Rule 2]** - [Description]
+**当此 skill 被触发时，你必须按以下流程执行：**
+
+### 立即行动
+
+1. [第一步做什么]
+2. [第二步做什么]
+3. 开始 Phase 1
+
+### 📋 进度追踪 Checklist
+
+**复制此清单并逐项完成：**
+
+```
+- [ ] Phase 1: [阶段名] → [简述]
+- [ ] Phase 2: [阶段名] → [简述]
+- [ ] Phase 3: [阶段名] → [简述]
+```
+
+### ✅ 阶段完成验证
+
+| 阶段 | 完成条件 | 下一步 |
+|------|----------|--------|
+| Phase 1 | [完成条件] | → Phase 2 |
+| Phase 2 | [完成条件] | → Phase 3 |
+| Phase 3 | [完成条件] | → 结束 |
 
 ---
 
-## Output Requirements
+## Phase 详情
 
-[Expected output format]
+### Phase 1: [阶段名]
+
+**你必须：**
+1. [具体任务 1]
+2. [具体任务 2]
+3. [具体任务 3]
+
+**完成标志**: [明确的完成标准]
 
 ---
 
-## Best Practices
+### Phase 2: [阶段名]
 
-1. [Practice 1]
-2. [Practice 2]
+**你必须：**
+1. [具体任务 1]
+2. [具体任务 2]
+
+**完成标志**: [明确的完成标准]
 
 ---
 
-## Additional Resources
+### Phase 3: [阶段名]
 
-| Resource | Path | Content |
-|----------|------|---------|
-| Reference | [references/](references/) | Domain documentation |
-| Scripts | [scripts/](scripts/) | Utility scripts |
+**你必须：**
+1. [具体任务 1]
+2. [具体任务 2]
+
+**完成标志**: [明确的完成标准]
+
+---
+
+## 规范约束
+
+[列出关键约束和限制]
+
+| 约束 | 值 | 说明 |
+|------|----|----|
+| [约束1] | [值] | [说明] |
+| [约束2] | [值] | [说明] |
+
+---
+
+## 资源
+
+| 资源 | 路径 | 用途 |
+|------|------|------|
+| Reference | [references/](references/) | 领域文档 |
+| Scripts | [scripts/](scripts/) | 工具脚本 |

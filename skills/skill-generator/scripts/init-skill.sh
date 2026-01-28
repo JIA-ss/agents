@@ -75,8 +75,8 @@ if [ "$WITH_EVOLUTION" = true ]; then
 fi
 echo ""
 
-# Create directory structure
-mkdir -p "$SKILL_DIR"/{references,scripts,assets}
+# Create directory structure (TDD: tests/ is required)
+mkdir -p "$SKILL_DIR"/{references,scripts,assets,tests}
 
 # Create evolution directory if requested
 if [ "$WITH_EVOLUTION" = true ]; then
@@ -273,15 +273,72 @@ touch "$SKILL_DIR/references/.gitkeep"
 touch "$SKILL_DIR/scripts/.gitkeep"
 touch "$SKILL_DIR/assets/.gitkeep"
 
+# Create TDD test-spec.yaml template
+cat > "$SKILL_DIR/tests/test-spec.yaml" << EOF
+# Test Specification for $SKILL_NAME
+# TDD: Define tests BEFORE writing SKILL.md
+
+skill:
+  name: "$SKILL_NAME"
+  description: "TODO: Add description"
+
+scenarios:
+  # Trigger tests - verify skill activates correctly
+  - id: "trigger-basic"
+    name: "Basic trigger"
+    type: "trigger"
+    query: "TODO: User query that should trigger this skill"
+    expected_behavior:
+      - "Skill activates"
+      - "TODO: Add expected behavior"
+
+  # Execution tests - verify core functionality
+  - id: "exec-standard"
+    name: "Standard execution"
+    type: "execution"
+    query: "TODO: Typical user request"
+    expected_behavior:
+      - "TODO: Expected behavior"
+
+  # Edge case tests
+  - id: "edge-minimal"
+    name: "Minimal input"
+    type: "edge"
+    query: "TODO: Incomplete request"
+    expected_behavior:
+      - "Handles gracefully"
+
+  # Negative tests - verify no false activation
+  - id: "negative-unrelated"
+    name: "Unrelated request"
+    type: "negative"
+    query: "TODO: Unrelated task"
+    expected_behavior:
+      - "Skill does NOT activate"
+
+validation:
+  frontmatter:
+    - rule: "name_format"
+      pattern: "^[a-z0-9-]+\$"
+    - rule: "description_required"
+      max_length: 1024
+  content:
+    - rule: "max_lines"
+      limit: 500
+EOF
+
 echo "Created skill directory structure:"
 echo ""
 find "$SKILL_DIR" -type f | sort | sed 's/^/  /'
 echo ""
-echo "Next steps:"
-echo "  1. Edit $SKILL_DIR/SKILL.md"
-echo "  2. Add references to references/"
-echo "  3. Add scripts to scripts/"
-echo "  4. Run validate-skill.sh to check compliance"
+echo "Next steps (TDD workflow):"
+echo "  1. Edit $SKILL_DIR/tests/test-spec.yaml (define tests FIRST)"
+echo "  2. Run: ./scripts/verify-scenarios.sh $SKILL_DIR"
+echo "  3. Edit $SKILL_DIR/SKILL.md (make tests pass)"
+echo "  4. Add references to references/"
+echo "  5. Add scripts to scripts/"
+echo "  6. Run: ./scripts/validate-skill.sh $SKILL_DIR"
+echo "  7. Run: ./scripts/run-skill-tests.sh $SKILL_DIR"
 if [ "$WITH_EVOLUTION" = true ]; then
-    echo "  5. Use record-outcome.sh after executions to enable self-iteration"
+    echo "  8. Use record-outcome.sh after executions to enable self-iteration"
 fi

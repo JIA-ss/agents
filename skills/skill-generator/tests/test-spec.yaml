@@ -187,6 +187,45 @@ scenarios:
       - "Re-run tests"
       - "Iterate until all pass"
 
+  #############################################
+  # SELF-EVOLUTION TESTS
+  #############################################
+  - id: "evolution-init"
+    name: "Initialize with self-evolution"
+    type: "execution"
+    query: "创建一个支持自我改进的 skill"
+    expected_behavior:
+      - "Mentions --with-evolution flag"
+      - "Explains self-iteration capability"
+      - "References init-skill.sh script"
+
+  - id: "evolution-record"
+    name: "Record execution outcome"
+    type: "execution"
+    query: "如何记录 skill 的执行结果？"
+    expected_behavior:
+      - "Mentions record-outcome.sh"
+      - "Explains success/failure recording"
+      - "Describes decision chain recording"
+
+  - id: "evolution-analyze"
+    name: "Analyze failure trends"
+    type: "execution"
+    query: "如何分析 skill 的失败模式？"
+    expected_behavior:
+      - "Mentions analyze-trends.sh"
+      - "Explains pattern detection"
+      - "Describes improvement triggers"
+
+  - id: "evolution-improve"
+    name: "Generate improvement"
+    type: "execution"
+    query: "skill 出现多次失败后如何自动改进？"
+    expected_behavior:
+      - "Mentions propose-improvement.sh"
+      - "Explains validation process"
+      - "Describes deployment workflow"
+
 # Validation rules
 validation:
   frontmatter:
@@ -197,7 +236,7 @@ validation:
       min_length: 10
       max_length: 1024
     - rule: "no_forbidden_words"
-      forbidden: ["anthropic"]
+      forbidden: ["anthropic", "claude"]
 
   content:
     - rule: "max_lines"

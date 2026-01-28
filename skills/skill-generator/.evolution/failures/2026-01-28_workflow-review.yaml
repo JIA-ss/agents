@@ -1,0 +1,54 @@
+# Failure Record
+timestamp: 2026-01-28T17:40:00+08:00
+status: failure
+error_class: execution
+
+input: "审视 skill-generator 完整流程，看看哪里需要修改"
+expected: "Phase 顺序逻辑正确，TDD 流程中修改后立即运行测试验证"
+actual: "发现多个流程问题，修改后未运行测试验证"
+
+issues:
+  - id: "issue-001"
+    severity: "high"
+    description: "模板 templates/SKILL-template.md 不匹配 TDD 结构"
+    fixed: true
+
+  - id: "issue-002"
+    severity: "high"
+    description: "Phase 顺序逻辑错误：Phase 3 TEST-DESIGN 要创建文件但 Phase 4 INIT 才创建目录"
+    fixed: true
+    resolution: "Phase 3 改为'设计测试规范'，Phase 4 负责写入磁盘"
+
+  - id: "issue-003"
+    severity: "medium"
+    description: "脚本使用示例顺序与 Phase 顺序不一致"
+    fixed: true
+
+  - id: "issue-004"
+    severity: "medium"
+    description: "缺少用户确认点，用户无法在关键节点审核"
+    fixed: true
+    resolution: "在 Phase 1/2/3/5 添加用户确认点"
+
+  - id: "issue-005"
+    severity: "low"
+    description: "test-spec.yaml 禁用词列表缺少 'claude'"
+    fixed: true
+
+  - id: "issue-006"
+    severity: "high"
+    description: "skill-generator 自身未启用 self-evolution 功能"
+    fixed: true
+    resolution: "创建 .evolution/ 目录和配置"
+
+  - id: "issue-007"
+    severity: "critical"
+    description: "修改完成后未运行测试验证，违反 TDD 原则"
+    fixed: false
+    pattern: "tdd-violation"
+
+patterns_detected:
+  - pattern_id: "tdd-violation"
+    description: "修改代码后未立即运行测试"
+    count: 1
+    suggested_fix: "在 SKILL.md 中强制要求每次修改后运行 validate-skill.sh"

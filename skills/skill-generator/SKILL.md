@@ -36,15 +36,15 @@ description: 根据用户需求自动生成符合 Claude Code Agent Skills 规�
 
 ### ✅ 阶段完成验证
 
-| 阶段 | 完成条件 | 下一步 |
-|------|----------|--------|
-| REQUIRE | 需求和场景已收集 | → PLAN |
-| PLAN | 可复用内容已规划 | → TEST-DESIGN |
-| TEST-DESIGN | test-spec.yaml 已创建并验证 | → INIT |
-| INIT | 目录结构已创建 | → WRITE |
-| WRITE | SKILL.md 已编写 | → TEST-RUN |
-| TEST-RUN | 所有测试通过 | → ITERATE |
-| ITERATE | 用户确认完成 | → 结束 |
+| 阶段 | 完成条件 | 用户确认 | 下一步 |
+|------|----------|----------|--------|
+| REQUIRE | 需求和场景已收集 | ✓ | → PLAN |
+| PLAN | 可复用内容已规划 | ✓ | → TEST-DESIGN |
+| TEST-DESIGN | 测试规范已设计 | ✓ | → INIT |
+| INIT | 目录和测试文件已创建 | - | → WRITE |
+| WRITE | SKILL.md 已编写 | ✓ | → TEST-RUN |
+| TEST-RUN | 所有测试通过 | - | → ITERATE |
+| ITERATE | 用户确认完成 | ✓ | → 结束 |
 
 ---
 
@@ -66,6 +66,8 @@ description: 根据用户需求自动生成符合 Claude Code Agent Skills 规�
 - "遇到错误时应该如何处理？"
 
 **完成标志**: 需求、场景和边界情况已收集
+
+**⚠️ 用户确认点**：展示收集的需求摘要，获得用户确认后再继续
 
 ---
 
@@ -89,14 +91,16 @@ description: 根据用户需求自动生成符合 Claude Code Agent Skills 规�
 
 **完成标志**: 可复用内容和测试覆盖已规划
 
+**⚠️ 用户确认点**：展示规划的目录结构和测试覆盖计划，获得用户确认后再继续
+
 ---
 
-### Phase 3: TEST-DESIGN（编写测试规范 - TDD 核心）
+### Phase 3: TEST-DESIGN（设计测试规范 - TDD 核心）
 
 **这是 TDD 的核心阶段，必须在编写 SKILL.md 之前完成！**
 
 **你必须：**
-1. 创建 `tests/test-spec.yaml` 文件
+1. **设计** `test-spec.yaml` 内容（此时还未创建目录）
 2. 定义以下测试场景（每类至少 1 个）：
 
 | 测试类型 | 必须 | 目的 |
@@ -107,8 +111,10 @@ description: 根据用户需求自动生成符合 Claude Code Agent Skills 规�
 | `negative` | 是 | 验证不误触发 |
 | `error` | 推荐 | 验证错误处理 |
 
-3. 运行验证脚本确认测试规范完整
-4. 用户确认测试场景覆盖需求
+3. **向用户确认**测试场景覆盖需求
+4. 用户确认后，准备进入 INIT 阶段写入磁盘
+
+**⚠️ 用户确认点**：展示测试场景设计，获得用户确认后再继续
 
 **测试规范模板**:
 ```yaml
@@ -148,39 +154,38 @@ scenarios:
       - "Skill does NOT activate"
 ```
 
-**验证命令**:
-```bash
-./scripts/verify-scenarios.sh <skill-dir>
-```
-
-**完成标志**: test-spec.yaml 已创建，verify-scenarios.sh 通过
+**完成标志**: 测试规范已设计，用户已确认测试覆盖
 
 ---
 
-### Phase 4: INIT（初始化结构）
+### Phase 4: INIT（初始化结构并写入测试）
 
 **你必须：**
 1. 创建 skill 目录：`{skill-name}/`
 2. 创建子目录：
-   - `tests/` - **必须，包含 test-spec.yaml**
+   - `tests/` - **必须**
    - `references/` - 领域文档（按需）
    - `scripts/` - 可执行代码（按需）
    - `assets/` - 模板和资源（按需）
-3. 将 test-spec.yaml 放入 tests/ 目录
+3. **将 Phase 3 设计的 test-spec.yaml 写入 `tests/` 目录**
 4. 创建空的 SKILL.md
+5. 运行验证脚本确认测试规范完整：
+   ```bash
+   ./scripts/verify-scenarios.sh <skill-dir>
+   ```
 
 **目录结构**:
 ```
 skill-name/
-├── SKILL.md
+├── SKILL.md              # 空文件，待 Phase 5 填充
 ├── tests/
-│   └── test-spec.yaml    # TDD: 测试规范
+│   └── test-spec.yaml    # TDD: Phase 3 设计的测试规范
 ├── references/           # 按需
 ├── scripts/              # 按需
 └── assets/               # 按需
 ```
 
-**完成标志**: 目录结构已创建，test-spec.yaml 已就位
+**完成标志**: 目录结构已创建，test-spec.yaml 已写入，verify-scenarios.sh 通过
 
 ---
 
@@ -210,6 +215,8 @@ skill-name/
 **TDD 检查点**: 编写时对照 test-spec.yaml，确保每个测试场景都有对应实现
 
 **完成标志**: SKILL.md 已编写，覆盖所有测试场景
+
+**⚠️ 用户确认点**：展示 SKILL.md 关键内容，获得用户确认后再运行测试
 
 ---
 
@@ -262,6 +269,69 @@ skill-name/
 - [ ] 用户满意
 
 **完成标志**: 用户确认完成，测试全部通过
+
+---
+
+## 修改现有 Skill 工作流
+
+**当修改/重构现有 skill 时（而非创建新 skill），使用此简化流程：**
+
+### MODIFY-REFACTOR 流程
+
+```
+- [ ] Step 1: ANALYZE → 分析现有 skill 和问题
+- [ ] Step 2: TEST-BASELINE → 运行现有测试，记录基线
+- [ ] Step 3: MODIFY → 进行修改
+- [ ] Step 4: TEST-VERIFY → 运行测试验证修改
+- [ ] Step 5: ITERATE → 如测试失败，返回 Step 3
+```
+
+### Step 1: ANALYZE（分析）
+
+**你必须：**
+1. 阅读现有 SKILL.md 和 test-spec.yaml
+2. 识别需要修改的问题
+3. 列出修改计划
+
+### Step 2: TEST-BASELINE（基线测试）
+
+**你必须：**
+1. 运行现有测试，记录当前状态：
+   ```bash
+   ./scripts/validate-skill.sh <skill-dir>
+   ./scripts/run-skill-tests.sh <skill-dir>
+   ```
+2. 记录通过/失败的测试数量
+
+### Step 3: MODIFY（修改）
+
+**你必须：**
+1. 按计划进行修改
+2. 每个独立修改后，立即执行 Step 4
+
+### Step 4: TEST-VERIFY（验证测试）
+
+**⚠️ 强制要求：每次修改后必须立即运行！**
+
+```bash
+./scripts/validate-skill.sh <skill-dir>
+./scripts/run-skill-tests.sh <skill-dir>
+```
+
+**如果测试失败**：
+1. 记录失败原因
+2. 返回 Step 3 修复
+3. 重新运行测试
+
+### Step 5: ITERATE（迭代）
+
+**你必须：**
+1. 确认所有测试通过
+2. 如有新场景，更新 test-spec.yaml
+3. 使用 record-outcome.sh 记录结果：
+   ```bash
+   ./scripts/record-outcome.sh <skill-dir> success --details "修改完成"
+   ```
 
 ---
 
@@ -338,18 +408,80 @@ RED → GREEN → REFACTOR
 
 ## 资源
 
-| 资源 | 路径 | 用途 |
+### References（参考文档）
+
+| 资源 | 路径 | 用途 | 何时使用 |
+|------|------|------|----------|
+| 规范参考 | [references/spec-reference.md](references/spec-reference.md) | 详细字段约束 | 编写 frontmatter 时 |
+| 最佳实践 | [references/best-practices.md](references/best-practices.md) | TDD 和迭代指南 | 设计测试场景时 |
+| 自迭代指南 | [references/self-iteration-guide.md](references/self-iteration-guide.md) | 设计可自我改进的 skill | 需要持续优化的 skill |
+
+### Templates（模板）
+
+| 模板 | 路径 | 用途 |
 |------|------|------|
-| 规范参考 | [references/spec-reference.md](references/spec-reference.md) | 详细字段约束 |
-| 最佳实践 | [references/best-practices.md](references/best-practices.md) | 测试和迭代指南 |
-| SKILL 模板 | [templates/SKILL-template.md](templates/SKILL-template.md) | 快速开始 |
-| **测试规范模板** | [templates/test-spec.yaml](templates/test-spec.yaml) | **TDD 测试模板** |
+| SKILL 模板 | [templates/SKILL-template.md](templates/SKILL-template.md) | SKILL.md 快速开始 |
+| **测试规范模板** | [templates/test-spec.yaml](templates/test-spec.yaml) | **TDD 测试规范模板** |
+| 自迭代配置 | [templates/evolution/config.yaml](templates/evolution/config.yaml) | 自迭代功能配置 |
 
-### 脚本工具
+---
 
-| 脚本 | 用途 |
-|------|------|
-| `scripts/generate-test-spec.sh` | 生成测试规范模板 |
-| `scripts/verify-scenarios.sh` | 验证测试场景完整性 |
-| `scripts/validate-skill.sh` | 验证 SKILL.md 规范 |
-| `scripts/run-skill-tests.sh` | 运行完整测试套件 |
+## 脚本工具
+
+### TDD 核心脚本
+
+| 脚本 | 用途 | 使用阶段 |
+|------|------|----------|
+| `scripts/init-skill.sh` | 初始化 skill 目录结构 | Phase 4: INIT |
+| `scripts/generate-test-spec.sh` | 生成测试规范模板 | Phase 3: TEST-DESIGN |
+| `scripts/verify-scenarios.sh` | 验证测试场景完整性 | Phase 3: TEST-DESIGN |
+| `scripts/validate-skill.sh` | 验证 SKILL.md 规范 | Phase 6: TEST-RUN |
+| `scripts/run-skill-tests.sh` | 运行完整测试套件 | Phase 6: TEST-RUN |
+
+**使用示例**:
+```bash
+# Phase 3: 生成测试规范模板（设计参考）
+./scripts/generate-test-spec.sh my-skill ./output/my-skill
+
+# Phase 4: 初始化 skill 目录（含 TDD 结构）
+./scripts/init-skill.sh my-skill ./output --with-evolution
+
+# Phase 4: 验证测试场景（写入后验证）
+./scripts/verify-scenarios.sh ./output/my-skill
+
+# Phase 6: 验证 SKILL.md 结构
+./scripts/validate-skill.sh ./output/my-skill
+
+# Phase 6: 运行完整测试
+./scripts/run-skill-tests.sh ./output/my-skill
+```
+
+### Self-Evolution 脚本（可选高级功能）
+
+用于创建可自我改进的 skill。详见 [references/self-iteration-guide.md](references/self-iteration-guide.md)。
+
+| 脚本 | 用途 | 命令示例 |
+|------|------|----------|
+| `scripts/record-outcome.sh` | 记录执行结果 | `./scripts/record-outcome.sh <skill-dir> success\|failure [details]` |
+| `scripts/analyze-trends.sh` | 分析失败趋势 | `./scripts/analyze-trends.sh <skill-dir> --days 7` |
+| `scripts/propose-improvement.sh` | 生成改进提案 | `./scripts/propose-improvement.sh <skill-dir> [pattern-id]` |
+| `scripts/validate-improvement.sh` | 验证改进提案 | `./scripts/validate-improvement.sh <skill-dir> <proposal-file>` |
+| `scripts/deploy-improvement.sh` | 部署改进 | `./scripts/deploy-improvement.sh <skill-dir> <proposal-file>` |
+
+**启用 Self-Evolution**:
+```bash
+# 创建带自迭代功能的 skill
+./scripts/init-skill.sh my-skill ./output --with-evolution
+
+# 使用后记录结果
+./scripts/record-outcome.sh ./output/my-skill success "Task completed"
+./scripts/record-outcome.sh ./output/my-skill failure "ValidationError: missing field"
+
+# 分析趋势
+./scripts/analyze-trends.sh ./output/my-skill --days 7
+
+# 生成并部署改进
+./scripts/propose-improvement.sh ./output/my-skill
+./scripts/validate-improvement.sh ./output/my-skill .evolution/improvements/proposal.md
+./scripts/deploy-improvement.sh ./output/my-skill .evolution/improvements/proposal.md
+```

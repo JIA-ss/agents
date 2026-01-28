@@ -1,0 +1,208 @@
+# Self-Review Skill Test Specification
+# TDD 测试规范 - 验证 self-review skill 的所有使用场景
+
+skill:
+  name: "self-review"
+  description: "Execute tasks with independent AI review cycles using Codex"
+  version: "1.0.0"
+
+# 验证规则
+validation:
+  required_sections:
+    - "🚀 执行流程"
+    - "📋 进度追踪 Checklist"
+    - "✅ 阶段完成验证"
+    - "Phase 详情"
+
+  forbidden_words_in_name:
+    - "anthropic"
+    - "claude"
+
+  max_lines: 500
+
+  required_test_types:
+    - trigger
+    - execution
+    - edge
+    - negative
+
+# 测试场景
+scenarios:
+  # ========== Trigger Tests (触发测试) ==========
+  - id: "trigger-chinese-self-supervision"
+    name: "中文触发 - 自我监督"
+    type: "trigger"
+    query: "帮我执行这个任务，需要自我监督确保质量"
+    expected_behavior:
+      - "Skill 被触发"
+      - "识别为需要 self-review 的任务"
+      - "开始 Phase 1: Task Confirmation"
+
+  - id: "trigger-chinese-iterative-review"
+    name: "中文触发 - 迭代审查"
+    type: "trigger"
+    query: "用迭代审查的方式来完成代码重构"
+    expected_behavior:
+      - "Skill 被触发"
+      - "创建任务目录"
+      - "生成 task-name"
+
+  - id: "trigger-english-self-review"
+    name: "英文触发 - self-review"
+    type: "trigger"
+    query: "Execute this task with self-review cycles"
+    expected_behavior:
+      - "Skill activates"
+      - "Creates .tasks/self-review/{task-name}/ directory"
+      - "Starts Phase 1"
+
+  - id: "trigger-quality-loop"
+    name: "触发 - 质量循环关键词"
+    type: "trigger"
+    query: "需要质量循环来确保代码没有问题"
+    expected_behavior:
+      - "Skill 被触发"
+      - "识别质量循环请求"
+      - "开始执行流程"
+
+  # ========== Execution Tests (执行测试) ==========
+  - id: "exec-full-workflow"
+    name: "完整工作流执行"
+    type: "execution"
+    query: "使用 self-review 完成一个简单的代码修改任务"
+    expected_behavior:
+      - "Phase 1: 创建 00-task-spec.md"
+      - "Phase 2: 执行任务并生成 evidence/"
+      - "Phase 3: 调用 Codex 进行独立审查"
+      - "Phase 4: 分析审查结果"
+      - "Phase 6: 生成 final-report.md (如 PASS)"
+
+  - id: "exec-phase1-task-confirmation"
+    name: "Phase 1 执行验证"
+    type: "execution"
+    query: "创建一个 self-review 任务规范"
+    expected_behavior:
+      - "创建目录 .tasks/self-review/{task-name}/"
+      - "使用 task-spec.md 模板"
+      - "填写任务描述和验收标准"
+      - "生成 00-task-spec.md"
+
+  - id: "exec-phase2-evidence-generation"
+    name: "Phase 2 证据生成验证"
+    type: "execution"
+    query: "执行任务并生成证据文件"
+    expected_behavior:
+      - "创建 evidence/ 目录"
+      - "生成 execution-manifest.json"
+      - "生成 test-results.txt"
+      - "生成 requirement-mapping.md"
+      - "目录包含至少 3 个文件"
+
+  - id: "exec-phase3-codex-review"
+    name: "Phase 3 Codex 独立审查"
+    type: "execution"
+    query: "对已完成的任务进行独立审查"
+    expected_behavior:
+      - "创建 reviews/round-{N}/ 目录"
+      - "准备 review-prompt.md"
+      - "调用 Codex 进行审查"
+      - "保存结果到 review-response.md"
+
+  - id: "exec-phase4-verdict"
+    name: "Phase 4 判定逻辑验证"
+    type: "execution"
+    query: "分析审查结果并得出判定"
+    expected_behavior:
+      - "统计 blocker/critical/major/minor 数量"
+      - "应用判定规则"
+      - "输出 PASS/NEEDS_IMPROVEMENT/REJECTED"
+
+  - id: "exec-improvement-loop"
+    name: "改进循环执行"
+    type: "execution"
+    query: "审查发现问题后进行改进"
+    expected_behavior:
+      - "创建 improvements/round-{N}-changes.md"
+      - "记录需要修复的问题"
+      - "执行修复"
+      - "返回 Phase 2 重新生成证据"
+
+  # ========== Edge Tests (边界测试) ==========
+  - id: "edge-minimal-task"
+    name: "最小输入任务"
+    type: "edge"
+    query: "self-review"
+    expected_behavior:
+      - "请求更多任务详情"
+      - "提示用户提供具体任务描述"
+
+  - id: "edge-max-rounds"
+    name: "最大审查轮次限制"
+    type: "edge"
+    query: "第三轮审查仍然 NEEDS_IMPROVEMENT"
+    expected_behavior:
+      - "检测到 round >= 3"
+      - "不再继续改进循环"
+      - "生成最终报告并标记状态"
+
+  - id: "edge-rejected-verdict"
+    name: "REJECTED 判定处理"
+    type: "edge"
+    query: "审查结果包含 blocker 级别问题"
+    expected_behavior:
+      - "判定为 REJECTED"
+      - "不进入改进循环"
+      - "生成报告说明拒绝原因"
+
+  - id: "edge-empty-evidence"
+    name: "空证据目录处理"
+    type: "edge"
+    query: "Phase 2 未能生成足够证据"
+    expected_behavior:
+      - "检测到 evidence/ 文件数 < 3"
+      - "提示需要补充证据"
+      - "不进入 Phase 3"
+
+  # ========== Negative Tests (反向测试) ==========
+  - id: "negative-simple-question"
+    name: "简单问题不触发"
+    type: "negative"
+    query: "什么是代码审查？"
+    expected_behavior:
+      - "Skill 不被触发"
+      - "当作普通问题回答"
+
+  - id: "negative-unrelated-task"
+    name: "无关任务不触发"
+    type: "negative"
+    query: "帮我写一个 hello world 程序"
+    expected_behavior:
+      - "Skill 不被触发"
+      - "直接执行简单任务"
+
+  - id: "negative-manual-review"
+    name: "手动审查请求不触发"
+    type: "negative"
+    query: "帮我看看这段代码有没有问题"
+    expected_behavior:
+      - "Skill 不被触发"
+      - "进行普通代码审查"
+
+  # ========== Error Tests (错误处理测试) ==========
+  - id: "error-codex-unavailable"
+    name: "Codex 不可用处理"
+    type: "error"
+    query: "Codex 调用失败时的处理"
+    expected_behavior:
+      - "检测到 Codex 调用失败"
+      - "记录错误信息"
+      - "提供备选方案或重试"
+
+  - id: "error-directory-permission"
+    name: "目录权限错误处理"
+    type: "error"
+    query: "无法创建任务目录"
+    expected_behavior:
+      - "检测到目录创建失败"
+      - "提示权限问题"
+      - "建议解决方案"

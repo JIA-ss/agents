@@ -57,6 +57,8 @@ description: Execute tasks with independent AI review cycles using Codex, self-c
 
 **完成标志**: `00-task-spec.md` 文件存在且包含验收标准
 
+**⚠️ 用户确认点**：展示任务规范摘要，获得用户确认后再开始执行
+
 ---
 
 ### Phase 2: Task Execution
@@ -99,6 +101,8 @@ description: Execute tasks with independent AI review cycles using Codex, self-c
 
 **完成标志**: 判定结果明确 (PASS/NEEDS_IMPROVEMENT/REJECTED)
 
+**⚠️ 用户确认点**：展示判定结果和问题摘要，获得用户确认后再继续
+
 ---
 
 ### Phase 5: Improvement
@@ -125,6 +129,8 @@ description: Execute tasks with independent AI review cycles using Codex, self-c
 3. 输出 `final-report.md`
 
 **完成标志**: `final-report.md` 存在
+
+**⚠️ 用户确认点**：展示最终报告摘要，获得用户确认后结束任务
 
 ---
 
