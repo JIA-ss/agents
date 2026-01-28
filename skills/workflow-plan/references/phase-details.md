@@ -4,11 +4,11 @@
 
 | 阶段 | 名称 | 目标 | 输出 |
 |------|------|------|------|
-| 1 | ANALYZE | 解析 spec.md，提取技术决策点 | analysis.md |
-| 2 | RESEARCH | 调研技术方案、最佳实践 | research.md |
-| 3 | REVIEW-1 | 审查分析和调研是否充分 | review-response.md |
+| 1 | ANALYZE | 解析 spec.md，识别调研主题 | analysis.md |
+| 2 | RESEARCH | 独立调研每个技术主题 | research/{topic}/research.md |
+| 3 | ANALYSIS-REVIEW | 评估调研充分性，决定是否继续 | 判定结果 |
 | 4 | PLAN | 生成技术计划 plan.md | plan.md (draft) |
-| 5 | REVIEW-2 | 审查设计质量和完整性 | review-response.md |
+| 5 | REVIEW | 审查设计质量和完整性 | review-response.md |
 | 6 | VALIDATE | 获取用户最终批准 | plan.md (approved) |
 
 ---
@@ -64,9 +64,11 @@
    - 架构模式决策
    - 依赖选择决策
 
-7. **识别调研主题**
+7. **识别调研主题**（关键步骤）
    - 根据待决策点生成调研主题
+   - 每个主题是独立的、可单独调研的
    - 设置优先级（P0/P1/P2）
+   - 定义每个主题的核心问题和评估维度
 
 8. **记录假设与风险**
    - 记录关键假设
@@ -85,131 +87,108 @@
 
 ## RESEARCH 阶段详细
 
+### 核心原则
+
+> **单一职责**: 每个调研只关注一个主题，生成独立完整的调研文档，不考虑与当前项目背景的整合
+
 ### 方法论
 
-**自顶向下、层次递归、可视化优先**
-
-1. 先建立整体概览和技术全景图
-2. 再深入各个调研主题
-3. 优先使用可视化（Mermaid 图）表达关系和对比
-4. 最后形成结论和展望
-
-### 输入
-
-- `analyze/analysis.md`
-- 调研主题列表
-
-### 5 阶段子流程
-
-RESEARCH 阶段采用 5 个子阶段的结构化流程：
+遵循 `/research` skill 的 5 阶段流程：
 
 ```mermaid
 graph LR
-    A[1-Overview] --> B[2-Current State]
-    B --> C[3-Analysis]
-    C --> D{复杂度检查}
-    D -->|复杂/标准模式| E[4-Deep Dive]
-    E --> F[5-Implementation]
-    D -->|简单/--quick| G[跳过可选阶段]
-    F --> H[汇总生成]
-    G --> H
-    H --> I[research.md]
+    A[SCOPE] --> B[GATHER]
+    B --> C[ANALYZE]
+    C --> D[COMPARE]
+    D --> E[RECOMMEND]
 ```
 
-#### 子阶段 1: Overview（必选）
+### 输入
 
-**目标**: 建立整体概览，明确调研背景和范围
+- `analyze/analysis.md` 中的调研主题列表
+- 每个主题的核心问题和评估维度
 
-**输入**: analysis.md 中的调研主题
-**输出**: `research/1-overview/overview.md`
+### 5 阶段详细
 
-**动作**:
-1. 撰写调研背景
-2. 定义调研范围表格
-3. 绘制技术全景图（Mermaid）
-4. 定义证据等级标准
-5. 列出调研主题
+#### 阶段 1: SCOPE（确定范围）
 
-**模板**: [assets/research/overview-template.md](../assets/research/overview-template.md)
+**目标**: 明确调研边界和评估标准
 
-#### 子阶段 2: Current State（必选）
+**输出**: 范围说明（在 research.md 开头）
 
-**目标**: 收集现有方案和资源清单
+**必须包含**:
+- 调研主题和具体问题
+- 评估维度列表（≥3 个）
+- 约束条件
+- 待比较的技术选项
 
-**输入**: overview.md
-**输出**: `research/2-current-state/current-state.md`
+#### 阶段 2: GATHER（收集资料）
 
-**动作**:
-1. 搜索现有方案（WebSearch）
-2. 获取文档内容（WebFetch）
-3. 分析代码库（Task Explore）
-4. 整理资源清单
-5. 绘制技术发展时间线
+**目标**: 系统收集技术资料
 
-**模板**: [assets/research/current-state-template.md](../assets/research/current-state-template.md)
+**输出**: `evidence/evidence-{N}.md` 文件（≥2 个）
 
-#### 子阶段 3: Analysis（必选）
+**必须做**:
+1. 使用 WebSearch 搜索最新技术资料
+2. 收集官方文档、性能基准、社区反馈
+3. 记录每条信息的来源（URL）
+4. 标记信息的时效性（发布日期）
+5. **每次搜索/分析立即记录 evidence**
 
-**目标**: 方案对比、建立权衡矩阵、形成推荐
+**资料来源优先级**:
+1. 官方文档（等级 A）
+2. 权威技术博客（等级 B）
+3. 性能基准测试报告（等级 B）
+4. GitHub Stars/Issues 趋势（等级 C）
+5. Stack Overflow 讨论（等级 C）
 
-**输入**: current-state.md
-**输出**: `research/3-analysis/analysis.md`
+#### 阶段 3: ANALYZE（分析方案）
 
-**动作**:
-1. 绘制方案概览图
-2. 填写方案对比表
-3. 定义评价准则和权重
-4. 计算权衡决策矩阵
-5. 确定推荐方案
+**目标**: 深入分析每个技术选项
 
-**模板**: [assets/research/analysis-template.md](../assets/research/analysis-template.md)
+**输出**: 方案分析表
 
-#### 子阶段 4: Deep Dive（可选）
+**分析框架**:
+- 技术成熟度
+- 社区活跃度
+- 学习成本
+- 迁移成本
+- 长期维护风险
 
-**目标**: 对推荐方案进行深入分析和验证
+#### 阶段 4: COMPARE（对比可视化）
 
-**触发条件**:
-- 调研主题 > 2 个
-- 非 `--quick` 模式
-- 存在高风险技术选型
+**目标**: 生成对比表和可视化
 
-**输入**: analysis.md
-**输出**: `research/4-deep-dive/deep-dive.md`
+**输出**: 对比表、Mermaid 图
 
-**动作**:
-1. 深入技术细节分析
-2. 依赖评估（版本、许可证、维护状态）
-3. 执行 POC/实验（可选）
-4. 边界情况分析
-5. 集成考虑
+**必须包含**:
+- 多维度对比表
+- 关键差异点高亮
+- 决策流程图（如适用）
 
-**模板**: [assets/research/deep-dive-template.md](../assets/research/deep-dive-template.md)
+#### 阶段 5: RECOMMEND（输出建议）
 
-#### 子阶段 5: Implementation（可选）
+**目标**: 给出明确结论
 
-**目标**: 收集最佳实践和实现指南
+**输出**: 推荐结论和 Sources 列表
 
-**触发条件**: 同 Deep Dive
+**必须包含**:
+- 明确的推荐结论
+- 推荐理由（引用 evidence）
+- 潜在风险
+- 备选方案
+- Sources 列表
 
-**输入**: deep-dive.md（或 analysis.md 如果跳过 Deep Dive）
-**输出**: `research/5-implementation/implementation.md`
+### Evidence 管理
 
-**动作**:
-1. 收集最佳实践
-2. 整理实现模式
-3. 编写配置指南
-4. 记录常见问题
-5. 提供监控建议
+**文件位置**: `research/{topic}/evidence/evidence-{N}.md`
 
-**模板**: [assets/research/implementation-template.md](../assets/research/implementation-template.md)
+**强制要求**:
+- 每个调研主题 ≥2 个 evidence 文件
+- 每个 evidence 必须有实际内容（禁止空文件）
+- 每个调研结论必须引用对应的 evidence
 
-### 证据管理
-
-每次搜索/分析都需要记录证据：
-
-**证据文件**: `research/evidence/evidence-{N}.md`
-
-**证据格式**:
+**Evidence 格式**:
 ```markdown
 ## 证据记录 #{N}
 
@@ -217,154 +196,148 @@ graph LR
 |------|-----|
 | **ID** | E-{N} |
 | **时间** | {ISO 8601} |
-| **阶段** | 1-overview / 2-current-state / ... |
-| **类型** | web-search / code-analysis / ... |
+| **类型** | web-search / web-fetch / code-analysis |
 | **状态** | success / failed |
 
+### 搜索/分析内容
+
+**查询**: {搜索关键词 / URL}
+**工具**: WebSearch / WebFetch / Task (Explore)
+
 ### 关键发现
-- {发现1}
-- {发现2}
+
+1. {发现 1}
+2. {发现 2}
 
 ### 来源
-- [来源名称](url)
+
+| 来源 | URL | 可信度 |
+|------|-----|--------|
+| {名称} | {url} | A/B/C/D |
 
 ### 证据等级
-A/B/C/D
+
+| 等级 | 理由 |
+|------|------|
+| {A/B/C/D} | {为什么给这个等级} |
 ```
 
 **引用格式**: 在结论中使用 `[E-{N}]` 引用证据
-
-**模板**: [assets/research/evidence-template.md](../assets/research/evidence-template.md)
-
-### 子阶段状态文件格式
-
-```yaml
-completed_phases:
-  research:
-    status: in_progress
-    sub_phases:
-      overview:
-        status: completed
-        completed_at: "2026-01-16T10:00:00Z"
-        output: "research/1-overview/overview.md"
-      current_state:
-        status: completed
-        completed_at: "2026-01-16T10:05:00Z"
-        output: "research/2-current-state/current-state.md"
-      analysis:
-        status: in_progress
-        output: null
-      deep_dive:
-        status: pending
-        skipped: false
-      implementation:
-        status: pending
-        skipped: false
-    evidence_count: 3
-    current_sub_phase: analysis
-```
-
-### 断点恢复
-
-使用 `--resume` 选项时：
-
-1. 读取 .state.yaml 中的 `sub_phases` 状态
-2. 跳过已完成的子阶段
-3. 从 `current_sub_phase` 继续执行
-4. 保留已生成的证据文件
-
-### 汇总生成
-
-所有子阶段完成后，汇总生成最终的 `research.md`：
-
-| 子阶段 | 映射到 research.md 章节 |
-|--------|-------------------------|
-| 1-Overview | § 1 整体概览 |
-| 2-Current State | § 2 调研主题详情（部分） |
-| 3-Analysis | § 3-4 方案对比 + 权衡矩阵 |
-| 4-Deep Dive | § 5-6 依赖评估 + POC |
-| 5-Implementation | § 7 最佳实践 |
-| 汇总 | § 8-9 结论 + 展望 |
-
-**跳过处理**: 未执行的子阶段在对应章节标注 "未执行"
-
-### 超时配置
-
-```yaml
-research:
-  stage_timeout: 300  # 5 分钟
-  single_search_timeout: 30  # 单次搜索 30 秒
-  max_sources: 10  # 最多引用 10 个来源
-  sub_phase_timeout: 60  # 单子阶段 1 分钟
-```
 
 ### 输出结构
 
 ```
 research/
-├── 1-overview/
-│   └── overview.md
-├── 2-current-state/
-│   └── current-state.md
-├── 3-analysis/
-│   └── analysis.md
-├── 4-deep-dive/           # 可选
-│   └── deep-dive.md
-├── 5-implementation/      # 可选
-│   └── implementation.md
-├── evidence/
-│   ├── evidence-1.md
-│   ├── evidence-2.md
-│   └── ...
-└── research.md            # 汇总报告
+├── {topic-1}/
+│   ├── evidence/
+│   │   ├── evidence-1.md
+│   │   ├── evidence-2.md
+│   │   └── ...
+│   └── research.md
+├── {topic-2}/
+│   ├── evidence/
+│   │   └── ...
+│   └── research.md
+└── summary.md
 ```
 
-### 输出格式
+### 调研报告模板
 
 参见 [assets/research-template.md](../assets/research-template.md)
 
 ---
 
-## REVIEW-1 阶段详细
+## ANALYSIS-REVIEW 阶段详细
+
+### 目的
+
+评估当前调研是否充分，决定是否需要继续调研，形成迭代反馈循环。
 
 ### 输入
 
-- `analyze/analysis.md`
-- `research/research.md`
-- `../specify/spec.md`（用于验证覆盖度）
+- 已完成的 `research/{topic}/research.md` 文件
+- `analyze/analysis.md` 中的调研主题列表
 
-### 审查方法
+### 审查内容
 
-1. 使用 Task 工具启动独立审查 Agent
-2. 传入审查清单和待审查文件
-3. 收集审查结果
+1. **调研完成度**
+   - 所有 P0/P1 调研主题是否都已完成
+   - 每个调研报告是否遵循 5 阶段结构
 
-### 审查清单
+2. **Evidence 完整性**（关键检查点）
+   - 每个调研的 evidence 目录是否有内容（≥2 个文件）
+   - evidence 文件是否有实际内容（非空）
+   - 每个调研结论是否引用了 evidence
 
-参见 [review-checklist.md](review-checklist.md) 的 REVIEW-1 部分
+3. **结论质量**
+   - 每个调研是否有明确结论
+   - 结论是否有 evidence 支撑
+   - 是否有 Sources 列表
+
+4. **新主题发现**
+   - 调研过程中是否发现了新的需要调研的主题
+   - 现有调研是否引发了新的问题
 
 ### 判定逻辑
 
 ```python
-def review_1_verdict(analysis, research, spec):
-    # 计算覆盖度
-    fr_coverage = len(analyzed_frs) / len(spec_frs)
-    nfr_coverage = len(analyzed_nfrs) / len(spec_nfrs)
+def analysis_review_verdict(researches, analysis):
+    # 检查调研完成度
+    topics_needed = analysis.research_topics
+    topics_completed = [r.topic for r in researches]
 
-    # 检查调研完整性
-    research_complete = all(
-        topic.has_conclusion and len(topic.sources) >= 1
-        for topic in research.topics
-    )
+    if not all(t in topics_completed for t in topics_needed if t.priority in ['P0', 'P1']):
+        return "CONTINUE_RESEARCH", "未完成所有 P0/P1 调研主题"
 
-    if fr_coverage < 0.95:
-        return "NEEDS_ANALYZE", "FR 覆盖度不足"
-    if nfr_coverage < 0.95:
-        return "NEEDS_ANALYZE", "NFR 覆盖度不足"
-    if not research_complete:
-        return "NEEDS_RESEARCH", "调研不完整"
+    # 检查 evidence 完整性
+    for research in researches:
+        evidence_count = len(research.evidence_files)
+        if evidence_count < 2:
+            return "CONTINUE_RESEARCH", f"{research.topic}: evidence 不足（当前 {evidence_count}，需要 ≥2）"
+
+        # 检查 evidence 是否为空
+        for evidence in research.evidence_files:
+            if evidence.is_empty():
+                return "CONTINUE_RESEARCH", f"{research.topic}: evidence-{evidence.id} 为空"
+
+        # 检查结论是否引用 evidence
+        if not research.has_evidence_references():
+            return "CONTINUE_RESEARCH", f"{research.topic}: 结论未引用 evidence"
+
+    # 检查是否发现新主题
+    new_topics = find_new_topics(researches)
+    if new_topics:
+        return "CONTINUE_RESEARCH", f"发现新调研主题: {new_topics}"
 
     return "PASS", None
+```
+
+### 迭代循环
+
+```mermaid
+graph TD
+    A[ANALYZE] --> B[RESEARCH: 主题 1]
+    B --> C[ANALYSIS-REVIEW]
+    C -->|"evidence 不足"| D[补充 evidence]
+    C -->|"新主题发现"| E[RESEARCH: 新主题]
+    C -->|"调研不完整"| F[继续当前调研]
+    D --> C
+    E --> C
+    F --> C
+    C -->|PASS| G[PLAN]
+```
+
+### 输出
+
+无独立输出文件，但需要更新 `.state.yaml` 中的状态：
+
+```yaml
+analysis_review:
+  round: {N}
+  verdict: PASS | CONTINUE_RESEARCH
+  reason: {原因}
+  new_topics: []  # 新发现的主题
+  evidence_issues: []  # evidence 问题列表
 ```
 
 ---
@@ -374,50 +347,52 @@ def review_1_verdict(analysis, research, spec):
 ### 输入
 
 - `analyze/analysis.md`
-- `research/research.md`
+- `research/summary.md` 和各主题调研报告
 - 项目上下文
 
 ### 子任务
 
-1. **设计系统架构**
+1. **整合调研结果**
+   - 读取 `research/summary.md`
+   - 提取各调研的推荐结论
+
+2. **设计系统架构**
    - 定义主要模块
    - 确定模块间关系
    - 绘制 Mermaid 架构图
    - 补充多视角说明（上下文/容器/组件/部署）
 
-2. **确定技术选型**
+3. **确定技术选型**
    - 基于调研结论选择
+   - **引用具体调研报告**（如 "基于 [cache-strategy 调研]..."）
    - 记录选型理由
    - 提供备选方案
 
-3. **分析依赖**
+4. **分析依赖**
    - 内部模块依赖
    - 外部包依赖（含版本）
 
-4. **评估风险**
+5. **评估风险**
    - 识别 3-5 个关键风险
    - 评估可能性和影响
    - 制定缓解策略
 
-5. **安全与合规设计**
+6. **安全与合规设计**
    - 身份与访问控制
    - 数据保护与审计要求
 
-6. **可观测性与运维设计**
+7. **可观测性与运维设计**
    - 指标/日志/追踪/告警
-
-7. **上线/迁移/回滚策略**
-   - 发布流程
-   - 迁移步骤
-   - 回滚条件
 
 8. **记录架构决策**
    - 为关键决策创建 ADR
    - 关联到相关需求
+   - **引用支撑的调研报告**
 
 9. **建立追溯性映射**
    - 模块 → FR 映射
    - ADR → FR/NFR 映射
+   - 技术选型 → 调研报告映射
 
 ### 输出格式
 
@@ -425,28 +400,28 @@ def review_1_verdict(analysis, research, spec):
 
 ---
 
-## REVIEW-2 阶段详细
+## REVIEW 阶段详细
 
 ### 输入
 
 - `plan.md`（草稿）
-- `research/research.md`
+- `research/summary.md` 和各主题调研报告
 - `../specify/spec.md`
 
 ### 审查方法
 
-1. 使用 Task 工具启动独立审查 Agent
+1. 使用 Task 工具启动独立审查 Agent 或 Codex
 2. 传入审查清单和待审查文件
 3. 收集审查结果
 
 ### 审查清单
 
-参见 [review-checklist.md](review-checklist.md) 的 REVIEW-2 部分
+参见 [review-checklist.md](review-checklist.md) 的 REVIEW 部分
 
 ### 判定逻辑
 
 ```python
-def review_2_verdict(plan, research, spec):
+def review_verdict(plan, researches, spec):
     # 检查架构完整性
     modules_complete = all(
         module.has_responsibility and len(module.responsibility) <= 50
@@ -455,15 +430,22 @@ def review_2_verdict(plan, research, spec):
 
     # 检查技术选型与调研一致性
     selections_consistent = all(
-        selection.choice in research.recommendations
+        selection.choice in researches.recommendations
+        and selection.has_research_reference()
+        for selection in plan.tech_selections
+    )
+
+    # 检查 evidence 支撑
+    evidence_supported = all(
+        selection.has_evidence_support()
         for selection in plan.tech_selections
     )
 
     # 计算覆盖度
     coverage = len(plan.covered_frs) / len(spec.frs)
 
-    if not selections_consistent:
-        return "NEEDS_RESEARCH", "技术选型与调研结论不一致"
+    if not selections_consistent or not evidence_supported:
+        return "NEEDS_RESEARCH", "技术选型缺少调研或 evidence 支撑"
     if coverage < 0.95:
         return "NEEDS_PLAN", "需求覆盖度不足"
     if not modules_complete:
@@ -495,6 +477,7 @@ def review_2_verdict(plan, research, spec):
    - 架构设计摘要
    - 技术选型摘要
    - 风险评估摘要
+   - 调研统计（主题数、evidence 数）
 
 4. **请求批准**
    - 使用 AskUserQuestion 工具
@@ -508,19 +491,19 @@ def review_2_verdict(plan, research, spec):
 
 ## 回退规则详细
 
-### REVIEW-1 回退
+### ANALYSIS-REVIEW 回退
 
 | 判定 | 回退到 | 后续路径 |
 |------|--------|----------|
-| NEEDS_ANALYZE | ANALYZE | ANALYZE → RESEARCH → REVIEW-1 |
-| NEEDS_RESEARCH | RESEARCH | RESEARCH → REVIEW-1 |
+| CONTINUE_RESEARCH (新主题) | RESEARCH (新主题) | RESEARCH → ANALYSIS-REVIEW |
+| CONTINUE_RESEARCH (evidence 不足) | RESEARCH (补充) | RESEARCH → ANALYSIS-REVIEW |
 
-### REVIEW-2 回退
+### REVIEW 回退
 
 | 判定 | 回退到 | 后续路径 |
 |------|--------|----------|
-| NEEDS_PLAN | PLAN | PLAN → REVIEW-2 |
-| NEEDS_RESEARCH | RESEARCH | RESEARCH → REVIEW-1 → PLAN → REVIEW-2 |
+| NEEDS_PLAN | PLAN | PLAN → REVIEW |
+| NEEDS_RESEARCH | ANALYSIS-REVIEW | ANALYSIS-REVIEW → (可能) RESEARCH → ... → PLAN → REVIEW |
 
 ---
 
@@ -528,38 +511,56 @@ def review_2_verdict(plan, research, spec):
 
 ```yaml
 feature: {feature-id}
-version: 2.0.0
-phase: analyze | research | review-1 | plan | review-2 | validate
+version: 3.0.0
+phase: analyze | research | analysis-review | plan | review | validate
 status: in_progress | completed | failed
 
 completed_phases:
   analyze:
     completed_at: "2026-01-14T10:00:00Z"
     output: analyze/analysis.md
-  research:
-    completed_at: "2026-01-14T11:00:00Z"
-    output: research/research.md
+    research_topics:
+      - topic: cache-strategy
+        priority: P0
+      - topic: auth-mechanism
+        priority: P1
+
+research:
+  topics:
+    cache-strategy:
+      status: completed
+      completed_at: "2026-01-14T11:00:00Z"
+      output: research/cache-strategy/research.md
+      evidence_count: 3
+    auth-mechanism:
+      status: in_progress
+      evidence_count: 1
+
+analysis_review:
+  rounds:
+    - round: 1
+      verdict: CONTINUE_RESEARCH
+      reason: "evidence 不足"
+      timestamp: "2026-01-14T11:30:00Z"
+    - round: 2
+      verdict: PASS
+      timestamp: "2026-01-14T12:00:00Z"
 
 reviews:
-  review-1:
-    current_round: 1
-    max_rounds: 3
-    history:
-      - round: 1
-        verdict: PASS
-        confidence: 0.92
-  review-2:
-    current_round: 1
-    max_rounds: 3
-    history: []
+  current_round: 1
+  max_rounds: 3
+  history:
+    - round: 1
+      verdict: PASS
+      confidence: 0.95
 
 rollbacks:
-  - from: review-1
+  - from: analysis-review
     to: research
-    reason: "技术选型调研不足"
-    timestamp: "2026-01-14T12:00:00Z"
+    reason: "cache-strategy 调研 evidence 不足"
+    timestamp: "2026-01-14T11:30:00Z"
 ```
 
 ---
 
-*Reference for workflow-plan phases*
+*Reference for workflow-plan phases v3.0*
