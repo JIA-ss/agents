@@ -47,6 +47,7 @@
 | 不确定 | 询问 | 列出变更摘要请用户决策 |
 
 更新 Skill 时：修改 `SKILL.md` + `.evolution/changelog.md`
+跳过 Sync 时：如用户明确拒绝同步建议，在 `.evolution/changelog.md` 记录跳过原因：`| {日期} | skip | {跳过原因} |`
 
 ### 执行反馈（自动进化）
 
@@ -89,7 +90,7 @@
 ## Skill 索引
 
 <!-- SKILL-INDEX-START -->
-| Skill | 路径 | 说明 |
-|-------|------|------|
-| {skill-name} | `.claude/skills/{skill-name}/` | {skill说明} |
+| Skill | 功能域 | 关联 Skill | 状态 |
+|-------|--------|-----------|------|
+| {skill-name} | {功能域} | {关联skill} | - |
 <!-- SKILL-INDEX-END -->

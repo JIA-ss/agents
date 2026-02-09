@@ -1,0 +1,23 @@
+feature: skill-driven-dev
+phase: LOAD
+review_method: agent
+output_dir: sdd
+created: 2026-02-09
+tasks:
+  T1.1: pending
+  T1.2: pending
+  T2.1: pending
+  T2.2: pending
+  T3.1: pending
+  T3.2: pending
+  T4.1: pending
+  T4.2: pending
+  T4.3: pending
+  T4.4: pending
+batches:
+  batch-1: [T1.1, T1.2]
+  batch-2: [T2.1, T2.2]
+  batch-3: [T3.1, T3.2, T4.1]
+  batch-4: [T4.2]
+  batch-5: [T4.3]
+  batch-6: [T4.4]

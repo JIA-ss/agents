@@ -14,12 +14,15 @@
 
 ## 步骤 1: 创建 CLAUDE.local.md（5 分钟）
 
-将通用模板复制到项目根目录，然后填写项目信息：
+**推荐方式**：在项目目录下运行 `/sdd-init`，交互式自动完成。
+
+**手动方式**：从 `sdd-init` skill 目录复制模板：
 
 ```bash
-# 复制模板（或手动创建）
-cp sdd/templates/CLAUDE.local.template.md <你的项目>/CLAUDE.local.md
+cp <sdd-init-skill-path>/templates/CLAUDE.local.template.md <你的项目>/CLAUDE.local.md
 ```
+
+> `<sdd-init-skill-path>` 通常为 `~/.claude/skills/sdd-init` 或项目内 `.claude/skills/sdd-init`
 
 **必须填写的占位符**：
 - `{项目名称}` → 你的项目名
@@ -30,7 +33,7 @@ cp sdd/templates/CLAUDE.local.template.md <你的项目>/CLAUDE.local.md
 
 其他章节（Skill 驱动开发流程、Sync 规则）已预填，无需修改。
 
-**如果复制失败**：直接参考 `sdd/templates/CLAUDE.local.template.md` 的内容手动创建文件。核心是保留"Skill 驱动开发（强制）"整个章节。
+**如果复制失败**：直接参考 `sdd-init/templates/CLAUDE.local.template.md` 的内容手动创建文件。核心是保留"Skill 驱动开发（强制）"整个章节。
 
 ---
 
@@ -59,7 +62,7 @@ cp sdd/templates/CLAUDE.local.template.md <你的项目>/CLAUDE.local.md
 mkdir -p <你的项目>/.claude/skills/<skill-name>
 
 # 复制模板
-cp sdd/templates/SKILL.template.md <你的项目>/.claude/skills/<skill-name>/SKILL.md
+cp <sdd-init-skill-path>/templates/SKILL.template.md <你的项目>/.claude/skills/<skill-name>/SKILL.md
 ```
 
 **填写 SKILL.md 的最小集**（仅需完成 3 个必选章节）：
@@ -105,7 +108,7 @@ description: >
 ## 步骤 5: [可选] 生成 Skill 索引（5 分钟）
 
 ```bash
-python sdd/scripts/generate-skill-index.py \
+python <sdd-init-skill-path>/scripts/generate-skill-index.py \
   <你的项目>/.claude/skills \
   <你的项目>/CLAUDE.local.md
 ```
@@ -118,8 +121,8 @@ python sdd/scripts/generate-skill-index.py \
 
 - **添加更多 Skill**：重复步骤 2-4，逐步覆盖更多模块
 - **完善 Skill 内容**：在实际使用中发现 AI 需要更多上下文时，补充可选章节
-- **运行健康报告**：`python sdd/scripts/generate-health-report.py <skills-dir>`
-- **了解生命周期管理**：阅读 `guides/skill-lifecycle.md`
+- **运行健康报告**：`python <sdd-init-skill-path>/scripts/generate-health-report.py <skills-dir>`
+- **了解生命周期管理**：阅读 sdd-init skill 内的 `guides/skill-lifecycle.md`
 
 ---
 

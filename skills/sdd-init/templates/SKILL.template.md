@@ -369,6 +369,7 @@ superseded-by: ""                        # 可选：废弃后填写替代 Skill 
 - **Skill 有误导**（导致走弯路或错误）→ 修正错误内容，在 `.evolution/changelog.md` 追加记录：`| {日期} | feedback | {修正描述} |`
 - **发现未覆盖的场景** → 补充到 Common Issues 或 Best Practices
 - **用户纠正了匹配/理解** → 更新 frontmatter description 的触发词或修正 Core Rules
+- **用户拒绝了同步建议** → 在 `.evolution/changelog.md` 记录跳过原因：`| {日期} | skip | {跳过原因} |`
 
 ### Evolution 目录
 
