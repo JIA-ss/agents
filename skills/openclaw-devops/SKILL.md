@@ -40,6 +40,29 @@ description: OpenClaw 运维管理助手。管理 Gateway 服务（启停重启�
 
 ---
 
+## ⚠️ 关键架构知识：双配置体系
+
+OpenClaw 存在**两套独立的配置文件**，修改配置时**必须同步更新两个文件**，否则 CLI 和 Gateway（Telegram bot）行为会不一致。
+
+### 配置文件映射
+
+| 文件 | 用途 | 读取者 |
+|------|------|--------|
+| `~/.openclaw/openclaw.json` | 主配置（CLI） | `openclaw` CLI 命令 |
+| `~/.clawdbot/clawdbot.json` | 主配置（Gateway） | `clawdbot` gateway（Telegram bot） |
+| `~/.openclaw/agents/main/agent/models.json` | Agent 级模型定义 | CLI + Gateway 共享 |
+| `~/.openclaw/agents/main/agent/auth-profiles.json` | Agent 级认证凭证 | CLI + Gateway 共享 |
+| `~/.clawdbot/agents/main/agent/models.json` | Agent 级模型定义（镜像） | Gateway |
+| `~/.clawdbot/agents/main/agent/auth-profiles.json` | Agent 级认证凭证（镜像） | Gateway |
+
+### 同步规则
+
+- **Agent 级配置**（`agents/main/agent/` 下的 `models.json`、`auth-profiles.json`）：两个目录通常自动镜像，但手动修改时需**同时更新**
+- **主配置**（`openclaw.json` / `clawdbot.json`）：**不会自动同步**，必须手动保持一致
+- **常见陷阱**：只修改了 `openclaw.json`，Telegram 里 `/models` 看不到变更 → 因为 Gateway 读的是 `clawdbot.json`
+
+---
+
 ## 模块速查
 
 | 模块 | 触发关键词 | 首选命令 |
@@ -49,6 +72,7 @@ description: OpenClaw 运维管理助手。管理 Gateway 服务（启停重启�
 | 诊断排错 | 诊断、doctor、修复、问题 | `openclaw doctor` |
 | 状态总览 | 状态、status、健康 | `openclaw status --all` |
 | 模型管理 | 模型、model、provider、切换模型 | `openclaw models status` |
+| Provider 添加 | 添加 provider、新模型、接入 | 参见「添加 Provider 操作手册」 |
 | Skill/Plugin | skill、plugin、插件 | `openclaw skills list` |
 | Cron 任务 | cron、定时、计划任务 | `openclaw cron list` |
 | 配置管理 | 配置、config、设置 | `openclaw config get` |
@@ -161,6 +185,134 @@ openclaw models aliases list
 openclaw models aliases add <alias> <model>
 ```
 
+### 添加 Provider 操作手册
+
+**当用户要求添加新 Provider 时，必须按以下步骤执行：**
+
+#### Step 1: 确认 Provider 信息
+
+收集以下必要信息：
+- Provider 名称（用于配置键，如 `anthropic`、`kimi-code`）
+- API 类型（必须是受支持的类型，见下表）
+- Base URL
+- API Key / 认证方式
+- 要注册的模型列表（id、name、contextWindow、maxTokens 等）
+
+**受支持的 API 类型**:
+
+| API 类型 | 对应服务 |
+|----------|----------|
+| `anthropic-messages` | Anthropic Claude |
+| `openai-completions` | OpenAI / 兼容接口 |
+| `openai-responses` | OpenAI Responses API |
+| `openai-codex-responses` | OpenAI Codex |
+| `azure-openai-responses` | Azure OpenAI |
+| `google-generative-ai` | Google Gemini |
+| `google-gemini-cli` | Google Gemini CLI |
+| `google-vertex` | Google Vertex AI |
+| `bedrock-converse-stream` | AWS Bedrock |
+
+**⚠️ 常见错误**: API 类型必须精确匹配，如 Anthropic 是 `anthropic-messages` 而不是 `anthropic`。
+
+#### Step 2: 更新 Agent 级模型定义（两个目录）
+
+编辑以下两个文件（内容相同）：
+- `~/.openclaw/agents/main/agent/models.json`
+- `~/.clawdbot/agents/main/agent/models.json`
+
+在 `providers` 对象中添加新 provider：
+
+```json
+{
+  "providers": {
+    "新provider名": {
+      "baseUrl": "https://api.example.com/v1",
+      "api": "对应api类型",
+      "apiKey": "your-api-key",
+      "models": [
+        {
+          "id": "model-id",
+          "name": "显示名称",
+          "reasoning": true,
+          "input": ["text", "image"],
+          "contextWindow": 200000,
+          "maxTokens": 16384
+        }
+      ]
+    }
+  }
+}
+```
+
+#### Step 3: 更新 Agent 级认证凭证（两个目录）
+
+编辑以下两个文件（内容相同）：
+- `~/.openclaw/agents/main/agent/auth-profiles.json`
+- `~/.clawdbot/agents/main/agent/auth-profiles.json`
+
+在 `profiles` 中添加：
+
+```json
+{
+  "provider名:default": {
+    "type": "api_key",
+    "provider": "provider名",
+    "key": "your-api-key"
+  }
+}
+```
+
+#### Step 4: 更新主配置（⚠️ 两个文件都要改）
+
+**必须同时更新以下两个文件**：
+- `~/.openclaw/openclaw.json`
+- `~/.clawdbot/clawdbot.json`
+
+需要修改的字段：
+
+1. **`agents.defaults.model.fallbacks`** — 添加新模型到 fallback 链：
+   ```json
+   "fallbacks": ["...", "provider名/model-id"]
+   ```
+
+2. **`agents.defaults.models`** — 注册模型配置：
+   ```json
+   "provider名/model-id": {}
+   ```
+
+3. **（可选）`models.providers`** — 如果需要在主配置级别也定义 provider
+
+#### Step 5: 重启 Gateway 并验证
+
+```bash
+# 重启
+openclaw gateway restart
+
+# 等待启动
+sleep 3
+
+# 验证健康
+openclaw health
+
+# 验证模型可见
+openclaw models list
+
+# 验证 loadConfig 正确加载（深度验证）
+cd ~/.npm-global/lib/node_modules/clawdbot && node --input-type=module -e "
+import { createConfigIO } from './dist/config/io.js';
+const io = createConfigIO();
+const cfg = io.loadConfig();
+console.log('Config path:', io.configPath);
+console.log('fallbacks:', JSON.stringify(cfg.agents?.defaults?.model?.fallbacks));
+console.log('models:', Object.keys(cfg.agents?.defaults?.models ?? {}));
+"
+```
+
+**验证要点**:
+- `openclaw models list` 中新模型出现且 `Local Auth: yes`
+- Telegram 中 `/models` 能看到新 provider 和模型
+- 如果 CLI 能看到但 Telegram 看不到 → 检查 `clawdbot.json` 是否已更新
+
 ### Skill/Plugin 管理
 
 ```bash
@@ -262,10 +414,15 @@ openclaw config unset <dot.path>
 | 认证方式 | Token |
 | 系统服务 | `ai.openclaw.gateway` (launchd) |
 | 工作区 | `/Users/joshuasun/clawd` |
-| 配置文件 | `~/.openclaw/openclaw.json` |
+| CLI 配置文件 | `~/.openclaw/openclaw.json` |
+| Gateway 配置文件 | `~/.clawdbot/clawdbot.json` |
+| Agent 模型定义 | `~/.openclaw/agents/main/agent/models.json` |
+| Agent 认证凭证 | `~/.openclaw/agents/main/agent/auth-profiles.json` |
+| Agent 模型定义（镜像）| `~/.clawdbot/agents/main/agent/models.json` |
+| Agent 认证凭证（镜像）| `~/.clawdbot/agents/main/agent/auth-profiles.json` |
 | 日志 | `~/.openclaw/logs/gateway.log` |
 | 已启用通道 | Telegram, iMessage, Web |
-| 模型 | Kimi Code, OpenAI CodeX |
+| 模型 | Kimi Code, OpenAI CodeX, Anthropic Claude (via ccswitch proxy) |
 
 ---
 
