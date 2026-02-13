@@ -1,0 +1,95 @@
+skill:
+  name: "openclaw-devops"
+  description: "OpenClaw 运维管理 Skill - 管理 Gateway、监控日志、诊断排错、模型配置"
+
+scenarios:
+  # === TRIGGER TESTS ===
+  - id: "trigger-cn-keyword"
+    name: "Chinese keyword triggers skill"
+    type: "trigger"
+    query: "查看 openclaw 状态"
+    expected_behavior:
+      - "Skill activates"
+      - "Runs openclaw status or openclaw health"
+
+  - id: "trigger-en-keyword"
+    name: "English keyword triggers skill"
+    type: "trigger"
+    query: "check openclaw gateway status"
+    expected_behavior:
+      - "Skill activates"
+      - "Runs openclaw gateway status"
+
+  - id: "trigger-command-style"
+    name: "Command-style trigger"
+    type: "trigger"
+    query: "openclaw doctor"
+    expected_behavior:
+      - "Skill activates"
+      - "Runs openclaw doctor"
+
+  # === EXECUTION TESTS ===
+  - id: "exec-gateway-restart"
+    name: "Gateway restart workflow"
+    type: "execution"
+    query: "重启 openclaw 网关"
+    expected_behavior:
+      - "Confirms restart intent with user"
+      - "Runs openclaw gateway restart"
+      - "Verifies gateway is back up with openclaw health"
+
+  - id: "exec-logs-view"
+    name: "View gateway logs"
+    type: "execution"
+    query: "查看 openclaw 最近的日志"
+    expected_behavior:
+      - "Runs openclaw logs --limit 50"
+      - "Summarizes key log entries"
+
+  - id: "exec-model-management"
+    name: "Model status and switching"
+    type: "execution"
+    query: "查看当前 openclaw 的模型配置"
+    expected_behavior:
+      - "Runs openclaw models status"
+      - "Shows configured models and auth profiles"
+
+  - id: "exec-cron-list"
+    name: "List cron jobs"
+    type: "execution"
+    query: "列出 openclaw 的定时任务"
+    expected_behavior:
+      - "Runs openclaw cron list"
+      - "Displays job names, schedules, and status"
+
+  # === EDGE TESTS ===
+  - id: "edge-vague-request"
+    name: "Vague operations request"
+    type: "edge"
+    query: "openclaw 好像有点问题"
+    expected_behavior:
+      - "Runs diagnostic commands (health + status + doctor)"
+      - "Provides structured diagnosis"
+
+  - id: "edge-multi-module"
+    name: "Multi-module combined request"
+    type: "edge"
+    query: "检查 openclaw 网关、通道和模型是否都正常"
+    expected_behavior:
+      - "Runs gateway status, channel status, and models status"
+      - "Provides combined health summary"
+
+  # === NEGATIVE TESTS ===
+  - id: "negative-general-code"
+    name: "General coding request - no trigger"
+    type: "negative"
+    query: "帮我写一个 Python 函数来排序数组"
+    expected_behavior:
+      - "Skill does NOT activate"
+
+  - id: "negative-unrelated-ops"
+    name: "Unrelated ops - no trigger"
+    type: "negative"
+    query: "帮我重启 nginx 服务器"
+    expected_behavior:
+      - "Skill does NOT activate"
