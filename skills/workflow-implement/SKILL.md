@@ -21,7 +21,8 @@ description: 按任务列表执行代码实现。读取 tasks.md，按拓扑顺�
    - **选项 2: 独立 Agent 审查** - 使用 Task 工具启动独立审查 Agent
 3. 记录审查方式到 `.state.yaml`
 4. 创建目录: `.workflow/{feature}/implement/`
-5. 开始 Phase 1: LOAD
+5. 创建审计目录: `.workflow/{feature}/implement/audit/`（ledger.jsonl + artifacts/ + state.json）
+6. 开始 Phase 1: LOAD
 
 ### 📋 进度追踪 Checklist
 
@@ -97,6 +98,7 @@ description: 按任务列表执行代码实现。读取 tasks.md，按拓扑顺�
    - 编写测试 → 验证红灯 → 编写实现 → 验证绿灯 → 重构
 4. 更新 .state.yaml 中的任务状态
 5. 记录执行日志到 `logs/batch-{N}.log`
+6. 写入审计账本 `audit/ledger.jsonl`（使用 `skills/workflow-implement/scripts/workflow_audit.py run --state .workflow/{feature}/implement/audit/state.json` 自动递增 step-id）
 
 **失败处理**:
 - P0/P1 任务失败 → 立即中止
@@ -146,6 +148,7 @@ description: 按任务列表执行代码实现。读取 tasks.md，按拓扑顺�
 2. 生成任务详情表
 3. 记录审查结果
 4. 创建 `implement-report.md`
+5. 生成审计面板 `audit/audit.html`（使用 `skills/workflow-implement/scripts/workflow_audit.py render`）
 
 **完成标志**: `implement-report.md` 存在
 
@@ -158,12 +161,44 @@ description: 按任务列表执行代码实现。读取 tasks.md，按拓扑顺�
 ├── .state.yaml
 ├── logs/
 │   └── batch-{N}.log
+├── audit/
+│   ├── ledger.jsonl
+│   ├── artifacts/
+│   ├── state.json
+│   └── audit.html
 ├── commits/
 │   └── commit-log.md
 ├── reviews/
 │   └── round-{N}/review.md
 └── implement-report.md
 ```
+
+---
+
+## Audit Trail（轻量审计）
+
+**目的**：记录关键命令/步骤的 diff + 输出，生成可审计的静态面板。
+
+**记录步骤（示例）**：
+```bash
+python skills/workflow-implement/scripts/workflow_audit.py run \
+  --ledger .workflow/{feature}/implement/audit/ledger.jsonl \
+  --artifacts .workflow/{feature}/implement/audit/artifacts \
+  --state .workflow/{feature}/implement/audit/state.json \
+  --kind run \
+  --cwd <repo-root> \
+  -- <command>
+```
+
+**生成面板（示例）**：
+```bash
+python skills/workflow-implement/scripts/workflow_audit.py render \
+  --ledger .workflow/{feature}/implement/audit/ledger.jsonl \
+  --output .workflow/{feature}/implement/audit/audit.html \
+  --title "Workflow Audit: {feature}"
+```
+
+> `state.json` 会自动递增 step-id（0001/0002/...），无需手动管理。
 
 ---
 

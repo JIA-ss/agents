@@ -35,6 +35,11 @@ phases:
     status: pending
     # output: "implement-report.md"
 
+# 审计状态（自动递增 step-id）
+audit:
+  state_file: ".workflow/{feature}/implement/audit/state.json"
+  next_step_id: 1
+
 # 任务状态追踪
 # 键: 任务 ID, 值: 状态对象
 tasks:

@@ -200,6 +200,10 @@ def calculate_critical_path(dag, estimates):
 | 3.5 | 执行 TDD 任务 | [T] 标记任务 | 执行结果 |
 | 3.6 | 更新状态 | 执行结果 | .state.yaml |
 | 3.7 | 记录日志 | 执行过程 | logs/ |
+| 3.8 | 记录审计账本 | 外部命令执行 | audit/ledger.jsonl |
+
+> 执行任何外部命令时，必须使用：
+> `python skills/workflow-implement/scripts/workflow_audit.py run --state .workflow/{feature}/implement/audit/state.json ...`
 
 ### 3.2 TDD 执行详细流程
 
