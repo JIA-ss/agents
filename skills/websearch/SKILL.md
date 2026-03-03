@@ -1,11 +1,12 @@
 ---
 name: websearch
-description: 替代 Claude 内置 websearch 的搜索工具，整合 YDC/Exa/Tavily/Jina 四个搜索 MCP，自动降级切换。当用户要求"搜索"、"查找"、"search"、"查一下"、"web search"、"联网"、"联网搜索"、"调研"、"查询最新"时使用。
+description: 替代 Claude 内置 websearch 的搜索工具，整合 Exa/Tavily/Firecrawl/YDC 四个搜索 MCP（Jina 仅用于页面读取），自动降级切换。当用户要求"搜索"、"查找"、"search"、"查一下"、"web search"、"联网"、"联网搜索"、"调研"、"查询最新"时使用。
 ---
 
 # WebSearch
 
-整合多后端的 Web 搜索：YDC > Exa > Tavily > Jina，自动降级。
+整合多后端的 Web 搜索：Exa > Tavily > Firecrawl > YDC，自动降级。
+（Jina 不参与搜索降级链，仅用于页面内容读取）
 
 ---
 
@@ -25,14 +26,15 @@ description: 替代 Claude 内置 websearch 的搜索工具，整合 YDC/Exa/Tav
 cat ~/.claude.json
 ```
 
-从输出的 `mcpServers` 字段中，检查以下四个 MCP 是否存在：
+从输出的 `mcpServers` 字段中，检查以下 MCP 是否存在：
 
-| MCP 名称 | npm 包 | 环境变量 Key |
-|----------|--------|-------------|
-| `you-search` | `@youdotcom-oss/mcp` | `YDC_API_KEY` |
-| `exa` | `exa-mcp-server` | `EXA_API_KEY` |
-| `tavily` | `tavily-mcp` | `TAVILY_API_KEY` |
-| `jina` | `jina-mcp-tools` | `JINA_API_KEY` |
+| MCP 名称 | npm 包 | 环境变量 Key | 用途 |
+|----------|--------|-------------|------|
+| `exa` | `exa-mcp-server` | `EXA_API_KEY` | 搜索（首选） |
+| `tavily` | `tavily-mcp` | `TAVILY_API_KEY` | 搜索（备选） |
+| `firecrawl` | `firecrawl-mcp` | `FIRECRAWL_API_KEY` | 搜索+抓取 |
+| `you-search` | `@youdotcom-oss/mcp` | `YDC_API_KEY` | 搜索（兜底） |
+| `jina` | `jina-mcp-tools` | `JINA_API_KEY` | 仅页面读取 |
 
 #### 0.2 检查每个 MCP 的状态
 
@@ -41,10 +43,10 @@ cat ~/.claude.json
 **Step A：检查对应 Key 是否在 shell 环境变量中存在**
 
 ```bash
-# 以 YDC 为例
-echo "YDC_API_KEY=${YDC_API_KEY:-<not set>}"
 echo "EXA_API_KEY=${EXA_API_KEY:-<not set>}"
 echo "TAVILY_API_KEY=${TAVILY_API_KEY:-<not set>}"
+echo "FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-<not set>}"
+echo "YDC_API_KEY=${YDC_API_KEY:-<not set>}"
 echo "JINA_API_KEY=${JINA_API_KEY:-<not set>}"
 ```
 
@@ -59,11 +61,6 @@ echo "JINA_API_KEY=${JINA_API_KEY:-<not set>}"
 #### 0.3 自动安装命令（Key 存在时使用）
 
 ```bash
-# YDC
-claude mcp add --transport stdio --scope user you-search \
-  --env YDC_API_KEY=$YDC_API_KEY \
-  -- npx -y @youdotcom-oss/mcp
-
 # Exa
 claude mcp add --transport stdio --scope user exa \
   --env EXA_API_KEY=$EXA_API_KEY \
@@ -73,6 +70,16 @@ claude mcp add --transport stdio --scope user exa \
 claude mcp add --transport stdio --scope user tavily \
   --env TAVILY_API_KEY=$TAVILY_API_KEY \
   -- npx -y tavily-mcp
+
+# Firecrawl
+claude mcp add --transport stdio --scope user firecrawl \
+  --env FIRECRAWL_API_KEY=$FIRECRAWL_API_KEY \
+  -- npx -y firecrawl-mcp
+
+# YDC
+claude mcp add --transport stdio --scope user you-search \
+  --env YDC_API_KEY=$YDC_API_KEY \
+  -- npx -y @youdotcom-oss/mcp
 
 # Jina
 claude mcp add --transport stdio --scope user jina \
@@ -92,23 +99,24 @@ claude mcp add --transport stdio --scope user jina \
 如需启用，请按以下步骤操作：
 1. 前往 [申请地址] 获取 API Key
 2. 在终端中设置环境变量：
-   export YDC_API_KEY=your_key_here   # 临时生效
+   export EXA_API_KEY=your_key_here   # 临时生效
    # 或写入 ~/.bashrc / ~/.zshrc 永久生效
 3. 重新运行搜索，系统将自动安装并启用该 MCP
 ```
 
 各 MCP 申请地址：
-- **YDC**（You.com）：https://api.you.com
 - **Exa**：https://dashboard.exa.ai
 - **Tavily**：https://app.tavily.com
+- **Firecrawl**：https://www.firecrawl.dev
+- **YDC**（You.com）：https://api.you.com
 - **Jina**：https://jina.ai/api-dashboard
 
 #### 0.5 预检结果判定
 
 | 情况 | 处理 |
 |------|------|
-| 至少一个 MCP 可用 | ✅ 继续执行 Phase 1 搜索 |
-| 所有 MCP 均不可用（未安装且 Key 全部缺失） | ⚠️ 提示用户配置 Key，同时降级到 WebFetch 执行搜索 |
+| 至少一个搜索 MCP 可用（Exa/Tavily/Firecrawl/YDC） | ✅ 继续执行 Phase 1 搜索 |
+| 所有搜索 MCP 均不可用 | ⚠️ 提示用户配置 Key，同时降级到 WebFetch 执行搜索 |
 
 > **重要约束**：**严禁使用 Claude 内置的 `WebSearch` 工具**。当 MCP 不可用时，可使用 WebFetch、jina_reader、tavily_extract 等其他工具作为替代。
 
@@ -126,20 +134,9 @@ claude mcp add --transport stdio --scope user jina \
 
 **仅对 Phase 0 中确认可用的 MCP 执行降级**，按优先级依次尝试，**成功即停止，不重复调用**：
 
-#### 第一优先：YDC
+> 优先级依据：Exa 在 SimpleQA 评分（90%）和速度（p95 1.4s）上综合最优；Tavily 引用质量好、生态成熟；Firecrawl 搜索+抓取一体化；YDC 作为通用兜底。**Jina 不参与搜索链**（本质是内容读取器）。
 
-调用 `mcp__you-search__you-search`
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `query` | string | 是 | 搜索关键词 |
-| `count` | int | 否 | 返回结果数，1-100 |
-| `freshness` | string | 否 | `"day"`, `"week"`, `"month"`, `"year"` 或 `YYYY-MM-DDtoYYYY-MM-DD` |
-| `country` | enum | 否 | 国家代码，如 `"US"`, `"CN"` |
-
-**失败判定**：返回错误（HTTP 401/429/500）、结果为空、或超时 → 切换下一个。
-
-#### 第二优先：Exa
+#### 第一优先：Exa
 
 调用 `mcp__exa__web_search_exa`
 
@@ -150,7 +147,7 @@ claude mcp add --transport stdio --scope user jina \
 
 **失败判定**：返回错误（HTTP 400/401/429/500）、结果为空、或超时 → 切换下一个。
 
-#### 第三优先：Tavily
+#### 第二优先：Tavily
 
 调用 `mcp__tavily__tavily_search`
 
@@ -162,27 +159,40 @@ claude mcp add --transport stdio --scope user jina \
 
 **失败判定**：返回错误（HTTP 400/401/429/500）、结果为空、或超时 → 切换下一个。
 
-#### 第四优先：Jina
+#### 第三优先：Firecrawl
 
-调用 `mcp__jina__jina_search`
+调用 `mcp__firecrawl__firecrawl_search`
 
 | 参数 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `query` | string | 是 | 搜索关键词 |
-| `count` | number | 否 | 返回结果数，默认 5 |
+| `limit` | number | 否 | 返回结果数，默认 5 |
+| `lang` | string | 否 | 语言代码，如 `"zh"`, `"en"` |
+| `country` | string | 否 | 国家代码，如 `"cn"`, `"us"` |
 
-**失败判定**：返回错误（HTTP 401/429）、结果为空、或超时 → 进入全部失败流程。
+**失败判定**：返回错误（HTTP 401/402/429/500）、结果为空、或超时 → 切换下一个。
+
+#### 第四优先：YDC
+
+调用 `mcp__you-search__you-search`
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `query` | string | 是 | 搜索关键词 |
+| `count` | int | 否 | 返回结果数，1-100 |
+| `freshness` | string | 否 | `"day"`, `"week"`, `"month"`, `"year"` 或 `YYYY-MM-DDtoYYYY-MM-DD` |
+| `country` | enum | 否 | 国家代码，如 `"US"`, `"CN"` |
+
+**失败判定**：返回错误（HTTP 401/429/500）、结果为空、或超时 → 进入全部失败流程。
 
 #### 全部可用 MCP 均失败
 
-输出以下提示并停止：
-
-所有 MCP 搜索后端均失败，自动降级到 WebFetch：
+所有搜索 MCP 均失败，自动降级到 WebFetch：
 
 1. 告知用户：
 
    ```
-   ⚠️ 所有搜索 MCP 均不可用（已依次尝试：YDC / Exa / Tavily / Jina），已降级使用 WebFetch 搜索。
+   ⚠️ 所有搜索 MCP 均不可用（已依次尝试：Exa / Tavily / Firecrawl / YDC），已降级使用 WebFetch 搜索。
    ```
 
 2. 使用 WebFetch 工具抓取搜索引擎结果页（如 DuckDuckGo、Bing）作为替代：
@@ -203,7 +213,7 @@ claude mcp add --transport stdio --scope user jina \
 无论使用哪个后端，统一按以下格式输出：
 
 ```
-搜索：{query}  [来源: YDC/Exa/Tavily/Jina]
+搜索：{query}  [来源: Exa/Tavily/Firecrawl/YDC]
 
 1. **标题**
    摘要内容
@@ -230,9 +240,10 @@ claude mcp add --transport stdio --scope user jina \
 
 当用户需要获取某个 URL 的完整内容时：
 
-1. 优先调用 `mcp__jina__jina_reader`（轻量、有缓存、支持分页）
-2. 备选调用 `mcp__tavily__tavily_extract`（适合 JS 渲染页面，设置 `extract_depth: "advanced"`）
-3. 备选调用 `mcp__you-search__you-contents`（需要 metadata/OpenGraph 时）
+1. 优先调用 `mcp__firecrawl__firecrawl_scrape`（支持 JS 渲染、返回 markdown，参数：`url`）
+2. 备选调用 `mcp__jina__jina_reader`（轻量、有缓存、支持分页）
+3. 备选调用 `mcp__tavily__tavily_extract`（适合复杂 JS 渲染，设置 `extract_depth: "advanced"`）
+4. 备选调用 `mcp__you-search__you-contents`（需要 metadata/OpenGraph 时）
 
 ### 深度研究
 
@@ -250,8 +261,9 @@ claude mcp add --transport stdio --scope user jina \
 
 当用户需要探索某个网站的结构或批量抓取内容时：
 
-- 站点映射：`mcp__tavily__tavily_map`
-- 站点爬取：`mcp__tavily__tavily_crawl`
+- 站点爬取（优先）：`mcp__firecrawl__firecrawl_crawl`（参数：`url`, `limit`, `maxDepth`，支持 JS 渲染）
+- 站点映射：`mcp__firecrawl__firecrawl_map` 或 `mcp__tavily__tavily_map`
+- 备选爬取：`mcp__tavily__tavily_crawl`
 
 ### 企业调研
 
@@ -266,7 +278,7 @@ claude mcp add --transport stdio --scope user jina \
 - **预检必须在每次搜索前完成**，不可跳过
 - MCP 未安装且 Key 存在时，自动安装后继续搜索，无需用户介入
 - MCP 未安装且 Key 缺失时，跳过该 MCP，提示用户，继续尝试其他可用 MCP
-- 所有 MCP 均不可用时，提示用户配置 Key，并自动降级使用 WebFetch 搜索
+- 所有搜索 MCP 均不可用时，提示用户配置 Key，并自动降级使用 WebFetch 搜索
 - **严禁使用 Claude 内置的 `WebSearch` 工具**，其他工具（WebFetch、jina_reader、tavily_extract 等）均可使用
 - 每次搜索只使用一个后端，成功即停止降级
 - 输出格式统一，用户无需关心底层使用的是哪个服务
