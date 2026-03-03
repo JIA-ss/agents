@@ -1,27 +1,13 @@
 #!/usr/bin/env bash
-# deploy-agents.sh — 将 agents/ 目录下的所有 agent 部署到 ~/.claude/agents/
-# 用法: ./bin/deploy-agents.sh
+# [已废弃] 请使用统一部署脚本: devops/deploy-macos.sh 或 devops/deploy-windows.bat
+# 该脚本现在只是一个兼容性包装，调用新的统一部署脚本
 
-set -e
-
-AGENTS_DIR="$(cd "$(dirname "$0")/../agents" && pwd)"
-TARGET_DIR="$HOME/.claude/agents"
-
-mkdir -p "$TARGET_DIR"
-
-echo "📦 部署 agents 到 $TARGET_DIR ..."
+echo "⚠️  此脚本已废弃，请使用统一部署脚本："
+echo "   macOS/Linux: ./devops/deploy-macos.sh"
+echo "   Windows:     devops\\deploy-windows.bat"
+echo ""
+echo "正在调用统一部署脚本..."
 echo ""
 
-count=0
-for agent_file in "$AGENTS_DIR"/*.md; do
-  agent_name="$(basename "$agent_file")"
-  cp "$agent_file" "$TARGET_DIR/$agent_name"
-  echo "  ✅ $agent_name"
-  count=$((count + 1))
-done
-
-echo ""
-echo "✨ 已部署 $count 个 agent"
-echo ""
-echo "当前已部署的 agents:"
-ls "$TARGET_DIR"/*.md 2>/dev/null | xargs -I{} basename {}
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec "$SCRIPT_DIR/../devops/deploy-macos.sh"
