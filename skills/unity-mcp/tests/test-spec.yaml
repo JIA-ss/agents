@@ -1,0 +1,161 @@
+skill:
+  name: "unity-mcp"
+  description: "Unity game development assistant via MCP. Manages scenes, objects, scripts, and assets through natural language."
+
+scenarios:
+  # --- Trigger Tests ---
+  - id: "trigger-setup-cn"
+    name: "Chinese setup trigger"
+    type: "trigger"
+    query: "帮我配置 Unity MCP 环境"
+    expected_behavior:
+      - "Skill activates"
+      - "Detects MCP configuration status"
+      - "Guides through setup if not configured"
+
+  - id: "trigger-create-en"
+    name: "English create trigger"
+    type: "trigger"
+    query: "Create a player character with physics in Unity"
+    expected_behavior:
+      - "Skill activates"
+      - "Identifies as Unity scene/object task"
+      - "Plans MCP tool calls"
+
+  - id: "trigger-debug-cn"
+    name: "Chinese debug trigger"
+    type: "trigger"
+    query: "Unity 控制台报错了，帮我看看"
+    expected_behavior:
+      - "Skill activates"
+      - "Enters debug workflow"
+      - "Reads console via MCP"
+
+  # --- Execution Tests ---
+  - id: "exec-create-object"
+    name: "Create GameObject with components"
+    type: "execution"
+    query: "在 Unity 中创建一个带物理效果的红色方块，放在 (0, 5, 0) 位置"
+    expected_behavior:
+      - "Creates GameObject via manage_gameobject"
+      - "Adds Rigidbody component"
+      - "Creates red material"
+      - "Sets position to (0, 5, 0)"
+      - "Reports completion with object details"
+
+  - id: "exec-batch-operation"
+    name: "Batch operation on multiple objects"
+    type: "execution"
+    query: "给场景里所有 Tag 为 Enemy 的对象加上 HealthComponent，血量设为 100"
+    expected_behavior:
+      - "Uses find_gameobjects to query Enemy tag"
+      - "Uses batch_execute for efficiency"
+      - "Adds component to each object"
+      - "Reports count of modified objects"
+
+  - id: "exec-script-generation"
+    name: "Generate and attach C# script"
+    type: "execution"
+    query: "写一个 PlayerController 脚本，支持 WASD 移动和空格跳跃，挂到 Player 对象上"
+    expected_behavior:
+      - "Generates C# MonoBehaviour script"
+      - "Uses manage_script to create file"
+      - "Attaches script to Player object"
+      - "Script includes movement and jump logic"
+
+  # --- Edge Case Tests ---
+  - id: "edge-no-mcp-configured"
+    name: "MCP not configured"
+    type: "edge"
+    query: "在 Unity 里创建一个立方体"
+    expected_behavior:
+      - "Detects MCP is not configured"
+      - "Provides step-by-step setup guide"
+      - "Shows installation commands"
+      - "Does NOT attempt MCP tool calls"
+
+  - id: "edge-unity-not-running"
+    name: "Unity Editor not running"
+    type: "edge"
+    query: "帮我修改 Unity 场景里的灯光"
+    expected_behavior:
+      - "Detects Unity Editor not connected"
+      - "Prompts user to open Unity and start MCP server"
+      - "Provides troubleshooting steps"
+
+  - id: "edge-complex-request"
+    name: "Complex multi-step request"
+    type: "edge"
+    query: "搭建一个完整的 2D 平台跳跃关卡，包含 5 个平台、3 种敌人、金币收集和终点"
+    expected_behavior:
+      - "Breaks down into sequential steps"
+      - "Uses batch_execute where possible"
+      - "Creates objects, scripts, and prefabs"
+      - "Provides progress updates"
+
+  # --- Negative Tests ---
+  - id: "negative-unreal"
+    name: "Unreal Engine request"
+    type: "negative"
+    query: "帮我用 Unreal Engine 创建一个蓝图角色"
+    expected_behavior:
+      - "Skill does NOT activate"
+      - "No Unity MCP tools called"
+
+  - id: "negative-pure-csharp"
+    name: "Pure C# programming"
+    type: "negative"
+    query: "写一个 C# 快速排序算法"
+    expected_behavior:
+      - "Skill does NOT activate"
+      - "No Unity context detected"
+
+  # --- Error Handling Tests ---
+  - id: "error-server-timeout"
+    name: "MCP server timeout"
+    type: "error"
+    query: "创建 100 个随机位置的树木"
+    expected_behavior:
+      - "Detects timeout or connection error"
+      - "Suggests checking MCP server status"
+      - "Provides recovery steps"
+      - "Does NOT retry indefinitely"
+
+  - id: "error-invalid-component"
+    name: "Invalid component name"
+    type: "error"
+    query: "给 Player 加一个 FlyingComponent"
+    expected_behavior:
+      - "Attempts to add component"
+      - "Handles Unity error response"
+      - "Suggests correct component name or custom script"
+
+validation:
+  frontmatter:
+    - rule: "name_format"
+      pattern: "^[a-z0-9-]+$"
+      max_length: 64
+    - rule: "description_required"
+      min_length: 10
+      max_length: 1024
+
+  content:
+    - rule: "max_lines"
+      limit: 500
+    - rule: "required_sections"
+      sections:
+        - "执行流程"
+        - "进度追踪"
+        - "阶段完成验证"
+
+performance:
+  max_trigger_time_ms: 100
+  max_execution_time_ms: 60000
+
+execution:
+  models:
+    - haiku
+    - sonnet
+    - opus
+  require_all_pass: true
+  retry_on_failure: 1

@@ -1,0 +1,101 @@
+skill:
+  name: "renderdoc-gpu-debug"
+  description: "GPU frame debugging with RenderDoc via MCP/rdc-cli. Use when user mentions RenderDoc, GPU debugging, frame capture analysis, draw call inspection, shader debugging, pixel history, render target, or describes rendering bugs. Also responds to 'GPU调试', '帧捕获', '图形调试', '渲染调试'."
+
+scenarios:
+  # === Trigger Tests (3) ===
+  - id: "trigger-en-renderdoc"
+    name: "English trigger - renderdoc keyword"
+    type: "trigger"
+    query: "Open frame.rdc and debug the shadow pass"
+    expected_behavior:
+      - "Skill activates on 'renderdoc' or '.rdc' mention"
+      - "Begins SETUP phase to check environment"
+      - "Asks about MCP server availability"
+
+  - id: "trigger-cn-gpu-debug"
+    name: "Chinese trigger - GPU调试"
+    type: "trigger"
+    query: "帮我用 RenderDoc 调试一下这个帧捕获"
+    expected_behavior:
+      - "Skill activates on Chinese GPU debugging keywords"
+      - "Responds in same language as user"
+      - "Begins environment check"
+
+  - id: "trigger-implicit-rendering-bug"
+    name: "Implicit trigger - rendering problem with GPU/frame mention"
+    type: "trigger"
+    query: "The sphere renders black, it should be red. Can you debug the GPU frame?"
+    expected_behavior:
+      - "Skill activates on rendering bug + GPU/frame mention"
+      - "Asks for .rdc file or offers to capture"
+
+  # === Execution Tests (2) ===
+  - id: "exec-standard-debug-flow"
+    name: "Standard debugging workflow"
+    type: "execution"
+    query: "Open frame.rdc and find why draw call 142 outputs black"
+    expected_behavior:
+      - "Opens capture via MCP tool or rdc-cli command"
+      - "Navigates to event 142"
+      - "Inspects pipeline state (shaders, blend, depth, rasterizer)"
+      - "Exports render target for visual inspection"
+      - "Reports diagnosis with root cause and fix suggestion"
+
+  - id: "exec-performance-analysis"
+    name: "Performance analysis workflow"
+    type: "execution"
+    query: "Analyze performance of this frame capture - are there any redundant draw calls?"
+    expected_behavior:
+      - "Opens capture"
+      - "Lists all draw calls and counts them"
+      - "Identifies redundant or wasteful draws"
+      - "Reports overdraw, resource sizes, optimization opportunities"
+      - "Provides actionable performance suggestions"
+
+  # === Edge Case Tests (2) ===
+  - id: "edge-no-renderdoc"
+    name: "RenderDoc not installed"
+    type: "edge"
+    query: "Debug my GPU frame with RenderDoc"
+    expected_behavior:
+      - "Detects missing RenderDoc installation or MCP server"
+      - "Provides installation instructions for RenderDoc"
+      - "Provides MCP server setup guide"
+      - "Links to renderdoc.org download page"
+
+  - id: "edge-no-rdc-file"
+    name: "No .rdc capture file provided"
+    type: "edge"
+    query: "Why is my rendering broken? Can you check with RenderDoc?"
+    expected_behavior:
+      - "Asks user for .rdc file path"
+      - "Offers guidance on how to capture a frame"
+      - "Explains RenderDoc capture workflow"
+
+  # === Negative Tests (2) ===
+  - id: "negative-cpu-profiling"
+    name: "CPU profiling request - should NOT trigger"
+    type: "negative"
+    query: "Profile my application's CPU usage and find bottlenecks"
+    expected_behavior:
+      - "Skill does NOT activate"
+      - "CPU profiling is not GPU/graphics debugging"
+
+  - id: "negative-html-rendering"
+    name: "HTML/CSS rendering - should NOT trigger"
+    type: "negative"
+    query: "Why is my HTML page rendering incorrectly in Chrome?"
+    expected_behavior:
+      - "Skill does NOT activate"
+      - "HTML/CSS rendering is not GPU frame debugging"
+
+validation:
+  frontmatter:
+    - rule: "name_format"
+      pattern: "^[a-z0-9-]+$"
+    - rule: "description_required"
+      max_length: 1024
+  content:
+    - rule: "max_lines"
+      limit: 500
